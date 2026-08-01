@@ -1,0 +1,104 @@
+@import "tailwindcss";
+
+:root {
+  --color-surface: #fcfbf8;
+  --color-surface-dim: #dcd7ed;
+  --color-surface-bright: #fcf8ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f6f1ff;
+  --color-surface-container: #f0ebff;
+  --color-surface-container-high: #ebe5fb;
+  --color-surface-container-highest: #e5e0f6;
+  --color-on-surface: #262434;
+  --color-on-surface-variant: #706d7b;
+  --color-outline: #7c7480;
+  --color-outline-variant: #cdc3d0;
+  --color-brand-primary: #603f83;
+  --color-brand-primary-strong: #48276a;
+  --color-on-primary: #ffffff;
+  --color-secondary: #526dab;
+  --color-secondary-soft: #7895d1;
+  --color-accent: #f4a978;
+  --color-soft-lavender: #f1edf7;
+  --color-powder-blue: #eaf1fa;
+  --color-apricot-wash: #fff0e6;
+  --color-neutral-container: #f1edf3;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.5rem;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2.5rem;
+  --space-2xl: 4rem;
+  --space-3xl: 6rem;
+
+  --container-max: 80rem;
+  --page-gutter: 1.5rem;
+  --page-gutter-mobile: 1.25rem;
+
+  --shadow-standard: 0 8px 24px rgb(38 36 52 / 0.06);
+  --shadow-hover: 0 12px 32px rgb(96 63 131 / 0.1);
+}
+
+@theme inline {
+  --font-sans: var(--font-kanit), sans-serif;
+  --font-english: var(--font-plus-jakarta), sans-serif;
+
+  --color-background: var(--color-surface);
+  --color-foreground: var(--color-on-surface);
+  --color-brand: var(--color-brand-primary);
+  --color-brand-secondary: var(--color-secondary);
+  --color-brand-accent: var(--color-accent);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--color-surface);
+  color: var(--color-on-surface);
+  font-family: var(--font-kanit), sans-serif;
+  line-height: 1.7;
+  text-rendering: optimizeLegibility;
+}
+
+:lang(en) {
+  font-family: var(--font-plus-jakarta), sans-serif;
+}
+
+::selection {
+  background: var(--color-accent);
+  color: var(--color-on-surface);
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-secondary) 55%, white);
+  outline-offset: 3px;
+}
+
+.container-page {
+  width: min(100% - (var(--page-gutter) * 2), var(--container-max));
+  margin-inline: auto;
+}
+
+@media (max-width: 640px) {
+  .container-page {
+    width: min(100% - (var(--page-gutter-mobile) * 2), var(--container-max));
+  }
+}

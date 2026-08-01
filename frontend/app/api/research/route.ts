@@ -1,0 +1,9 @@
+import { apiRequest } from "@/src/lib/api/client";
+import { getSessionToken } from "@/src/lib/api/session";
+import { toRouteResponse } from "@/src/lib/api/route-response";
+import type { ResearchWorkResponse } from "@/src/lib/api/types";
+
+const textFields=["title_th","title_en","category_id","abstract","department","work_type","academic_year","keywords"] as const;
+const COVER_LIMIT=5*1024*1024, PDF_LIMIT=25*1024*1024;
+function safeFile(file:File){const clean=file.name.replace(/[^a-zA-Z0-9._-]/g,"_").replace(/\.\.+/g,".");return new File([file],`${Date.now()}-${clean||"upload"}`,{type:file.type});}
+export async function POST(request:Request){const token=await getSessionToken();if(!token)return Response.json({error:{status:401,code:"unauthorized",message:"กรุณาเข้าสู่ระบบก่อนส่งผลงาน"}},{status:401});const incoming=await request.formData();const outgoing=new FormData();for(const field of textFields){const value=incoming.get(field);if(typeof value==="string"&&value!=="")outgoing.set(field,value);}outgoing.set("author_ids","[]");outgoing.set("advisor_ids","[]");const cover=incoming.get("cover_image");const document=incoming.get("document");if(cover instanceof File&&cover.size){if(cover.size>COVER_LIMIT||!cover.type.startsWith("image/"))return Response.json({error:{status:422,code:"validation",message:"ภาพหน้าปกต้องเป็นไฟล์ภาพขนาดไม่เกิน 5 MB"}},{status:422});outgoing.set("cover_image",safeFile(cover));}if(document instanceof File&&document.size){if(document.size>PDF_LIMIT||document.type!=="application/pdf")return Response.json({error:{status:422,code:"validation",message:"เอกสารต้องเป็น PDF ขนาดไม่เกิน 25 MB"}},{status:422});outgoing.set("document",safeFile(document));}return toRouteResponse(await apiRequest<ResearchWorkResponse>("/research/",{method:"POST",token,body:outgoing}));}

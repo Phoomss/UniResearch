@@ -1,65 +1,7 @@
-import Image from "next/image";
+import { SiteFooter, SiteHeader } from "@/src/components/shells";
+import { Button } from "@/src/components/ui";
+import { FolioCard } from "@/src/components/research";
+import { getCategories, getLatest, getPopular, getStats } from "@/src/features/research/api";
+import { adaptResearch } from "@/src/features/research/adapters";
 
-export default function Home() {
-  return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
-}
+export default async function Home(){const [stats,latest,popular,categories]=await Promise.all([getStats(),getLatest(3),getPopular(3),getCategories()]);const cats=categories.ok?categories.data:[];const works=latest.ok?latest.data.map(x=>adaptResearch(x,cats)):[];const popularWorks=popular.ok?popular.data.map(x=>adaptResearch(x,cats)):[];return <><SiteHeader/><main><section className="hero"><div className="container editorial-grid"><div className="hero-copy"><p className="eyebrow">[ University Research Repository ]</p><h1 className="display">ทุกงานวิจัย คือ<br/><span style={{color:"var(--mulberry)",borderBottom:"2px solid #b0c6ff"}}>จุดเริ่มต้นของคำถามถัดไป</span></h1><p style={{maxWidth:750,fontSize:22}}>สืบค้นผลงานวิจัยที่ผ่านการอนุมัติจากคลัง UniResearch</p><form className="hero-search" action="/research"><input name="q" aria-label="คำค้น" placeholder="ค้นหาชื่อภาษาไทย อังกฤษ หรือคำสำคัญ"/><Button type="submit">ค้นหา →</Button></form></div><div className="hero-folio"><div className="feature-card"><p className="eyebrow">Popular Research</p>{popularWorks[0]?<><h2 className="section-title">{popularWorks[0].titleTh}</h2><p className="latin muted">{popularWorks[0].titleEn}</p></>:<p className="muted">{popular.ok?"ยังไม่มีผลงานยอดนิยม":"ไม่สามารถโหลดผลงานยอดนิยมได้"}</p>}</div></div></div></section><section className="stats-strip"><div className="container stats">{stats.ok?<><div className="metric"><strong>{stats.data.total_research_works.toLocaleString()}</strong><span>ผลงานวิจัยทั้งหมด</span></div><div className="metric"><strong>{stats.data.total_users.toLocaleString()}</strong><span>ผู้ใช้งานทั้งหมด</span></div><div className="metric"><strong>{stats.data.total_views.toLocaleString()}</strong><span>ยอดเข้าชมทั้งหมด</span></div><div className="metric"><strong>{stats.data.total_downloads.toLocaleString()}</strong><span>ยอดดาวน์โหลดทั้งหมด</span></div></>:<div className="metric" style={{gridColumn:"1/-1"}}><strong>—</strong><span>{stats.error.message}</span></div>}</div></section><section className="container" style={{padding:"90px 0"}}><p className="eyebrow">[ Latest Research ]</p><h2 className="section-title">ผลงานล่าสุด</h2><div className="result-list">{works.length?works.map(x=><FolioCard key={x.id} item={x}/>):<div className="state"><p>{latest.ok?"ยังไม่มีผลงานที่เผยแพร่":latest.error.message}</p></div>}</div></section></main><SiteFooter/></>}
