@@ -59,7 +59,7 @@ backend/
    ```
 
 2. **เปิดหน้า API Documentation (Swagger UI)**:
-   เข้าไปที่: [http://localhost:8000/docs](http://localhost:8000/docs) เพื่อทดลองเรียกใช้งาน endpoint ต่างๆ
+   เข้าไปที่: [http://localhost:8000/swagger](http://localhost:8000/swagger) เพื่อทดลองเรียกใช้งาน endpoint ต่างๆ
 
 ---
 
@@ -87,7 +87,7 @@ cp .env.example .env
 ```bash
 uvicorn app.main:app --reload
 ```
-เมื่อรันเสร็จสิ้น สามารถเข้าสู่หน้าระบบเอกสาร API ที่: [http://localhost:8000/docs](http://localhost:8000/docs)
+เมื่อรันเสร็จสิ้น สามารถเข้าสู่หน้าระบบเอกสาร API ที่: [http://localhost:8000/swagger](http://localhost:8000/swagger) (หรือ [http://localhost:8000/docs](http://localhost:8000/docs) ซึ่งจะ Redirect ไปที่หน้า Swagger UI)
 
 ---
 
