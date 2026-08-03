@@ -1,6 +1,6 @@
 import { defineConfig } from "@playwright/test";
 
-const hasDisposableFixtures=Boolean(process.env.E2E_RESEARCH_ID||process.env.E2E_STUDENT_EMAIL||process.env.E2E_ADVISOR_EMAIL);
+const hasDisposableFixtures=Boolean(process.env.E2E_RESEARCH_ID||process.env.E2E_STUDENT_EMAIL||process.env.E2E_ADVISOR_EMAIL||process.env.E2E_ADMIN_EMAIL);
 
 export default defineConfig({
   testDir:"./e2e",

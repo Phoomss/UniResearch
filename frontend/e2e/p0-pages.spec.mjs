@@ -6,12 +6,12 @@ const studentPassword=process.env.E2E_STUDENT_PASSWORD;
 const advisorEmail=process.env.E2E_ADVISOR_EMAIL;
 const advisorPassword=process.env.E2E_ADVISOR_PASSWORD;
 
-async function login(page,email,password){await page.goto("/login");await page.getByLabel(/email/i).fill(email);await page.getByLabel(/password/i).fill(password);await page.getByRole("button",{name:/login|เข้าสู่ระบบ/i}).click();await page.waitForLoadState("networkidle");}
+async function login(page,email,password){await page.goto("/login");await page.locator('input[name="email"]').fill(email);await page.locator('input[name="password"]').fill(password);await page.locator('button[type="submit"]').click();await page.waitForURL(url=>url.pathname!=="/login");}
 
 test("guest research detail offers authentication and handles unknown IDs",async({page})=>{
   test.skip(!researchId,"E2E_RESEARCH_ID must identify seeded research in the disposable backend.");
-  await page.goto(`/research/${researchId}`);await expect(page.getByRole("heading",{level:1})).toBeVisible();await expect(page.getByRole("link",{name:/sign in to continue/i})).toBeVisible();
-  await page.goto("/research/999999999");await expect(page.getByText(/not found/i)).toBeVisible();
+  await page.goto(`/research/${researchId}`);await expect(page.getByRole("heading",{level:1})).toBeVisible();await expect(page.locator('a[href^="/login?next="]')).toBeVisible();
+  await page.goto("/research/999999999");await expect(page.locator('a[href="/research"]')).toBeVisible();
 });
 
 test("student submits the verified one-shot research form",async({page})=>{

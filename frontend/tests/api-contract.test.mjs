@@ -48,3 +48,12 @@ test("P0 route boundaries cover loading, failure, empty, and not-found surfaces"
   for(const path of ["app/research/[id]/loading.tsx","app/research/[id]/error.tsx","app/advisor/reviews/[id]/loading.tsx","app/advisor/reviews/[id]/error.tsx","app/advisor/reviews/[id]/not-found.tsx","app/student/research/new/loading.tsx","app/student/research/new/error.tsx"]) assert.match(source(path),/export default/);
   assert.match(source("app/student/research/new/page.tsx"),/categories\.data\.length===0/);
 });
+
+test("P0 forms expose programmatic labels and handlers reject non-positive IDs",()=>{
+  const ui=source("src/components/ui.tsx");
+  assert.match(ui,/htmlFor=\{controlId\}/);
+  for(const path of ["app/api/research/[id]/download/route.ts","app/api/research/[id]/favorite/route.ts","app/api/research/[id]/review/route.ts"]){
+    assert.match(source(path),/id<1/);
+  }
+  assert.match(source("app/api/research/[id]/review/route.ts"),/comment_text\.trim\(\)/);
+});
