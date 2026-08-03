@@ -27,3 +27,24 @@ test("unsupported API paths are not invented",()=>{
   const files=["src/features/research/api.ts","app/api/auth/login/route.ts","app/api/auth/register/route.ts"].map(source).join("\n");
   assert.doesNotMatch(files,/\/auth\/(refresh|google|logout|me)|\/users|\/revisions|\/notifications/);
 });
+
+test("P0 pages use only verified backend-facing modules and preserve authorization states",()=>{
+  const reviewPage=source("app/advisor/reviews/[id]/page.tsx");
+  const detailPage=source("app/research/[id]/page.tsx");
+  const submissionPage=source("app/student/research/new/page.tsx");
+  const reviewForm=source("src/features/review/review-form.tsx");
+  const submissionForm=source("src/features/research/submission-form.tsx");
+  assert.match(reviewPage,/getResearch\(id\)/);
+  assert.match(reviewForm,/\/api\/research\/\$\{researchId\}\/review/);
+  assert.match(reviewForm,/response\.status===403/);
+  assert.match(detailPage,/ResearchActions/);
+  assert.match(submissionPage,/getCategories\(\)/);
+  assert.match(submissionForm,/response\.status===401/);
+  assert.match(submissionForm,/response\.status===403/);
+  assert.doesNotMatch([reviewPage,detailPage,submissionPage].join("\n"),/fetch\(|axios/);
+});
+
+test("P0 route boundaries cover loading, failure, empty, and not-found surfaces",()=>{
+  for(const path of ["app/research/[id]/loading.tsx","app/research/[id]/error.tsx","app/advisor/reviews/[id]/loading.tsx","app/advisor/reviews/[id]/error.tsx","app/advisor/reviews/[id]/not-found.tsx","app/student/research/new/loading.tsx","app/student/research/new/error.tsx"]) assert.match(source(path),/export default/);
+  assert.match(source("app/student/research/new/page.tsx"),/categories\.data\.length===0/);
+});

@@ -3,12 +3,14 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
-const routes = ["../app/page.tsx","../app/login/page.tsx","../app/register/page.tsx","../app/research/page.tsx","../app/research/[id]/page.tsx","../app/dashboard/student/page.tsx","../app/dashboard/student/submit/page.tsx","../app/dashboard/reviewer/page.tsx","../app/dashboard/admin/page.tsx"];
+const routes = ["../app/page.tsx","../app/login/page.tsx","../app/register/page.tsx","../app/research/page.tsx","../app/research/[id]/page.tsx","../app/student/research/new/page.tsx","../app/advisor/reviews/[id]/page.tsx","../app/dashboard/student/page.tsx","../app/dashboard/student/submit/page.tsx","../app/dashboard/reviewer/page.tsx","../app/dashboard/admin/page.tsx"];
 
 test("Mulberry Library tokens and responsive rail are defined", () => {
   for (const token of ["--paper", "--mulberry", "--periwinkle", "--rail"]) assert.match(css, new RegExp(token));
   assert.match(css, /@media \(max-width:900px\)/);
   assert.match(css, /\.rail \{/);
+  assert.match(css, /\.review-workspace/);
+  assert.match(css, /\.status-message\.forbidden/);
 });
 
 test("all Phase 2 routes are present and have default exports", () => {
