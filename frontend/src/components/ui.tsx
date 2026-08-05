@@ -11,7 +11,8 @@ export function Field({label,required,hint,children}:{label:string;required?:boo
   const controlId=control?.props.id??control?.props.name;
   const hintId=hint&&controlId?`${controlId}-hint`:undefined;
   const describedBy=[control?.props["aria-describedby"],hintId].filter(Boolean).join(" ")||undefined;
-  const describedControl=control&&describedBy?cloneElement(control,{"aria-describedby":describedBy}):children;
+  const describedControl=control&&controlId?cloneElement(control,{id:controlId,...(describedBy?{"aria-describedby":describedBy}:{})}):children;
+  if(!controlId)return <div className="field"><label>{label}{required&&<span className="required-mark" aria-hidden="true"> *</span>}{children}</label>{hint&&<small className="field-hint">{hint}</small>}</div>;
   return <div className="field"><label htmlFor={controlId}>{label}{required&&<span className="required-mark" aria-hidden="true"> *</span>}</label>{describedControl}{hint&&<small id={hintId} className="field-hint">{hint}</small>}</div>;
 }
 export function Input({className="",...props}:InputHTMLAttributes<HTMLInputElement>){return <input className={`input ${className}`} {...props}/>}

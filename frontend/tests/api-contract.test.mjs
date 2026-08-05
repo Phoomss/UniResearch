@@ -14,6 +14,24 @@ test("multipart proxy preserves exact backend field names",()=>{
   const route=source("app/api/research/route.ts");
   for(const field of ["title_th","title_en","category_id","abstract","department","work_type","academic_year","keywords","author_ids","advisor_ids","cover_image","document"]) assert.match(route,new RegExp(`\\b${field}\\b`));
   assert.doesNotMatch(route,/multipart\/form-data/);
+  assert.doesNotMatch(route,/COVER_LIMIT|PDF_LIMIT|5\*1024|25\*1024/);
+});
+
+test("submission workflow exposes contract-accurate steps and accessibility safeguards",()=>{
+  const form=source("src/features/research/submission-form.tsx");
+  for(const label of ["ข้อมูลงานวิจัย","ผู้จัดทำและอาจารย์","บทคัดย่อ","ไฟล์","ตรวจสอบ"]) assert.match(form,new RegExp(label));
+  assert.match(form,/beforeunload/);assert.match(form,/if\(pending\)return/);assert.match(form,/role="button"/);
+  assert.match(form,/event\.key==="Enter"\|\|event\.key===" "/);assert.match(form,/response\.status===413/);
+  assert.match(form,/author_ids/);assert.match(form,/advisor_ids/);
+  assert.doesNotMatch(form,/localStorage|sessionStorage|draft saved/);
+  assert.match(form,/JSON\.stringify\(authors/);assert.match(form,/advisor_ids/);
+  assert.match(form,/image\/jpeg/);assert.match(form,/application\/pdf/);
+});
+
+test("runtime configuration and participant lookup use the shared authenticated API client",()=>{
+  assert.match(source("src/lib/api/client.ts"),/BACKEND_API_URL \?\? process\.env\.BACKEND_URL/);
+  assert.match(source("src/features/research/api.ts"),/\/research\/participants/);
+  assert.match(source("app/student/research/new/page.tsx"),/getResearchParticipants\(\)/);
 });
 
 test("session is HttpOnly and no browser storage contains JWT",()=>{

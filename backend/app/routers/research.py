@@ -3,11 +3,18 @@ from fastapi import APIRouter, Depends, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.models.user import User
-from app.schemas.research import ResearchWorkResponse, ReviewCommentCreate, ReviewCommentResponse
+from app.schemas.research import ResearchParticipantsResponse, ResearchWorkResponse, ReviewCommentCreate, ReviewCommentResponse
 from app.routers.deps import get_current_active_user, require_role
 from app.services import research_service
 
 router = APIRouter(prefix="/research", tags=["research"])
+
+@router.get("/participants", response_model=ResearchParticipantsResponse)
+async def get_research_participants(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["admin", "student"]))
+):
+    return await research_service.get_research_participants(db, current_user)
 
 @router.post("/", response_model=ResearchWorkResponse)
 async def create_research(

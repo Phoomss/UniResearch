@@ -19,6 +19,8 @@ export interface ResearchWorkResponse {
   cover_image_path:string|null; file_path:string|null; status:string; view_count:number;
   download_count:number; published_at:string|null; created_at:string; updated_at:string; submitted_by_id:number;
 }
+export interface ResearchParticipant { id:number;email:string;role:"student"|"advisor";first_name:string|null;last_name:string|null;student_id:string|null;department:string|null;is_current:boolean; }
+export interface ResearchParticipantsResponse { authors:ResearchParticipant[];advisors:ResearchParticipant[]; }
 export interface ReviewCommentCreate { comment_text:string; status_result:string; }
 export interface ReviewCommentResponse extends ReviewCommentCreate { id:number; research_id:number; reviewer_id:number; created_at:string; }
 export interface FavoriteResponse { id:number; user_id:number; research_id:number; saved_at:string; }
@@ -29,4 +31,4 @@ export interface ValidationIssue { loc:Array<string|number>; msg:string; type:st
 export interface BackendErrorBody { detail?:string|ValidationIssue[]; }
 
 export type ApiResult<T> = { ok:true; data:T } | { ok:false; error:NormalizedApiError };
-export interface NormalizedApiError { status:number; code:"bad_request"|"unauthorized"|"forbidden"|"not_found"|"conflict"|"validation"|"server"|"network"|"unknown"; message:string; issues?:ValidationIssue[]; }
+export interface NormalizedApiError { status:number; code:"bad_request"|"unauthorized"|"forbidden"|"not_found"|"conflict"|"too_large"|"unsupported_media"|"validation"|"server"|"network"|"unknown"; message:string; issues?:ValidationIssue[]; }

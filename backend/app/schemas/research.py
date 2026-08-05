@@ -16,6 +16,20 @@ class ResearchWorkCreate(ResearchWorkBase):
     author_ids: List[int]
     advisor_ids: List[int]
 
+class ResearchParticipantResponse(BaseModel):
+    id: int
+    email: str
+    role: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    student_id: Optional[str] = None
+    department: Optional[str] = None
+    is_current: bool = False
+
+class ResearchParticipantsResponse(BaseModel):
+    authors: List[ResearchParticipantResponse]
+    advisors: List[ResearchParticipantResponse]
+
 class ResearchWorkResponse(ResearchWorkBase):
     id: int
     cover_image_path: Optional[str]

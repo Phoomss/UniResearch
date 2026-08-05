@@ -6,11 +6,13 @@ const thaiByStatus:Record<number,string> = {
   403:"บัญชีนี้ไม่มีสิทธิ์ดำเนินการ",
   404:"ไม่พบข้อมูลที่ต้องการ",
   409:"ข้อมูลนี้มีอยู่แล้วหรือเกิดความขัดแย้ง",
+  413:"ไฟล์มีขนาดใหญ่เกินกว่าที่ระบบรองรับ",
+  415:"ชนิดไฟล์ไม่รองรับ กรุณาเลือกไฟล์ตามรูปแบบที่กำหนด",
   422:"กรุณาตรวจสอบข้อมูลที่กรอก",
   500:"ระบบหลังบ้านเกิดข้อผิดพลาด กรุณาลองใหม่ภายหลัง",
 };
 
-const codeByStatus:Record<number,NormalizedApiError["code"]> = {400:"bad_request",401:"unauthorized",403:"forbidden",404:"not_found",409:"conflict",422:"validation",500:"server"};
+const codeByStatus:Record<number,NormalizedApiError["code"]> = {400:"bad_request",401:"unauthorized",403:"forbidden",404:"not_found",409:"conflict",413:"too_large",415:"unsupported_media",422:"validation",500:"server"};
 
 export function normalizeApiError(status:number, body:unknown):NormalizedApiError {
   const value = body && typeof body === "object" ? body as BackendErrorBody : {};
