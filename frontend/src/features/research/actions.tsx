@@ -3,27 +3,28 @@
 import { useState } from "react";
 import { Button, ButtonLink } from "@/src/components/ui";
 
-type ActionState={kind:"success"|"error"|"forbidden";message:string}|null;
+type ActionState = { kind: "success" | "error" | "forbidden"; message: string } | null;
 
-export function ResearchActions({researchId,hasDocument,authenticated}:{researchId:number;hasDocument:boolean;authenticated:boolean}){
-  const [favorite,setFavorite]=useState<ActionState>(null);
-  const [download,setDownload]=useState<ActionState>(null);
-  const [pending,setPending]=useState<"favorite"|"download"|null>(null);
-  const loginHref=`/login?next=${encodeURIComponent(`/research/${researchId}`)}`;
+export function ResearchActions({ researchId, hasDocument, authenticated }: { researchId: number; hasDocument: boolean; authenticated: boolean }) {
+  const [favorite, setFavorite] = useState<ActionState>(null);
+  const [download, setDownload] = useState<ActionState>(null);
+  const [pending, setPending] = useState<"favorite" | "download" | null>(null);
+  const loginHref = `/login?next=${encodeURIComponent(`/research/${researchId}`)}`;
 
-  if(!authenticated)return <section className="auth-action-panel" aria-label="Authenticated research actions"><p>Sign in to save or download this research.</p><ButtonLink href={loginHref}>Sign in to continue</ButtonLink></section>;
+  if (!authenticated) return <section className="auth-action-panel" aria-label="Authenticated research actions"><p>Sign in to save or download this research.</p><ButtonLink href={loginHref}>Sign in to continue</ButtonLink></section>;
 
-  async function toggleFavorite(){
-    setPending("favorite");setFavorite(null);
-    try{
-      const response=await fetch(`/api/research/${researchId}/favorite`,{method:"POST"});
-      const body=await response.json().catch(()=>({}));
-      if(response.status===401){window.location.assign(loginHref);return;}
-      if(response.status===403){setFavorite({kind:"forbidden",message:"Your account is not permitted to save this research."});return;}
-      if(!response.ok){setFavorite({kind:"error",message:body.error?.message??"The saved state could not be changed."});return;}
-      setFavorite({kind:"success",message:body.detail?"Removed from saved research.":"Saved to your research list."});
-    }catch{setFavorite({kind:"error",message:"The save service is unavailable."});}
-    finally{setPending(null);}
+  async function toggleFavorite() {
+    setPending("favorite");
+    setFavorite(null);
+    try {
+      const response = await fetch(`/api/research/${researchId}/favorite`, { method: "POST" });
+      const body = await response.json().catch(() => ({}));
+      if (response.status === 401) { window.location.assign(loginHref); return; }
+      if (response.status === 403) { setFavorite({ kind: "forbidden", message: "Your account is not permitted to save this research." }); return; }
+      if (!response.ok) { setFavorite({ kind: "error", message: body.error?.message ?? "The saved state could not be changed." }); return; }
+      setFavorite({ kind: "success", message: body.detail ? "Removed from saved research." : "Saved to your research list." });
+    } catch { setFavorite({ kind: "error", message: "The save service is unavailable." }); }
+    finally { setPending(null); }
   }
 
   async function downloadFile(){
