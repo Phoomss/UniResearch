@@ -28,44 +28,71 @@ export function ReviewForm({ researchId }: { researchId: number }) {
     const comment = String(data.get("comment_text") ?? "").trim();
     if (!comment) {
       dialogRef.current?.close();
-      setStatus({kind:"error",message:"Please enter a review comment."});
+      setStatus({ kind: "error", message: "กรุณากรอกความคิดเห็นประกอบการประเมิน" });
       return;
     }
     setPending(true);
     dialogRef.current?.close();
     try {
       const response = await fetch(`/api/research/${researchId}/review`, {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({comment_text:comment,status_result:decision}),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ comment_text: comment, status_result: decision }),
       });
       const body = await response.json().catch(() => ({}));
-      if (response.status === 401) { window.location.assign(`/login?next=${encodeURIComponent(`/advisor/reviews/${researchId}`)}`); return; }
-      if (response.status===403) { setStatus({ kind: "forbidden", message: "Your account is authenticated but is not permitted to review research." }); return; }
-      if (!response.ok) { setStatus({ kind: "error", message: body.error?.message ?? "The review could not be saved. Please try again." }); return; }
-      setStatus({ kind: "success", message: `Review #${body.id} was saved with status “${body.status_result}”.` });
+      if (response.status === 401) { 
+        window.location.assign(`/login?next=${encodeURIComponent(`/advisor/reviews/${researchId}`)}`); 
+        return; 
+      }
+      if (response.status === 403) { 
+        setStatus({ kind: "forbidden", message: "บัญชีของคุณไม่มีสิทธิ์ในการตรวจประเมินผลงานวิจัยนี้" }); 
+        return; 
+      }
+      if (!response.ok) { 
+        setStatus({ kind: "error", message: body.error?.message ?? "ไม่สามารถบันทึกผลการประเมินได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง" }); 
+        return; 
+      }
+      
+      const statusTh = body.status_result === "approved" ? "อนุมัติ" : body.status_result === "rejected" ? "ไม่อนุมัติ" : "ส่งกลับแก้ไข";
+      setStatus({ kind: "success", message: `บันทึกผลการประเมินผลงานสำเร็จ (รหัสอ้างอิงการประเมิน: #${body.id}, สถานะใหม่: ${statusTh})` });
       form.reset();
     } catch {
-      setStatus({ kind: "error", message: "The review service is unavailable. Your comment remains in this page until you leave." });
-    } finally { setPending(false); }
+      setStatus({ kind: "error", message: "ไม่สามารถเชื่อมต่อระบบประเมินได้ในขณะนี้ ความคิดเห็นของคุณจะยังคงอยู่ในหน้านี้จนกว่าคุณจะปิดหรือออกจากหน้านี้" });
+    } finally { 
+      setPending(false); 
+    }
   }
+
 
   return (
     <>
-    <form ref={formRef} className="panel review-form" onSubmit={requestConfirmation} aria-describedby="review-contract-note">
-      <p className="eyebrow">[ Verified review action ]</p>
-      <h2 className="section-title">Record a decision</h2>
-      <Field label="Decision" required><Select name="status_result" required defaultValue="approved"><option value="approved">Approve</option><option value="rejected">Reject</option><option value="needs_revision">Request revision (ส่งกลับแก้ไข)</option></Select></Field>
-      <Field label="Reviewer comment" required><Textarea name="comment_text" required minLength={1} disabled={pending} /></Field>
-      <p id="review-contract-note" className="muted">Scoring, queue assignment, and review history are not supported by the backend.</p>
-      {status && <div className={`status-message ${status.kind}`} role={status.kind === "success" ? "status" : "alert"}>{status.message}</div>}
-      <Button type="submit" disabled={pending}>{pending ? "Saving review…" : "Review decision"}</Button>
-    </form>
-    <dialog ref={dialogRef} className="confirm-dialog" aria-labelledby="confirm-review-title">
-      <h2 id="confirm-review-title" className="section-title">Confirm {decision === "approved" ? "approval" : decision === "rejected" ? "rejection" : "revision request"}</h2>
-      <p>This immediately changes the backend research status to <strong>{decision}</strong>.</p>
-      <div className="dialog-actions"><Button type="button" variant="ghost" onClick={() => dialogRef.current?.close()}>Cancel</Button><Button type="button" onClick={confirm}>Confirm decision</Button></div>
-    </dialog>
+      <form ref={formRef} className="panel review-form" onSubmit={requestConfirmation} aria-describedby="review-contract-note">
+        <p className="eyebrow">[ ดำเนินการตรวจประเมินผลงานวิจัย ]</p>
+        <h2 className="section-title">บันทึกผลการตรวจประเมิน</h2>
+        <Field label="ผลการประเมิน" required>
+          <Select name="status_result" required defaultValue="approved">
+            <option value="approved">อนุมัติ (Approve)</option>
+            <option value="rejected">ไม่อนุมัติ (Reject)</option>
+            <option value="needs_revision">ส่งกลับแก้ไข (Request revision)</option>
+          </Select>
+        </Field>
+        <Field label="ความคิดเห็นของผู้ประเมิน" required>
+          <Textarea name="comment_text" required minLength={1} disabled={pending} />
+        </Field>
+        <p id="review-contract-note" className="muted">หมายเหตุ: คะแนน การมอบหมายคิว และประวัติการประเมินย้อนหลัง ยังไม่เปิดใช้งานในระบบหลังบ้าน</p>
+        {status && <p className={`status-message ${status.kind}`} role={status.kind === "success" ? "status" : "alert"}>{status.message}</p>}
+        <Button type="submit" disabled={pending}>{pending ? "กำลังบันทึกผลการประเมิน…" : "ยืนยันผลการประเมิน"}</Button>
+      </form>
+      <dialog ref={dialogRef} className="confirm-dialog" aria-labelledby="confirm-review-title">
+        <h2 id="confirm-review-title" className="section-title">
+          ยืนยัน{decision === "approved" ? "การอนุมัติผลงาน" : decision === "rejected" ? "การไม่อนุมัติผลงาน" : "การส่งกลับแก้ไขผลงาน"}
+        </h2>
+        <p>การดำเนินการนี้จะเปลี่ยนสถานะของผลงานวิจัยในระบบเป็น <strong>{decision}</strong> ทันที</p>
+        <div className="dialog-actions">
+          <Button type="button" variant="ghost" onClick={() => dialogRef.current?.close()}>ยกเลิก</Button>
+          <Button type="button" onClick={confirm}>ยืนยัน</Button>
+        </div>
+      </dialog>
     </>
   );
 }

@@ -14,8 +14,8 @@ export default async function ReviewerDashboard() {
   return (
     <DashboardShell active="02">
       <main className="dash-main">
-        <p className="eyebrow">[ Advisor / administrator ]</p>
-        <h1 className="title">Review workspace</h1>
+        <p className="eyebrow">[ พื้นที่ทำงานสำหรับอาจารย์ที่ปรึกษา / ผู้ดูแลระบบ ]</p>
+        <h1 className="title">พื้นที่ทำงานตรวจประเมิน</h1>
         <div className="dashboard-grid" style={{ display: "grid", gridTemplateColumns: "1fr", gap: "24px" }}>
           <KnownResearchIdForm />
           
