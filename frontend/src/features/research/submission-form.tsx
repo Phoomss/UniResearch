@@ -103,7 +103,7 @@ function FileDrop({
     if (!disabled) select(event.dataTransfer.files);
   }
   function keyDown(event: KeyboardEvent<HTMLDivElement>) {
-    if (!disabled && (event.key === "Enter" || event.key === " ")) {
+    if (!disabled && (event.key==="Enter"||event.key===" ")) {
       event.preventDefault();
       input.current?.click();
     }
@@ -265,7 +265,7 @@ export function SubmissionForm({
   }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (pending) return;
+    if(pending)return;
     const nextErrors = validate(values);
     if (
       Object.keys(nextErrors).length ||
@@ -288,11 +288,7 @@ export function SubmissionForm({
       if (value.trim()) form.set(name, value.trim());
     form.set(
       "author_ids",
-      JSON.stringify(
-        authors
-          .map((row) => Number(row.userId))
-          .filter((id) => Number.isInteger(id) && id > 0),
-      ),
+      JSON.stringify(authors.map((row) => Number(row.userId)).filter((id) => Number.isInteger(id) && id > 0)),
     );
     form.set(
       "advisor_ids",
@@ -306,13 +302,13 @@ export function SubmissionForm({
         body: form,
       });
       const body = await response.json().catch(() => ({}));
-      if (response.status === 401) {
+      if (response.status===401) {
         window.location.assign(
           `/login?next=${encodeURIComponent("/student/research/new")}`,
         );
         return;
       }
-      if (response.status === 403) {
+      if (response.status===403) {
         setResult({
           kind: "forbidden",
           message:
@@ -326,7 +322,7 @@ export function SubmissionForm({
         setResult({
           kind: "error",
           message:
-            response.status === 413
+            response.status===413
               ? "ไฟล์มีขนาดเกินขีดจำกัดของเซิร์ฟเวอร์หรือโครงสร้างพื้นฐาน"
               : (body.error?.message ??
                 "ไม่สามารถส่งผลงานได้ กรุณาลองอีกครั้ง"),

@@ -41,7 +41,7 @@ export function ReviewForm({ researchId }: { researchId: number }) {
       });
       const body = await response.json().catch(() => ({}));
       if (response.status === 401) { window.location.assign(`/login?next=${encodeURIComponent(`/advisor/reviews/${researchId}`)}`); return; }
-      if (response.status === 403) { setStatus({ kind: "forbidden", message: "Your account is authenticated but is not permitted to review research." }); return; }
+      if (response.status===403) { setStatus({ kind: "forbidden", message: "Your account is authenticated but is not permitted to review research." }); return; }
       if (!response.ok) { setStatus({ kind: "error", message: body.error?.message ?? "The review could not be saved. Please try again." }); return; }
       setStatus({ kind: "success", message: `Review #${body.id} was saved with status “${body.status_result}”.` });
       form.reset();

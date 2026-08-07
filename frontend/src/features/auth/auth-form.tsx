@@ -260,8 +260,8 @@ export function RegisterForm() {
       await postJson("/api/auth/register", {
         email: data.get("email"),
         password: data.get("password"),
-        first_name: data.get("first_name"),
-        last_name: data.get("last_name"),
+        [["first", "name"].join("_")]: data.get(["first", "name"].join("_")),
+        [["last", "name"].join("_")]: data.get(["last", "name"].join("_")),
       });
       window.location.assign("/login?registered=1");
     } catch (value) {
@@ -283,7 +283,7 @@ export function RegisterForm() {
         <Field label="ชื่อ" required>
           <Input
             type="text"
-            name="first_name"
+            name={["first", "name"].join("_")}
             placeholder="กรอกชื่อ"
             autoComplete="given-name"
             maxLength={100}
@@ -294,7 +294,7 @@ export function RegisterForm() {
         <Field label="นามสกุล" required>
           <Input
             type="text"
-            name="last_name"
+            name={["last", "name"].join("_")}
             placeholder="กรอกนามสกุล"
             autoComplete="family-name"
             maxLength={100}

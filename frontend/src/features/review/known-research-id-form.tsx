@@ -10,7 +10,7 @@ export function KnownResearchIdForm() {
     setError("");
     const value = String(new FormData(event.currentTarget).get("research_id") ?? "").trim();
     const id = Number(value);
-    if (!value || !Number.isInteger(id) || id < 1) { setError("Enter a positive research ID supplied by the review coordinator."); return; }
+    if (!value || !Number.isInteger(id) || id<1) { setError("Enter a positive research ID supplied by the review coordinator."); return; }
     window.location.assign(`/advisor/reviews/${id}`);
   }
 

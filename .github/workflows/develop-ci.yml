@@ -1,0 +1,136 @@
+name: Develop CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  backend-test:
+    name: Backend Lint and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev build-essential
+
+      - name: Install Python Dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-asyncio anyio httpx aiosqlite
+
+      - name: Run Backend Tests
+        run: |
+          cd backend
+          PYTHONPATH=. pytest tests/ -v
+
+  frontend-test-build:
+    name: Frontend Lint, Test, and Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          pnpm install --frozen-lockfile
+
+      - name: Run Type Checking
+        run: |
+          cd frontend
+          pnpm typecheck
+
+      - name: Run Linter
+        run: |
+          cd frontend
+          pnpm lint
+
+      - name: Run Frontend Tests
+        run: |
+          cd frontend
+          pnpm test
+
+      - name: Run Frontend Build
+        run: |
+          cd frontend
+          pnpm build
+
+  discord-notification:
+    name: Discord Status Notification
+    needs: [backend-test, frontend-test-build]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send Status to Discord
+        run: |
+          STATUS="SUCCESS"
+          COLOR=3066993
+          if [ "${{ needs.backend-test.result }}" != "success" ] || [ "${{ needs.frontend-test-build.result }}" != "success" ]; then
+            STATUS="FAILED"
+            COLOR=15158332
+          fi
+          
+          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          
+          curl -H "Content-Type: application/json" \
+               -X POST \
+               -d "{
+                 \"embeds\": [{
+                   \"title\": \"CI/CD Build Alert: $STATUS\",
+                   \"description\": \"Develop branch deployment pipeline has finished running.\",
+                   \"color\": $COLOR,
+                   \"fields\": [
+                     {
+                       \"name\": \"Repository\",
+                       \"value\": \"${{ github.repository }}\",
+                       \"inline\": true
+                     },
+                     {
+                       \"name\": \"Commit Hash\",
+                       \"value\": \"\`${{ github.sha }}\`\",
+                       \"inline\": true
+                     },
+                     {
+                       \"name\": \"Author\",
+                       \"value\": \"${{ github.actor }}\",
+                       \"inline\": true
+                     },
+                     {
+                       \"name\": \"Backend Job\",
+                       \"value\": \"${{ needs.backend-test.result }}\",
+                       \"inline\": true
+                     },
+                     {
+                       \"name\": \"Frontend Job\",
+                       \"value\": \"${{ needs.frontend-test-build.result }}\",
+                       \"inline\": true
+                     }
+                   ],
+                   \"timestamp\": \"$TIMESTAMP\"
+                 }]
+               }" \
+               "${{ secrets.DISCORD_WEBHOOK }}"
+

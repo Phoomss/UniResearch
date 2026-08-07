@@ -1,0 +1,31 @@
+RBAC Matrix - ระบบ UniResearch (Role-Based Access Control),,,,,,
+,,,,,,
+โมดูล (Module),ฟังก์ชัน / สิทธิ์ (Permission),"Guest
+(ผู้เข้าชมทั่วไป)","Student
+(นักศึกษา/นักวิจัย)","Advisor
+(อาจารย์/ผู้ตรวจสอบ)","Admin
+(ผู้ดูแลระบบ)",หมายเหตุ
+Authentication,สมัครสมาชิก / เข้าสู่ระบบ,✔,✔,✔,✔,guest ใช้ได้เพื่อสมัครเป็น student
+Authentication,ออกจากระบบ / รีเฟรช token,✘,✔,✔,✔,
+User Profile,ดู/แก้ไขโปรไฟล์ของตนเอง,✘,✔,✔,✔,
+User Management,ดูรายชื่อผู้ใช้งานทั้งหมด,✘,✘,✘,✔,
+User Management,เพิ่ม/แก้ไข/ลบผู้ใช้งาน และเปลี่ยน role,✘,✘,✘,✔,
+Research Submission,สร้างผลงานวิจัยใหม่ (สถานะ draft),✘,✔,✔,✔,
+Research Submission,แก้ไขผลงานของตนเอง (draft/needs_revision),✘,✔ (เฉพาะของตนเอง),✔ (เฉพาะของตนเอง),✔,admin แก้ไขได้ทุกผลงาน
+Research Submission,แก้ไขผลงานของผู้อื่น,✘,✘,✘,✔,
+Research Submission,ลบผลงาน,✘,✘,✘,✔,student ลบได้เฉพาะฉบับร่างของตนเอง (option)
+Research Submission,อัปโหลดไฟล์ PDF / รูปปก,✘,✔ (เฉพาะของตนเอง),✔ (เฉพาะของตนเอง),✔,
+Research Submission,อัปโหลดไฟล์ฉบับแก้ไข (revision),✘,✔ (เฉพาะของตนเอง),✔ (เฉพาะของตนเอง),✔,
+Search & Browse,ค้นหาและกรองผลงาน (เฉพาะ published),✔,✔,✔,✔,
+Search & Browse,ค้นหาผลงานทุกสถานะ (draft/pending ฯลฯ),✘,✔ (เฉพาะของตนเอง),✔,✔,student เห็นเฉพาะของตนเอง
+Research Detail,ดูรายละเอียดผลงานที่เผยแพร่แล้ว,✔,✔,✔,✔,
+Download,ดาวน์โหลดเอกสารที่เผยแพร่แล้ว,✔,✔,✔,✔,
+Review & Approval,ดูรายการผลงานที่รอตรวจสอบ (pending_review),✘,✘,✔,✔,
+Review & Approval,อนุมัติ / ไม่อนุมัติ / ส่งกลับแก้ไข พร้อม comment,✘,✘,✔,✔,
+Review & Approval,เผยแพร่ผลงาน (publish),✘,✘,✔,✔,
+Category,ดูรายการหมวดหมู่,✔,✔,✔,✔,
+Category,เพิ่ม/แก้ไข/ลบหมวดหมู่,✘,✘,✘,✔,
+Favorites,เพิ่ม/ลบ/ดูรายการโปรดของตนเอง,✘,✔,✔,✔,
+Homepage,ดูผลงานล่าสุด/ยอดนิยม/แนะนำ,✔,✔,✔,✔,
+Statistics / Dashboard,ดูสถิติภาพรวมระบบและ Dashboard,✘,✘,✘,✔,
+Statistics / Dashboard,ดูสถิติเฉพาะผลงานของตนเอง,✘,✔ (เฉพาะของตนเอง),✔ (เฉพาะของตนเอง),✔,advisor ดูของนักศึกษาที่ตนดูแล
