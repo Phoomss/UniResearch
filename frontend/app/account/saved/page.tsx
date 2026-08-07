@@ -15,13 +15,13 @@ export default async function SavedResearchPage() {
   return (
     <DashboardShell>
       <main className="dash-main">
-        <p className="eyebrow">[ Personal archive ]</p>
-        <h1 className="title">Saved research</h1>
-        <p className="muted">Favorites are available to every active account. The backend returns research IDs and saved dates only, so this index does not invent titles or metadata.</p>
+        <p className="eyebrow">[ คลังผลงานส่วนตัว ]</p>
+        <h1 className="title">ผลงานวิจัยที่บันทึกไว้</h1>
+        <p className="muted">รายการโปรดสามารถใช้งานได้สำหรับทุกบัญชีผู้ใช้งานที่เปิดใช้งาน ระบบหลังบ้านจะส่งคืนเฉพาะไอดีผลงานวิจัยและวันที่บันทึกเท่านั้น ดัชนีนี้จึงไม่ได้สร้างชื่อเรื่องหรือข้อมูลเมทาดาตาขึ้นมาเอง</p>
         {!favorites.ok ? (
-          <StatePanel kind="error" title="Saved research unavailable" detail={`${favorites.error.message} [${favorites.error.code}]`} />
+          <StatePanel kind="error" title="ไม่สามารถแสดงผลงานวิจัยที่บันทึกไว้ได้" detail={`${favorites.error.message} [${favorites.error.code}]`} />
         ) : favorites.data.length === 0 ? (
-          <StatePanel kind="empty" title="No saved research" detail="Open a research folio and use Save research to add it to this index." />
+          <StatePanel kind="empty" title="ไม่มีผลงานวิจัยที่บันทึกไว้" detail="เปิดดูหน้ารายละเอียดผลงานวิจัยแล้วเลือก 'บันทึกผลงาน' เพื่อเพิ่มลงในรายการนี้" />
         ) : (
           <SavedResearchList items={favorites.data} />
         )}

@@ -6,8 +6,8 @@ export function SavedResearchList({ items }: { items: FavoriteResponse[] }) {
     <div className="saved-list">
       {items.map(item => (
         <article className="saved-row" key={item.id}>
-          <div><span className="eyebrow">[ SAVED RESEARCH ]</span><h2><Link prefetch={false} href={`/research/${item.research_id}`}>Research #{item.research_id}</Link></h2></div>
-          <div className="saved-meta"><span className="mono">ID {item.research_id}</span><span>Saved {new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" }).format(new Date(item.saved_at))}</span></div>
+          <div><span className="eyebrow">[ ผลงานวิจัยที่บันทึกไว้ ]</span><h2><Link prefetch={false} href={`/research/${item.research_id}`}>ผลงานวิจัย #{item.research_id}</Link></h2></div>
+          <div className="saved-meta"><span className="mono">ID {item.research_id}</span><span>บันทึกเมื่อ {new Intl.DateTimeFormat("th-TH", { dateStyle: "medium" }).format(new Date(item.saved_at))}</span></div>
         </article>
       ))}
     </div>

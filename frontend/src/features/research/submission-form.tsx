@@ -64,7 +64,7 @@ function validate(values: Values): Errors {
   const errors: Errors = {};
   if (!values.title_th.trim()) errors.title_th = "กรุณากรอกชื่อผลงานภาษาไทย";
   if (!values.title_en.trim())
-    errors.title_en = "กรุณากรอกชื่อผลงานภาษาอังกฤษ (backend กำหนดให้จำเป็น)";
+    errors.title_en = "กรุณากรอกชื่อผลงานภาษาอังกฤษ";
   if (!values.category_id) errors.category_id = "กรุณาเลือกหมวดหมู่";
   if (values.academic_year && !/^\d+$/.test(values.academic_year))
     errors.academic_year = "ปีการศึกษาต้องเป็นจำนวนเต็ม";
@@ -312,7 +312,7 @@ export function SubmissionForm({
         setResult({
           kind: "forbidden",
           message:
-            "บัญชีนี้ไม่มีสิทธิ์ส่งผลงาน Backend อนุญาตเฉพาะนักศึกษาและผู้ดูแลระบบ",
+            "บัญชีนี้ไม่มีสิทธิ์ส่งผลงาน ระบบอนุญาตเฉพาะนักศึกษาและผู้ดูแลระบบ",
         });
         return;
       }
@@ -465,7 +465,7 @@ export function SubmissionForm({
             <Field
               label="ชื่อผลงานภาษาอังกฤษ"
               required
-              hint="Backend กำหนดให้ฟิลด์นี้จำเป็น"
+              hint="จำเป็น"
             >
               <Input
                 name="title_en"
@@ -513,7 +513,7 @@ export function SubmissionForm({
               </Field>
               <Field
                 label="ประเภทผลงาน"
-                hint="ไม่บังคับ; Backend ไม่มีรายการค่าที่กำหนด"
+                hint="ไม่บังคับ"
               >
                 <Input
                   name="work_type"
@@ -524,7 +524,7 @@ export function SubmissionForm({
               </Field>
               <Field
                 label="ปีการศึกษา"
-                hint="ไม่บังคับ; จำนวนเต็มตามสัญญา backend"
+                hint="ไม่บังคับ"
               >
                 <Input
                   name="academic_year"
@@ -603,7 +603,7 @@ export function SubmissionForm({
             </div>
             <Field
               label="อาจารย์ที่ปรึกษา"
-              hint="ไม่บังคับตาม backend contract"
+              hint="ไม่บังคับ"
             >
               <Select
                 value={advisorId}
@@ -627,7 +627,7 @@ export function SubmissionForm({
           <>
             <Field
               label="บทคัดย่อ"
-              hint="ไม่บังคับ; Backend ไม่กำหนดความยาวต่ำสุดหรือสูงสุด"
+              hint="ไม่บังคับ"
             >
               <Textarea
                 name="abstract"
@@ -642,7 +642,7 @@ export function SubmissionForm({
             </p>
             <Field
               label="คำสำคัญ"
-              hint="ไม่บังคับ; Backend รับข้อความหนึ่งค่าและไม่ประกาศรูปแบบแยกคำ"
+              hint="ไม่บังคับ"
             >
               <Input
                 name="keywords"
