@@ -1,29 +1,29 @@
 import { redirect } from "next/navigation";
 import { DashboardShell } from "@/src/components/shells";
 import { StatePanel } from "@/src/components/ui";
-import { listFavorites } from "@/src/features/research/api";
+import { getMyResearch } from "@/src/features/research/api";
 import { SavedResearchList } from "@/src/features/research/saved-research-list";
 import { hasSession } from "@/src/lib/api/session";
 
 export default async function SavedResearchPage() {
   if (!await hasSession()) redirect(`/login?next=${encodeURIComponent("/account/saved")}`);
 
-  const favorites = await listFavorites();
+  const myResearch = await getMyResearch();
 
-  if (!favorites.ok && favorites.error.status === 401) redirect(`/login?next=${encodeURIComponent("/account/saved")}`);
+  if (!myResearch.ok && myResearch.error.status === 401) redirect(`/login?next=${encodeURIComponent("/account/saved")}`);
 
   return (
     <DashboardShell>
       <main className="dash-main">
-        <p className="eyebrow">[ Personal archive ]</p>
-        <h1 className="title">Saved research</h1>
-        <p className="muted">Favorites are available to every active account. The backend returns research IDs and saved dates only, so this index does not invent titles or metadata.</p>
-        {!favorites.ok ? (
-          <StatePanel kind="error" title="Saved research unavailable" detail={`${favorites.error.message} [${favorites.error.code}]`} />
-        ) : favorites.data.length === 0 ? (
-          <StatePanel kind="empty" title="No saved research" detail="Open a research folio and use Save research to add it to this index." />
+        <p className="eyebrow">[ คลังผลงานส่วนตัว ]</p>
+        <h1 className="title">ผลงานวิจัยของฉัน</h1>
+        <p className="muted">รายการผลงานวิจัยที่คุณเป็นผู้สร้างหรือผู้ส่งเข้าระบบในทุกสถานะการดำเนินงาน</p>
+        {!myResearch.ok ? (
+          <StatePanel kind="error" title="ไม่สามารถแสดงผลงานวิจัยของคุณได้" detail={`${myResearch.error.message} [${myResearch.error.code}]`} />
+        ) : myResearch.data.length === 0 ? (
+          <StatePanel kind="empty" title="ไม่มีผลงานวิจัยของคุณในระบบ" detail="คุณยังไม่ได้ยื่นส่งผลงานวิจัยใดๆ ในระบบ" />
         ) : (
-          <SavedResearchList items={favorites.data} />
+          <SavedResearchList items={myResearch.data} />
         )}
       </main>
     </DashboardShell>

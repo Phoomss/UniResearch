@@ -10,5 +10,7 @@ export function searchResearch(input:{q?:string;categoryId?:number}){ const p=ne
 export function getResearch(id:number){ return apiRequest<ResearchWorkResponse>(`/research/${id}`); }
 export async function getResearchParticipants(){ return apiRequest<ResearchParticipantsResponse>("/research/participants",{token:await getSessionToken()}); }
 export async function listFavorites(){ const result=await apiRequest<FavoriteResponse[]>("/favorites/",{token:await getSessionToken()}); if(!result.ok&&result.error.status===401)await clearSession(); return result; }
+export async function getMyResearch(){ const result=await apiRequest<ResearchWorkResponse[]>("/research/my",{token:await getSessionToken()}); if(!result.ok&&result.error.status===401)await clearSession(); return result; }
 export async function toggleFavorite(id:number){ return apiRequest<FavoriteResponse|FavoriteRemovedResponse>(`/favorites/${id}`,{method:"POST",token:await getSessionToken()}); }
 export async function startDownload(id:number){ return apiRequest<DownloadHandshake>(`/research/${id}/download`,{method:"POST",token:await getSessionToken()}); }
+

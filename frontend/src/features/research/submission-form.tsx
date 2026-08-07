@@ -11,6 +11,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import { Button, Field, Input, Select, Textarea } from "@/src/components/ui";
+import { Bold, Italic, Heading1, Heading2, List, ListOrdered, Eye, Edit2 } from "lucide-react";
 import type {
   CategoryResponse,
   ResearchParticipant,
@@ -64,7 +65,7 @@ function validate(values: Values): Errors {
   const errors: Errors = {};
   if (!values.title_th.trim()) errors.title_th = "กรุณากรอกชื่อผลงานภาษาไทย";
   if (!values.title_en.trim())
-    errors.title_en = "กรุณากรอกชื่อผลงานภาษาอังกฤษ (backend กำหนดให้จำเป็น)";
+    errors.title_en = "กรุณากรอกชื่อผลงานภาษาอังกฤษ";
   if (!values.category_id) errors.category_id = "กรุณาเลือกหมวดหมู่";
   if (values.academic_year && !/^\d+$/.test(values.academic_year))
     errors.academic_year = "ปีการศึกษาต้องเป็นจำนวนเต็ม";
@@ -195,6 +196,49 @@ export function SubmissionForm({
     [result, setResult] = useState<Result>(null),
     [pending, setPending] = useState(false);
   const alertRef = useRef<HTMLDivElement>(null);
+  const abstractRef = useRef<HTMLTextAreaElement>(null);
+  const [abstractMode, setAbstractMode] = useState<"edit" | "preview">("edit");
+
+  function insertFormat(before: string, after: string = "") {
+    const el = abstractRef.current;
+    if (!el) return;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const text = el.value;
+    const selected = text.substring(start, end);
+    const replacement = before + (selected || "") + after;
+    const newValue = text.substring(0, start) + replacement + text.substring(end);
+    update("abstract", newValue);
+    setTimeout(() => {
+      el.focus();
+      el.setSelectionRange(start + before.length, start + before.length + (selected || "").length);
+    }, 0);
+  }
+  const [keywordInput, setKeywordInput] = useState("");
+
+  function addKeyword() {
+    const term = keywordInput.trim();
+    if (!term) return;
+    const currentList = values.keywords ? values.keywords.split(",").map(k => k.trim()).filter(Boolean) : [];
+    if (!currentList.includes(term)) {
+      const newList = [...currentList, term];
+      update("keywords", newList.join(", "));
+    }
+    setKeywordInput("");
+  }
+
+  function removeKeyword(termToRemove: string) {
+    const currentList = values.keywords ? values.keywords.split(",").map(k => k.trim()).filter(Boolean) : [];
+    const newList = currentList.filter(k => k !== termToRemove);
+    update("keywords", newList.join(", "));
+  }
+
+  function handleKeywordKeyDown(e: KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      addKeyword();
+    }
+  }
   const dirty =
     Object.values(values).some(Boolean) || Boolean(cover || document);
   useEffect(() => {
@@ -312,7 +356,7 @@ export function SubmissionForm({
         setResult({
           kind: "forbidden",
           message:
-            "บัญชีนี้ไม่มีสิทธิ์ส่งผลงาน Backend อนุญาตเฉพาะนักศึกษาและผู้ดูแลระบบ",
+            "บัญชีนี้ไม่มีสิทธิ์ส่งผลงาน ระบบอนุญาตเฉพาะนักศึกษาและผู้ดูแลระบบ",
         });
         return;
       }
@@ -465,7 +509,7 @@ export function SubmissionForm({
             <Field
               label="ชื่อผลงานภาษาอังกฤษ"
               required
-              hint="Backend กำหนดให้ฟิลด์นี้จำเป็น"
+              hint="จำเป็น"
             >
               <Input
                 name="title_en"
@@ -513,7 +557,7 @@ export function SubmissionForm({
               </Field>
               <Field
                 label="ประเภทผลงาน"
-                hint="ไม่บังคับ; Backend ไม่มีรายการค่าที่กำหนด"
+                hint="ไม่บังคับ"
               >
                 <Input
                   name="work_type"
@@ -524,7 +568,7 @@ export function SubmissionForm({
               </Field>
               <Field
                 label="ปีการศึกษา"
-                hint="ไม่บังคับ; จำนวนเต็มตามสัญญา backend"
+                hint="ไม่บังคับ"
               >
                 <Input
                   name="academic_year"
@@ -603,7 +647,7 @@ export function SubmissionForm({
             </div>
             <Field
               label="อาจารย์ที่ปรึกษา"
-              hint="ไม่บังคับตาม backend contract"
+              hint="ไม่บังคับ"
             >
               <Select
                 value={advisorId}
@@ -625,32 +669,115 @@ export function SubmissionForm({
         )}
         {step === 2 && (
           <>
-            <Field
-              label="บทคัดย่อ"
-              hint="ไม่บังคับ; Backend ไม่กำหนดความยาวต่ำสุดหรือสูงสุด"
-            >
-              <Textarea
-                name="abstract"
-                rows={9}
-                value={values.abstract}
-                onChange={(e) => update("abstract", e.target.value)}
-                disabled={pending}
-              />
-            </Field>
+            <div className="abstract-editor-container">
+              <div className="abstract-header-row">
+                <label className="field-label">
+                  บทคัดย่อ (Abstract) <span className="muted-hint">- ไม่บังคับ</span>
+                </label>
+                <div className="abstract-tabs">
+                  <button
+                    type="button"
+                    className={`abstract-tab-btn ${abstractMode === "edit" ? "active" : ""}`}
+                    onClick={() => setAbstractMode("edit")}
+                  >
+                    <Edit2 size={13} /> เขียน
+                  </button>
+                  <button
+                    type="button"
+                    className={`abstract-tab-btn ${abstractMode === "preview" ? "active" : ""}`}
+                    onClick={() => setAbstractMode("preview")}
+                  >
+                    <Eye size={13} /> ดูตัวอย่าง
+                  </button>
+                </div>
+              </div>
+
+              {abstractMode === "edit" ? (
+                <div className="abstract-editor-wrapper">
+                  <div className="abstract-toolbar">
+                    <button type="button" title="ตัวหนา" onClick={() => insertFormat("**", "**")}><Bold size={14} /></button>
+                    <button type="button" title="ตัวเอียง" onClick={() => insertFormat("*", "*")}><Italic size={14} /></button>
+                    <button type="button" title="หัวข้อหลัก" onClick={() => insertFormat("# ", "")}><Heading1 size={14} /></button>
+                    <button type="button" title="หัวข้อรอง" onClick={() => insertFormat("## ", "")}><Heading2 size={14} /></button>
+                    <button type="button" title="รายการแบบสัญลักษณ์" onClick={() => insertFormat("- ", "")}><List size={14} /></button>
+                    <button type="button" title="รายการแบบตัวเลข" onClick={() => insertFormat("1. ", "")}><ListOrdered size={14} /></button>
+                  </div>
+                  <textarea
+                    ref={abstractRef}
+                    name="abstract"
+                    className="textarea abstract-textarea"
+                    rows={9}
+                    value={values.abstract}
+                    onChange={(e) => update("abstract", e.target.value)}
+                    disabled={pending}
+                    placeholder="กรอกบทคัดย่องานวิจัยที่นี่ คุณสามารถจัดรูปแบบข้อความด้วยแถบเครื่องมือด้านบน..."
+                  />
+                </div>
+              ) : (
+                <div className="abstract-preview-panel">
+                  {values.abstract.trim() ? (
+                    <div
+                      className="abstract-preview-content"
+                      dangerouslySetInnerHTML={{
+                        __html: values.abstract
+                          .split("\n")
+                          .map((line) => {
+                            let parsed = line;
+                            if (parsed.startsWith("## ")) {
+                              return `<h3>${parsed.substring(3)}</h3>`;
+                            } else if (parsed.startsWith("# ")) {
+                              return `<h2>${parsed.substring(2)}</h2>`;
+                            }
+                            parsed = parsed.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+                            parsed = parsed.replace(/\*(.*?)\*/g, "<em>$1</em>");
+                            return `<p>${parsed || "&nbsp;"}</p>`;
+                          })
+                          .join(""),
+                      }}
+                    />
+                  ) : (
+                    <p className="muted-empty-preview">ยังไม่มีข้อความบทคัดย่อ กรุณาเปลี่ยนเป็นแท็บ "เขียน" เพื่อกรอกข้อมูล</p>
+                  )}
+                </div>
+              )}
+            </div>
             <p className="character-count" aria-live="polite">
               {values.abstract.length.toLocaleString("th-TH")} ตัวอักษร
             </p>
-            <Field
-              label="คำสำคัญ"
-              hint="ไม่บังคับ; Backend รับข้อความหนึ่งค่าและไม่ประกาศรูปแบบแยกคำ"
-            >
-              <Input
-                name="keywords"
-                value={values.keywords}
-                onChange={(e) => update("keywords", e.target.value)}
-                disabled={pending}
-              />
-            </Field>
+            <div className="keywords-customizer-container">
+              <label className="field-label">คำสำคัญ (Keywords) <span className="muted-hint">- ไม่บังคับ</span></label>
+              <div className="keywords-input-wrapper">
+                <Input
+                  name="keyword_input_temp"
+                  placeholder="พิมพ์คำสำคัญแล้วกด Enter หรือ comma (,)"
+                  value={keywordInput}
+                  onChange={(e) => setKeywordInput(e.target.value)}
+                  onKeyDown={handleKeywordKeyDown}
+                  disabled={pending}
+                />
+                <Button type="button" variant="secondary" onClick={addKeyword} disabled={pending || !keywordInput.trim()}>
+                  เพิ่ม
+                </Button>
+              </div>
+              <div className="keywords-tags-container">
+                {(() => {
+                  const keywordList = values.keywords ? values.keywords.split(",").map(k => k.trim()).filter(Boolean) : [];
+                  return keywordList.length > 0 ? (
+                    keywordList.map((tag) => (
+                      <span className="keyword-tag" key={tag}>
+                        {tag}
+                        <button type="button" className="remove-tag-btn" onClick={() => removeKeyword(tag)} disabled={pending} title={`นำ ${tag} ออก`}>
+                          &times;
+                        </button>
+                      </span>
+                    ))
+                  ) : (
+                    <span className="muted-hint font-13">ยังไม่ได้เพิ่มคำสำคัญ</span>
+                  );
+                })()}
+              </div>
+              <input type="hidden" name="keywords" value={values.keywords} />
+            </div>
           </>
         )}
         {step === 3 && (

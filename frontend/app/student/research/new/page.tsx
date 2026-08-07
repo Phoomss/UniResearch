@@ -35,7 +35,7 @@ export default async function NewResearchPage() {
           <StatePanel
             kind="empty"
             title="ยังไม่มีหมวดหมู่"
-            detail="Backend กำหนดให้ต้องมีหมวดหมู่ กรุณาให้ผู้ดูแลระบบสร้างหมวดหมู่ก่อนส่งผลงาน"
+            detail="ระบบจำเป็นต้องกำหนดหมวดหมู่ผลงาน กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มหมวดหมู่ก่อนส่งผลงาน"
           />
         ) : (
           <SubmissionForm

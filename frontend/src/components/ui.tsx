@@ -10,6 +10,7 @@ import {
   type ReactNode,
   type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
+  type Ref,
 } from "react";
 
 export function Brand() {
@@ -175,9 +176,10 @@ export function Select({
 
 export function Textarea({
   className = "",
+  ref,
   ...props
-}: TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return <textarea className={`textarea ${className}`} {...props} />;
+}: TextareaHTMLAttributes<HTMLTextAreaElement> & { ref?: Ref<HTMLTextAreaElement> }) {
+  return <textarea ref={ref} className={`textarea ${className}`} {...props} />;
 }
 
 type CheckboxProps = InputHTMLAttributes<HTMLInputElement> & {

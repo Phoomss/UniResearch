@@ -3,7 +3,7 @@
 import { useRef, useState, type FormEvent } from "react";
 import { Button, Field, Select, Textarea } from "@/src/components/ui";
 
-type Decision = "approved" | "rejected";
+type Decision = "approved" | "rejected" | "needs_revision";
 type FormStatus = { kind: "success" | "error" | "forbidden"; message: string } | null;
 
 export function ReviewForm({ researchId }: { researchId: number }) {
@@ -55,14 +55,14 @@ export function ReviewForm({ researchId }: { researchId: number }) {
     <form ref={formRef} className="panel review-form" onSubmit={requestConfirmation} aria-describedby="review-contract-note">
       <p className="eyebrow">[ Verified review action ]</p>
       <h2 className="section-title">Record a decision</h2>
-      <Field label="Decision" required><Select name="status_result" required defaultValue="approved"><option value="approved">Approve</option><option value="rejected">Reject</option></Select></Field>
+      <Field label="Decision" required><Select name="status_result" required defaultValue="approved"><option value="approved">Approve</option><option value="rejected">Reject</option><option value="needs_revision">Request revision (ส่งกลับแก้ไข)</option></Select></Field>
       <Field label="Reviewer comment" required><Textarea name="comment_text" required minLength={1} disabled={pending} /></Field>
-      <p id="review-contract-note" className="muted">Only approval and rejection are exposed. Scoring, revision requests, queue assignment, and review history are not supported by the backend.</p>
+      <p id="review-contract-note" className="muted">Scoring, queue assignment, and review history are not supported by the backend.</p>
       {status && <div className={`status-message ${status.kind}`} role={status.kind === "success" ? "status" : "alert"}>{status.message}</div>}
       <Button type="submit" disabled={pending}>{pending ? "Saving review…" : "Review decision"}</Button>
     </form>
     <dialog ref={dialogRef} className="confirm-dialog" aria-labelledby="confirm-review-title">
-      <h2 id="confirm-review-title" className="section-title">Confirm {decision === "approved" ? "approval" : "rejection"}</h2>
+      <h2 id="confirm-review-title" className="section-title">Confirm {decision === "approved" ? "approval" : decision === "rejected" ? "rejection" : "revision request"}</h2>
       <p>This immediately changes the backend research status to <strong>{decision}</strong>.</p>
       <div className="dialog-actions"><Button type="button" variant="ghost" onClick={() => dialogRef.current?.close()}>Cancel</Button><Button type="button" onClick={confirm}>Confirm decision</Button></div>
     </dialog>
