@@ -13,7 +13,7 @@ export default async function LoginPage({
   const query = await searchParams;
 
   return (
-    <AuthShell>
+    <AuthShell variant="login">
       <p className="eyebrow">● Authentication</p>
       <h1 className="title">
         ยินดีต้อนรับกลับสู่
@@ -22,7 +22,7 @@ export default async function LoginPage({
           UniResearch
         </em>
       </h1>
-      <p className="muted">เข้าสู่ระบบเพื่อส่งผลงานและดำเนินการที่ต้องยืนยันตัวตน ไม่มี Google OAuth หรือการกู้รหัสผ่านในระบบหลังบ้านปัจจุบัน</p>
+      <p className="muted">เข้าสู่ระบบเพื่อส่งผลงานและดำเนินการที่ต้องยืนยันตัวตน </p>
       {query.registered === "1" && <p className="status-message success" role="status">สร้างบัญชีนักศึกษาแล้ว กรุณาเข้าสู่ระบบ</p>}
       <LoginForm nextPath={safeNext(query.next)} />
     </AuthShell>

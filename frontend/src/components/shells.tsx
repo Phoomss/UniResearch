@@ -7,10 +7,10 @@ export async function SiteHeader(
     { variant = "default" }: { variant?: "default" | "home" } = {},
 ) {
     const authenticated = await hasSession();
-    const isHomeHeader = variant === "home";
+    const usesHomeDesign = variant === "home" || !authenticated;
 
     return (
-        <header className={`site-header ${isHomeHeader ? "home-header" : ""}`}>
+        <header className={`site-header ${usesHomeDesign ? "home-header" : ""}`}>
             <div className="container site-header-inner">
                 <Brand />
                 <nav className="nav" aria-label="เมนูหลัก">
@@ -22,7 +22,7 @@ export async function SiteHeader(
                     <LanguageSwitch />
                     {authenticated ? <LogoutButton /> : <ButtonLink href="/login" variant="secondary">เข้าสู่ระบบ</ButtonLink>}
                     <ButtonLink href="/dashboard/student/submit">ส่งผลงานวิจัย</ButtonLink>
-                    {isHomeHeader ? (
+                    {usesHomeDesign ? (
                         <details className="mobile-nav">
                             <summary aria-label="เปิดเมนูหลัก">
                                 <span aria-hidden="true">☰</span>
@@ -64,13 +64,17 @@ export function SiteFooter() {
     );
 }
 
-export function AuthShell({ children }: { children: React.ReactNode }) {
+export function AuthShell({
+    children,
+    variant = "default",
+}: {
+    children: React.ReactNode;
+    variant?: "default" | "login";
+}) {
     return (
         <>
-            <header className="site-header" style={{ position: "fixed", left: 0, right: 0 }}>
-                <div className="container site-header-inner"><Brand /><div className="header-actions"><Link href="/">← กลับสู่หน้าหลัก</Link><LanguageSwitch /></div></div>
-            </header>
-            <div className="auth-shell"><aside className="auth-brand-panel paper-grid"><div><p className="eyebrow">▥ Institutional Portal</p><h1 className="display" style={{ color: "var(--mulberry)" }}>เข้าถึงองค์ความรู้<br />ระดับอุดมศึกษา</h1><p className="muted">เครือข่ายการวิจัยที่เชื่อมโยงนักวิจัย นักศึกษา และสถาบันการศึกษาเข้าด้วยกัน</p></div><div className="rule" style={{ display: "flex", gap: 90, paddingTop: 32 }}><div><strong className="section-title latin">50k+</strong><small style={{ display: "block" }}>ผลงานตีพิมพ์</small></div><div><strong className="section-title latin">120+</strong><small style={{ display: "block" }}>สถาบันเครือข่าย</small></div></div></aside><main className="auth-main"><div className="auth-card">{children}<footer className="auth-footer"><span>นโยบายความเป็นส่วนตัว</span><span>ข้อกำหนดการใช้งาน</span><span>ช่วยเหลือ</span></footer></div></main></div>
+            <div className="auth-site-header"><SiteHeader variant="home" /></div>
+            <div className={`auth-shell ${variant === "login" ? "login-auth-shell" : ""}`}><aside className="auth-brand-panel paper-grid"><div><p className="eyebrow">▥ Institutional Portal</p><h1 className="display" style={{ color: "var(--mulberry)" }}>เข้าถึงองค์ความรู้<br />ระดับอุดมศึกษา</h1><p className="muted">เครือข่ายการวิจัยที่เชื่อมโยงนักวิจัย นักศึกษา และสถาบันการศึกษาเข้าด้วยกัน</p></div><div className="rule" style={{ display: "flex", gap: 90, paddingTop: 32 }}><div><strong className="section-title latin">50k+</strong><small style={{ display: "block" }}>ผลงานตีพิมพ์</small></div><div><strong className="section-title latin">120+</strong><small style={{ display: "block" }}>สถาบันเครือข่าย</small></div></div></aside><main className="auth-main"><div className="auth-card">{children}<footer className="auth-footer"><span>นโยบายความเป็นส่วนตัว</span><span>ข้อกำหนดการใช้งาน</span><span>ช่วยเหลือ</span></footer></div></main></div>
         </>
     );
 }
