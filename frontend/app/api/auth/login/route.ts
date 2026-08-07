@@ -61,8 +61,24 @@ export async function POST(request: Request) {
 
   await setSessionToken(result.data.access_token);
 
+  const userProfile = await apiRequest<any>("/auth/me", {
+    token: result.data.access_token
+  });
+
+  let redirectTo = "/account/saved";
+  if (userProfile.ok) {
+    const role = userProfile.data.role;
+    if (role === "advisor" || role === "reviewer") {
+      redirectTo = "/dashboard/reviewer";
+    } else if (role === "admin") {
+      redirectTo = "/admin";
+    }
+  }
+
   return NextResponse.json({
     authenticated: true,
     token_type: result.data.token_type,
+    redirect_to: redirectTo,
   });
 }
+

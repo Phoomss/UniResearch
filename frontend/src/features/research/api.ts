@@ -1,6 +1,7 @@
 import { apiRequest } from "@/src/lib/api/client";
 import { clearSession, getSessionToken } from "@/src/lib/api/session";
-import type { CategoryResponse, DashboardStats, DownloadHandshake, FavoriteRemovedResponse, FavoriteResponse, ResearchParticipantsResponse, ResearchWorkResponse } from "@/src/lib/api/types";
+import type { CategoryResponse, DashboardStats, DownloadHandshake, FavoriteRemovedResponse, FavoriteResponse, ResearchParticipantsResponse, ResearchWorkResponse, UserResponse } from "@/src/lib/api/types";
+
 
 export function getCategories(){ return apiRequest<CategoryResponse[]>("/categories/"); }
 export function getStats(){ return apiRequest<DashboardStats>("/stats/"); }
@@ -14,5 +15,7 @@ export async function getMyResearch(){ const result=await apiRequest<ResearchWor
 export async function getPendingResearch(){ const result=await apiRequest<ResearchWorkResponse[]>("/research/pending",{token:await getSessionToken()}); if(!result.ok&&result.error.status===401)await clearSession(); return result; }
 export async function toggleFavorite(id:number){ return apiRequest<FavoriteResponse|FavoriteRemovedResponse>(`/favorites/${id}`,{method:"POST",token:await getSessionToken()}); }
 
+export async function getCurrentUser(){ const result=await apiRequest<UserResponse>("/auth/me",{token:await getSessionToken()}); if(!result.ok&&result.error.status===401)await clearSession(); return result; }
 export async function startDownload(id:number){ return apiRequest<DownloadHandshake>(`/research/${id}/download`,{method:"POST",token:await getSessionToken()}); }
+
 
