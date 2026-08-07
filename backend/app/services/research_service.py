@@ -130,13 +130,29 @@ async def create_research(db: AsyncSession, current_user: User, title_th: str, t
         logger.exception("Research creation database failure")
         raise HTTPException(status_code=500, detail="Unable to save research") from exc
 
-async def search_research(db: AsyncSession, q: Optional[str], category_id: Optional[int]) -> List[ResearchWork]:
-    query = select(ResearchWork).where(ResearchWork.status == "approved")
+async def search_research(db: AsyncSession, q: Optional[str], category_id: Optional[int], current_user: Optional[User] = None) -> List[ResearchWork]:
+    if current_user:
+        if current_user.role in ["admin", "advisor"]:
+            query = select(ResearchWork)
+        elif current_user.role == "student":
+            query = select(ResearchWork).where(
+                or_(
+                    ResearchWork.status == "approved",
+                    ResearchWork.submitted_by_id == current_user.id,
+                    ResearchWork.id.in_(select(ResearchAuthor.research_id).where(ResearchAuthor.user_id == current_user.id))
+                )
+            )
+        else:
+            query = select(ResearchWork).where(ResearchWork.status == "approved")
+    else:
+        query = select(ResearchWork).where(ResearchWork.status == "approved")
+
     if q:
         query = query.where(or_(ResearchWork.title_th.ilike(f"%{q}%"), ResearchWork.title_en.ilike(f"%{q}%"), ResearchWork.keywords.ilike(f"%{q}%")))
         db.add(SearchLog(keyword=q)); await db.flush()
     if category_id: query = query.where(ResearchWork.category_id == category_id)
     result = await db.execute(query); await db.commit(); return result.scalars().all()
+
 
 async def get_research_detail(db: AsyncSession, research_id: int) -> ResearchWork:
     research = (await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))).scalars().first()

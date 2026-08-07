@@ -79,11 +79,28 @@ export function AuthShell({
     );
 }
 
-export function ResearchRail({ active = "01" }: { active?: string }) {
+import { getCurrentUser } from "@/src/features/research/api";
+
+export function ResearchRail({ active = "01", role = "guest" }: { active?: string; role?: string }) {
+    let dashboardUrl = "/account/saved";
+    if (role === "advisor" || role === "reviewer") {
+        dashboardUrl = "/dashboard/reviewer";
+    } else if (role === "admin") {
+        dashboardUrl = "/admin";
+    } else if (role === "guest") {
+        dashboardUrl = "/login";
+    }
+
+    const submitUrl = role === "guest" ? "/login" : "/student/research/new";
+
     return (
         <aside className="rail">
             <span className="rail-year">2026</span>
-            <nav aria-label="ดัชนีงานวิจัย"><Link className={active === "01" ? "active" : ""} href="/dashboard/student">01</Link><Link className={active === "02" ? "active" : ""} href="/research">02</Link><Link className={active === "03" ? "active" : ""} href="/dashboard/student/submit">03</Link></nav>
+            <nav aria-label="ดัชนีงานวิจัย">
+                <Link className={active === "01" ? "active" : ""} href={dashboardUrl} title="แดชบอร์ด">01</Link>
+                <Link className={active === "02" ? "active" : ""} href="/research" title="ค้นหางานวิจัย">02</Link>
+                <Link className={active === "03" ? "active" : ""} href={submitUrl} title="ส่งผลงานวิจัย">03</Link>
+            </nav>
             <span className="rail-label">INDEX RAIL</span>
         </aside>
     );
@@ -91,8 +108,33 @@ export function ResearchRail({ active = "01" }: { active?: string }) {
 
 export async function DashboardShell({ children, active = "01" }: { children: React.ReactNode; active?: string }) {
     const authenticated = await hasSession();
+    let role = "guest";
+    let userName = "";
+    if (authenticated) {
+        const userResult = await getCurrentUser();
+        if (userResult.ok) {
+            role = userResult.data.role;
+            userName = `${userResult.data.first_name || ""} ${userResult.data.last_name || ""}`.trim() || userResult.data.email;
+        }
+    }
 
     return (
-        <div className="dashboard"><ResearchRail active={active} /><header className="dashboard-header"><Brand /><div style={{ display: "flex", gap: 8, alignItems: "center" }}><Link className="icon-btn" href="/research" aria-label="ค้นหา">⌕</Link>{authenticated ? <LogoutButton /> : <ButtonLink href="/login" variant="secondary">เข้าสู่ระบบ</ButtonLink>}</div></header>{children}</div>
+        <div className="dashboard">
+            <ResearchRail active={active} role={role} />
+            <header className="dashboard-header">
+                <Brand />
+                <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                    {authenticated && userName && (
+                        <span className="user-profile-badge" style={{ fontSize: "14px", color: "var(--mulberry)", fontWeight: "500" }}>
+                            👤 {userName} ({role.toUpperCase()})
+                        </span>
+                    )}
+                    <Link className="icon-btn" href="/research" aria-label="ค้นหา">⌕</Link>
+                    {authenticated ? <LogoutButton /> : <ButtonLink href="/login" variant="secondary">เข้าสู่ระบบ</ButtonLink>}
+                </div>
+            </header>
+            {children}
+        </div>
     );
 }
+

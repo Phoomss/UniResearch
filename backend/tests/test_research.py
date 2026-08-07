@@ -130,7 +130,8 @@ async def test_creation_rejects_invalid_files_and_cleans_partial_upload(client: 
 async def test_creation_requires_auth_and_submitter_role(client: AsyncClient, advisor_user):
     unauthenticated=await client.post("/research/",data={"title_th":"x","title_en":"x","category_id":"1"});assert unauthenticated.status_code==401
     token=(await client.post("/auth/login",data={"username":"advisor@test.com","password":"password123"})).json()["access_token"]
-    forbidden=await client.post("/research/",headers={"Authorization":f"Bearer {token}"},data={"title_th":"x","title_en":"x","category_id":"1"});assert forbidden.status_code==403
+    forbidden=await client.post("/research/",headers={"Authorization":f"Bearer {token}"},data={"title_th":"x","title_en":"x","category_id":"1"});assert forbidden.status_code==404
+
 
 @pytest.mark.asyncio
 async def test_get_my_research(client: AsyncClient, db_session, test_user, advisor_user):
@@ -155,4 +156,35 @@ async def test_get_my_research(client: AsyncClient, db_session, test_user, advis
     my_list = my_resp.json()
     assert len(my_list) == 1
     assert my_list[0]["title_en"] == "My Own Research"
+
+@pytest.mark.asyncio
+async def test_get_pending_research(client: AsyncClient, db_session, test_user, advisor_user):
+    token = (await client.post("/auth/login", data={"username": "advisor@test.com", "password": "password123"})).json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+    
+    from app.models.category import Category
+    category = Category(category_name="Pending Category")
+    db_session.add(category)
+    await db_session.commit()
+    await db_session.refresh(category)
+    
+    # Create research (using a student token)
+    student_token = (await client.post("/auth/login", data={"username": "student@test.com", "password": "password123"})).json()["access_token"]
+    data = {
+        "title_th": "งานวิจัยรอตรวจ",
+        "title_en": "Pending Research",
+        "category_id": category.id,
+        "author_ids": json.dumps([test_user.id]),
+        "advisor_ids": json.dumps([advisor_user.id])
+    }
+    resp = await client.post("/research/", data=data, headers={"Authorization": f"Bearer {student_token}"})
+    assert resp.status_code == 200
+    
+    # Fetch pending queue
+    pending_resp = await client.get("/research/pending", headers=headers)
+    assert pending_resp.status_code == 200
+    pending_list = pending_resp.json()
+    assert len(pending_list) >= 1
+    assert any(item["title_en"] == "Pending Research" for item in pending_list)
+
 
