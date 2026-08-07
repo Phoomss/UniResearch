@@ -31,7 +31,7 @@ export default async function NewResearchPage() {
             title="ไม่สามารถโหลดรายชื่อผู้จัดทำและอาจารย์ได้"
             detail={participants.error.message}
           />
-        ) : categories.data.length === 0 ? (
+        ) : categories.data.length===0 ? (
           <StatePanel
             kind="empty"
             title="ยังไม่มีหมวดหมู่"
