@@ -50,6 +50,22 @@ async def search_research(
 ):
     return await research_service.search_research(db, q, category_id)
 
+@router.get("/my", response_model=List[ResearchWorkResponse])
+async def get_my_research(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_active_user)
+):
+    from sqlalchemy import select, or_
+    from app.models.research import ResearchWork, ResearchAuthor
+    query = select(ResearchWork).where(
+        or_(
+            ResearchWork.submitted_by_id == current_user.id,
+            ResearchWork.id.in_(select(ResearchAuthor.research_id).where(ResearchAuthor.user_id == current_user.id))
+        )
+    ).order_by(ResearchWork.created_at.desc())
+    result = await db.execute(query)
+    return result.scalars().all()
+
 @router.get("/{research_id}", response_model=ResearchWorkResponse)
 async def get_research_detail(
     research_id: int, 
