@@ -84,53 +84,55 @@ jobs:
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: Send Status to Discord
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Send Status to Discord via Python
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         run: |
-          STATUS="SUCCESS"
-          COLOR=3066993
-          if [ "${{ needs.backend-test.result }}" != "success" ] || [ "${{ needs.frontend-test-build.result }}" != "success" ]; then
-            STATUS="FAILED"
-            COLOR=15158332
-          fi
+          python3 -c "
+          import os, urllib.request, json, subprocess
           
-          TIMESTAMP=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          status = 'SUCCESS' if '${{ needs.backend-test.result }}' == 'success' and '${{ needs.frontend-test-build.result }}' == 'success' else 'FAILED'
+          color = 3066993 if status == 'SUCCESS' else 15158332
           
-          curl -H "Content-Type: application/json" \
-               -X POST \
-               -d "{
-                 \"embeds\": [{
-                   \"title\": \"CI/CD Build Alert: $STATUS\",
-                   \"description\": \"Develop branch deployment pipeline has finished running.\",
-                   \"color\": $COLOR,
-                   \"fields\": [
-                     {
-                       \"name\": \"Repository\",
-                       \"value\": \"${{ github.repository }}\",
-                       \"inline\": true
-                     },
-                     {
-                       \"name\": \"Commit Hash\",
-                       \"value\": \"\`${{ github.sha }}\`\",
-                       \"inline\": true
-                     },
-                     {
-                       \"name\": \"Author\",
-                       \"value\": \"${{ github.actor }}\",
-                       \"inline\": true
-                     },
-                     {
-                       \"name\": \"Backend Job\",
-                       \"value\": \"${{ needs.backend-test.result }}\",
-                       \"inline\": true
-                     },
-                     {
-                       \"name\": \"Frontend Job\",
-                       \"value\": \"${{ needs.frontend-test-build.result }}\",
-                       \"inline\": true
-                     }
-                   ],
-                   \"timestamp\": \"$TIMESTAMP\"
-                 }]
-               }" \
-               "${{ secrets.DISCORD_WEBHOOK }}"
+          # Get merge info
+          commit_msg = subprocess.check_output(['git', 'log', '-1', '--pretty=%B']).decode('utf-8').strip()
+          source_branch = 'Direct Push / Squash Merge'
+          if 'Merge pull request' in commit_msg:
+              parts = commit_msg.split('from')
+              if len(parts) > 1:
+                  source_branch = parts[1].split('\n')[0].strip()
+          elif 'Merge branch' in commit_msg:
+              parts = commit_msg.split(\"'\" )
+              if len(parts) > 1:
+                  source_branch = parts[1]
+          
+          payload = {
+              'embeds': [{
+                  'title': f'CI/CD Build Alert: {status}',
+                  'description': 'Develop branch deployment pipeline has finished running.',
+                  'color': color,
+                  'fields': [
+                      {'name': 'Repository', 'value': '${{ github.repository }}', 'inline': True},
+                      {'name': 'Merged Branch', 'value': f'\`{source_branch}\`', 'inline': True},
+                      {'name': 'Commit Message', 'value': commit_msg.split('\n')[0], 'inline': False},
+                      {'name': 'Author', 'value': '${{ github.actor }}', 'inline': True},
+                      {'name': 'Backend Status', 'value': '${{ needs.backend-test.result }}', 'inline': True},
+                      {'name': 'Frontend Status', 'value': '${{ needs.frontend-test-build.result }}', 'inline': True}
+                  ]
+              }]
+          }
+          
+          webhook_url = os.environ.get('DISCORD_WEBHOOK')
+          if webhook_url:
+              req = urllib.request.Request(
+                  webhook_url,
+                  data=json.dumps(payload).encode('utf-8'),
+                  headers={'Content-Type': 'application/json'}
+              )
+              urllib.request.urlopen(req)
+          "
+
 
