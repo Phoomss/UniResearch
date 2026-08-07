@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.models.user import User
 from app.schemas.research import ResearchParticipantsResponse, ResearchWorkResponse, ReviewCommentCreate, ReviewCommentResponse
-from app.routers.deps import get_current_active_user, require_role
+from app.routers.deps import get_current_active_user, require_role, oauth2_scheme
 from app.services import research_service
 
 router = APIRouter(prefix="/research", tags=["research"])
@@ -12,7 +12,7 @@ router = APIRouter(prefix="/research", tags=["research"])
 @router.get("/participants", response_model=ResearchParticipantsResponse)
 async def get_research_participants(
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_role(["admin", "student"]))
+    current_user: User = Depends(require_role(["admin", "student", "advisor"]))
 ):
     return await research_service.get_research_participants(db, current_user)
 
@@ -31,7 +31,7 @@ async def create_research(
     cover_image: UploadFile = File(None),
     document: UploadFile = File(None),
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(require_role(["admin", "student"]))
+    current_user: User = Depends(require_role(["admin", "student", "advisor"]))
 ):
     return await research_service.create_research(
         db=db, current_user=current_user,
@@ -42,13 +42,25 @@ async def create_research(
         cover_image=cover_image, document=document
     )
 
+from fastapi.security import OAuth2PasswordBearer
+optional_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login", auto_error=False)
+
 @router.get("/search", response_model=List[ResearchWorkResponse])
 async def search_research(
     q: Optional[str] = None,
     category_id: Optional[int] = None,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    token: Optional[str] = Depends(optional_oauth2_scheme)
 ):
-    return await research_service.search_research(db, q, category_id)
+    # Retrieve user optionally if token is provided to filter search by role
+    current_user = None
+    if token:
+        try:
+            from app.routers.deps import get_current_user
+            current_user = await get_current_user(token, db)
+        except Exception:
+            pass
+    return await research_service.search_research(db, q, category_id, current_user)
 
 @router.get("/my", response_model=List[ResearchWorkResponse])
 async def get_my_research(
@@ -65,6 +77,18 @@ async def get_my_research(
     ).order_by(ResearchWork.created_at.desc())
     result = await db.execute(query)
     return result.scalars().all()
+
+@router.get("/pending", response_model=List[ResearchWorkResponse])
+async def get_pending_research(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["admin", "advisor"]))
+):
+    from sqlalchemy import select
+    from app.models.research import ResearchWork
+    query = select(ResearchWork).where(ResearchWork.status == "pending").order_by(ResearchWork.created_at.desc())
+    result = await db.execute(query)
+    return result.scalars().all()
+
 
 @router.get("/{research_id}", response_model=ResearchWorkResponse)
 async def get_research_detail(
