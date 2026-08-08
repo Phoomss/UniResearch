@@ -18,6 +18,20 @@ export interface ResearchWorkResponse {
   work_type:string|null; academic_year:number|null; keywords:string|null; id:number;
   cover_image_path:string|null; file_path:string|null; status:string; view_count:number;
   download_count:number; published_at:string|null; created_at:string; updated_at:string; submitted_by_id:number;
+  authors?: Array<{
+    id: number;
+    research_id: number;
+    user_id: number;
+    role_in_work: string;
+    user: ResearchParticipant;
+  }>;
+  advisors?: Array<{
+    id: number;
+    research_id: number;
+    user_id: number;
+    user: ResearchParticipant;
+  }>;
+  reviews?: Array<ReviewCommentResponse & { reviewer?: ResearchParticipant }>;
 }
 export interface ResearchParticipant { id:number;email:string;role:"student"|"advisor";first_name:string|null;last_name:string|null;student_id:string|null;department:string|null;is_current:boolean; }
 export interface ResearchParticipantsResponse { authors:ResearchParticipant[];advisors:ResearchParticipant[]; }

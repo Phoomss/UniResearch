@@ -10,6 +10,7 @@ from sqlalchemy import or_
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.models.category import Category
@@ -155,7 +156,12 @@ async def search_research(db: AsyncSession, q: Optional[str], category_id: Optio
 
 
 async def get_research_detail(db: AsyncSession, research_id: int) -> ResearchWork:
-    research = (await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))).scalars().first()
+    query = select(ResearchWork).where(ResearchWork.id == research_id).options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+        selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+    )
+    research = (await db.execute(query)).scalars().first()
     if not research: raise HTTPException(status_code=404, detail="Not found")
     research.view_count += 1; db.add(DownloadViewLog(research_id=research.id, action_type="view")); await db.commit(); await db.refresh(research); return research
 

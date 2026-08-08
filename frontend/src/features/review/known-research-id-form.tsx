@@ -1,17 +1,17 @@
 "use client";
-import { useState, type FormEvent } from "react";
+import { type FormEvent } from "react";
 import { Button, Field, Input } from "@/src/components/ui";
+import { useToast } from "@/src/components/ui/Toast";
 
 export function KnownResearchIdForm() {
-  const [error, setError] = useState("");
+  const { error } = useToast();
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError("");
     const value = String(new FormData(event.currentTarget).get("research_id") ?? "").trim();
     const id = Number(value);
-    if (!value || !Number.isInteger(id) || id < 1) { 
-      setError("กรุณาระบุรหัสผลงานวิจัยที่เป็นตัวเลขจำนวนเต็มบวก"); 
+    if (!value || !Number.isInteger(id) || id<1) { 
+      error("กรุณาระบุรหัสผลงานวิจัยที่เป็นตัวเลขจำนวนเต็มบวก"); 
       return; 
     }
     window.location.assign(`/advisor/reviews/${id}`);
@@ -24,8 +24,8 @@ export function KnownResearchIdForm() {
       <Field label="รหัสผลงานวิจัย (Research ID)" required hint="กรอกรหัสผลงานวิจัยที่ต้องการตรวจสอบโดยตรงเพื่อเปิดหน้ารีวิว">
         <Input name="research_id" type="number" min="1" step="1" inputMode="numeric" required />
       </Field>
-      {error && <p className="status-message error" role="alert">{error}</p>}
       <Button type="submit">เริ่มการตรวจประเมิน</Button>
     </form>
   );
 }
+

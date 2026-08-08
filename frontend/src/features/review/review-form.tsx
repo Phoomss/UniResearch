@@ -2,23 +2,24 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { Button, Field, Select, Textarea } from "@/src/components/ui";
+import { useToast } from "@/src/components/ui/Toast";
+import { AnimatePresence, motion } from "framer-motion";
+import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 
 type Decision = "approved" | "rejected" | "needs_revision";
-type FormStatus = { kind: "success" | "error" | "forbidden"; message: string } | null;
 
 export function ReviewForm({ researchId }: { researchId: number }) {
-  const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, setPending] = useState(false);
-  const [status, setStatus] = useState<FormStatus>(null);
+  const [isOpen, setIsOpen] = useState(false);
   const [decision, setDecision] = useState<Decision>("approved");
+  const { success, error, warning } = useToast();
 
   function requestConfirmation(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus(null);
     const form = new FormData(event.currentTarget);
     setDecision(form.get("status_result") as Decision);
-    dialogRef.current?.showModal();
+    setIsOpen(true);
   }
 
   async function confirm() {
@@ -27,12 +28,12 @@ export function ReviewForm({ researchId }: { researchId: number }) {
     const data = new FormData(form);
     const comment = String(data.get("comment_text") ?? "").trim();
     if (!comment) {
-      dialogRef.current?.close();
-      setStatus({ kind: "error", message: "กรุณากรอกความคิดเห็นประกอบการประเมิน" });
+      setIsOpen(false);
+      error("กรุณากรอกความคิดเห็นประกอบการประเมิน");
       return;
     }
     setPending(true);
-    dialogRef.current?.close();
+    setIsOpen(false);
     try {
       const response = await fetch(`/api/research/${researchId}/review`, {
         method: "POST",
@@ -45,19 +46,19 @@ export function ReviewForm({ researchId }: { researchId: number }) {
         return; 
       }
       if (response.status === 403) { 
-        setStatus({ kind: "forbidden", message: "บัญชีของคุณไม่มีสิทธิ์ในการตรวจประเมินผลงานวิจัยนี้" }); 
+        warning("บัญชีของคุณไม่มีสิทธิ์ในการตรวจประเมินผลงานวิจัยนี้"); 
         return; 
       }
       if (!response.ok) { 
-        setStatus({ kind: "error", message: body.error?.message ?? "ไม่สามารถบันทึกผลการประเมินได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง" }); 
+        error(body.error?.message ?? "ไม่สามารถบันทึกผลการประเมินได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง"); 
         return; 
       }
       
       const statusTh = body.status_result === "approved" ? "อนุมัติ" : body.status_result === "rejected" ? "ไม่อนุมัติ" : "ส่งกลับแก้ไข";
-      setStatus({ kind: "success", message: `บันทึกผลการประเมินผลงานสำเร็จ (รหัสอ้างอิงการประเมิน: #${body.id}, สถานะใหม่: ${statusTh})` });
+      success(`บันทึกผลการประเมินผลงานสำเร็จ (รหัสอ้างอิงการประเมิน: #${body.id}, สถานะใหม่: ${statusTh})`);
       form.reset();
     } catch {
-      setStatus({ kind: "error", message: "ไม่สามารถเชื่อมต่อระบบประเมินได้ในขณะนี้ ความคิดเห็นของคุณจะยังคงอยู่ในหน้านี้จนกว่าคุณจะปิดหรือออกจากหน้านี้" });
+      error("ไม่สามารถเชื่อมต่อระบบประเมินได้ในขณะนี้ ความคิดเห็นของคุณจะยังคงอยู่ในหน้านี้จนกว่าคุณจะปิดหรือออกจากหน้านี้");
     } finally { 
       setPending(false); 
     }
@@ -80,19 +81,42 @@ export function ReviewForm({ researchId }: { researchId: number }) {
           <Textarea name="comment_text" required minLength={1} disabled={pending} />
         </Field>
         <p id="review-contract-note" className="muted">หมายเหตุ: คะแนน การมอบหมายคิว และประวัติการประเมินย้อนหลัง ยังไม่เปิดใช้งานในระบบหลังบ้าน</p>
-        {status && <p className={`status-message ${status.kind}`} role={status.kind === "success" ? "status" : "alert"}>{status.message}</p>}
         <Button type="submit" disabled={pending}>{pending ? "กำลังบันทึกผลการประเมิน…" : "ยืนยันผลการประเมิน"}</Button>
       </form>
-      <dialog ref={dialogRef} className="confirm-dialog" aria-labelledby="confirm-review-title">
-        <h2 id="confirm-review-title" className="section-title">
-          ยืนยัน{decision === "approved" ? "การอนุมัติผลงาน" : decision === "rejected" ? "การไม่อนุมัติผลงาน" : "การส่งกลับแก้ไขผลงาน"}
-        </h2>
-        <p>การดำเนินการนี้จะเปลี่ยนสถานะของผลงานวิจัยในระบบเป็น <strong>{decision}</strong> ทันที</p>
-        <div className="dialog-actions">
-          <Button type="button" variant="ghost" onClick={() => dialogRef.current?.close()}>ยกเลิก</Button>
-          <Button type="button" onClick={confirm}>ยืนยัน</Button>
-        </div>
-      </dialog>
+
+      <AnimatePresence>
+        {isOpen && (
+          <div className="modal-overlay">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ duration: 0.2 }}
+              className="modal-content"
+            >
+              <div className={`modal-header-icon ${decision}`}>
+                {decision === "approved" && <CheckCircle2 size={32} />}
+                {decision === "rejected" && <XCircle size={32} />}
+                {decision === "needs_revision" && <AlertTriangle size={32} />}
+              </div>
+              <h2 className="modal-title">
+                {decision === "approved" && "ยืนยันการอนุมัติผลงาน"}
+                {decision === "rejected" && "ยืนยันการปฏิเสธผลงาน"}
+                {decision === "needs_revision" && "ยืนยันการส่งกลับแก้ไข"}
+              </h2>
+              <p className="modal-text">
+                {decision === "approved" && "การดำเนินการนี้จะอนุมัติผลงานวิจัยในระบบและเผยแพร่ผลงานสู่คลังทันที"}
+                {decision === "rejected" && "การดำเนินการนี้จะกำหนดสถานะผลงานวิจัยเป็นไม่อนุมัติในระบบทันที"}
+                {decision === "needs_revision" && "การดำเนินการนี้จะส่งผลงานวิจัยนี้กลับคืนสู่นักศึกษาเพื่อให้ดำเนินการแก้ไขทันที"}
+              </p>
+              <div className="modal-buttons">
+                <Button type="button" variant="ghost" onClick={() => setIsOpen(false)}>ยกเลิก</Button>
+                <Button type="button" onClick={confirm}>ยืนยัน</Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

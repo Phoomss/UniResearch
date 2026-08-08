@@ -12,6 +12,7 @@ import {
 } from "react";
 import { Button, Field, Input, Select, Textarea } from "@/src/components/ui";
 import { Bold, Italic, Heading1, Heading2, List, ListOrdered, Eye, Edit2 } from "lucide-react";
+import { useToast } from "@/src/components/ui/Toast";
 import type {
   CategoryResponse,
   ResearchParticipant,
@@ -195,6 +196,7 @@ export function SubmissionForm({
     }>({}),
     [result, setResult] = useState<Result>(null),
     [pending, setPending] = useState(false);
+  const { success, error, warning } = useToast();
   const alertRef = useRef<HTMLDivElement>(null);
   const abstractRef = useRef<HTMLTextAreaElement>(null);
   const [abstractMode, setAbstractMode] = useState<"edit" | "preview">("edit");
@@ -292,6 +294,7 @@ export function SubmissionForm({
     const nextErrors = validate(values);
     if (step === 0 && Object.keys(nextErrors).length) {
       setErrors(nextErrors);
+      error("กรุณาตรวจสอบข้อมูลในขั้นตอนแรกก่อนไปขั้นตอนถัดไป");
       focusAlert();
       return;
     }
@@ -318,10 +321,7 @@ export function SubmissionForm({
     ) {
       setErrors(nextErrors);
       setStep(Object.keys(nextErrors).length ? 0 : 3);
-      setResult({
-        kind: "error",
-        message: "กรุณาตรวจสอบข้อมูลที่จำเป็นก่อนส่งผลงาน",
-      });
+      error("กรุณาตรวจสอบข้อมูลที่จำเป็นก่อนส่งผลงาน");
       focusAlert();
       return;
     }
@@ -353,33 +353,21 @@ export function SubmissionForm({
         return;
       }
       if (response.status===403) {
-        setResult({
-          kind: "forbidden",
-          message:
-            "บัญชีนี้ไม่มีสิทธิ์ส่งผลงาน ระบบอนุญาตเฉพาะนักศึกษาและผู้ดูแลระบบ",
-        });
+        warning("บัญชีนี้ไม่มีสิทธิ์ส่งผลงาน ระบบอนุญาตเฉพาะนักศึกษาและผู้ดูแลระบบ");
         return;
       }
       if (!response.ok) {
         const mapped = issueErrors(body.error?.issues);
         if (Object.keys(mapped).length) setErrors(mapped);
-        setResult({
-          kind: "error",
-          message:
-            response.status===413
-              ? "ไฟล์มีขนาดเกินขีดจำกัดของเซิร์ฟเวอร์หรือโครงสร้างพื้นฐาน"
-              : (body.error?.message ??
-                "ไม่สามารถส่งผลงานได้ กรุณาลองอีกครั้ง"),
-        });
+        const msg = response.status===413
+          ? "ไฟล์มีขนาดเกินขีดจำกัดของเซิร์ฟเวอร์หรือโครงสร้างพื้นฐาน"
+          : (body.error?.message ?? "ไม่สามารถส่งผลงานได้ กรุณาลองอีกครั้ง");
+        error(msg);
         return;
       }
       setResult({ kind: "success", research: body as ResearchWorkResponse });
     } catch {
-      setResult({
-        kind: "error",
-        message:
-          "ไม่สามารถเชื่อมต่อบริการส่งผลงานได้ ข้อมูลในแบบฟอร์มยังคงอยู่และสามารถลองใหม่ได้",
-      });
+      error("ไม่สามารถเชื่อมต่อบริการส่งผลงานได้ ข้อมูลในแบบฟอร์มยังคงอยู่และสามารถลองใหม่ได้");
     } finally {
       setPending(false);
       focusAlert();
@@ -453,26 +441,21 @@ export function SubmissionForm({
           </li>
         ))}
       </ol>
-      {(result || Object.keys(errors).length > 0) && (
+      {Object.keys(errors).length > 0 && (
         <div
           ref={alertRef}
           tabIndex={-1}
-          className={`status-message ${result?.kind ?? "error"}`}
+          className="status-message error"
           role="alert"
         >
-          {result && "message" in result && <p>{result.message}</p>}
-          {Object.keys(errors).length > 0 && (
-            <>
-              <strong>กรุณาตรวจสอบข้อมูล</strong>
-              <ul>
-                {Object.values(errors)
-                  .filter(Boolean)
-                  .map((message) => (
-                    <li key={message}>{message}</li>
-                  ))}
-              </ul>
-            </>
-          )}
+          <strong>กรุณาตรวจสอบข้อมูล</strong>
+          <ul>
+            {Object.values(errors)
+              .filter(Boolean)
+              .map((message) => (
+                <li key={message}>{message}</li>
+              ))}
+          </ul>
         </div>
       )}
       <section
