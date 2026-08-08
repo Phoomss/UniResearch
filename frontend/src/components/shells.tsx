@@ -15,7 +15,7 @@ export async function SiteHeader(
                 <Brand />
                 <nav className="nav" aria-label="เมนูหลัก">
                     <Link href="/research">ค้นหาผลงาน</Link>
-                    <Link href="/research">สำรวจหมวดหมู่</Link>
+                    <Link href="/#categories">สำรวจหมวดหมู่</Link>
                     <Link href="/#about">เกี่ยวกับระบบ</Link>
                 </nav>
                 <div className="header-actions">
@@ -29,7 +29,7 @@ export async function SiteHeader(
                             </summary>
                             <nav className="mobile-nav-menu" aria-label="เมนูหลักบนมือถือ">
                                 <Link href="/research">ค้นหาผลงาน</Link>
-                                <Link href="/research">สำรวจหมวดหมู่</Link>
+                                <Link href="/#categories">สำรวจหมวดหมู่</Link>
                                 <Link href="/#about">เกี่ยวกับระบบ</Link>
                                 <LanguageSwitch />
                                 {authenticated ? (
@@ -56,7 +56,7 @@ export function SiteFooter() {
         <footer className="site-footer">
             <div className="container footer-grid">
                 <div><Brand /><p>คลังรวบรวมและเผยแพร่ผลงานวิจัยระดับอุดมศึกษา เพื่อสร้างสรรค์สังคมแห่งการเรียนรู้ที่ยั่งยืน</p></div>
-                <div><h3>QUICK LINKS</h3><p><Link href="/research">ค้นหาผลงาน</Link></p><p><Link href="/research">หมวดหมู่</Link></p><p><Link href="/dashboard/student/submit">ขั้นตอนการส่ง</Link></p></div>
+                <div><h3>QUICK LINKS</h3><p><Link href="/research">ค้นหาผลงาน</Link></p><p><Link href="/#categories">หมวดหมู่</Link></p><p><Link href="/dashboard/student/submit">ขั้นตอนการส่ง</Link></p></div>
                 <div><h3>SUPPORT</h3><p>support@uniresearch.ac.th</p><p>02–123–4567</p></div>
                 <div><LanguageSwitch /><p className="latin">© 2026 University Research Index.<br />Edit by SE67</p></div>
             </div>

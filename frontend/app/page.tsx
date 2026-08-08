@@ -144,7 +144,7 @@ export default async function Home() {
           )}
         </section>
 
-        <section className="discovery-categories" id="about">
+        <section className="discovery-categories" id="categories">
           <div className="container home-container">
             <div className="discovery-section-heading">
               <div><p className="eyebrow">[ Research Index ]</p><h2 className="eyebrow-h2">สำรวจองค์ความรู้ตามหมวดหมู่</h2></div>
@@ -164,7 +164,7 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="discovery-cta container home-container">
+        <section className="discovery-cta container home-container" id="about">
           <div><p className="eyebrow">[ Contribute ]</p><h2 className="eyebrow-h2">เริ่มต้นบทสนทนาทางวิชาการครั้งถัดไป</h2><p>เผยแพร่ผลงานของคุณในคลังกลางที่เชื่อมโยงผู้เรียน นักวิจัย และสังคมแห่งการเรียนรู้</p></div>
           <Link href="/dashboard/student/submit" className="btn btn-primary">ส่งผลงานวิจัย  <FileUp size={18} /></Link>
         </section>
