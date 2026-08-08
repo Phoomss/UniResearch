@@ -4,7 +4,7 @@ import { SiteFooter, SiteHeader } from "@/src/components/shells";
 import { Button } from "@/src/components/ui";
 import { adaptResearch } from "@/src/features/research/adapters";
 import { getCategories, getLatest, getPopular, getStats } from "@/src/features/research/api";
-import { FileUp, SlidersHorizontal } from "lucide-react";
+import { FileUp, SlidersHorizontal, ArrowUpRight } from "lucide-react";
 import SearchTypewriter from "@/src/components/ui/SearchTypewriter";
 const SEARCH_SUGGESTIONS = [
   "ค้นหาจากชื่อผลงานวิจัย",
@@ -156,7 +156,7 @@ export default async function Home() {
                   <Link href={`/research?category_id=${category.id}`} key={category.id}>
                     <span>{String(index + 1).padStart(2, "0")}</span>
                     <strong>{category.category_name}</strong>
-                    <i aria-hidden="true">↗</i>
+                    <ArrowUpRight size={18} aria-hidden="true" />
                   </Link>
                 ))}
               </nav>

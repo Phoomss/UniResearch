@@ -920,7 +920,7 @@ textarea {
 .discovery-cards .folio-meta {
   gap: 12px;
   padding-top: 14px;
-  margin-top: 14px;
+  margin-top: auto;
   font-size: 12px;
 }
 
@@ -931,43 +931,65 @@ textarea {
 
 .category-index {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  border-top: 1px solid #cdc3d080;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  border-top: none;
+  padding-top: 10px;
 }
 
 .category-index a {
-  display: grid;
-  grid-template-columns: 48px 1fr auto;
+  display: flex;
   align-items: center;
-  gap: 12px;
-  min-height: 80px;
-  padding: 16px 0;
-  border-bottom: 1px solid #cdc3d080;
-  transition: padding .2s, color .2s;
+  justify-content: space-between;
+  background: var(--paper-white);
+  border: 1px solid #cdc3d070;
+  border-radius: 14px;
+  padding: 20px 24px;
+  min-height: auto;
+  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, color .25s ease;
 }
 
 .category-index a:nth-child(odd) {
-  margin-right: 24px;
+  margin-right: 0;
 }
 
 .category-index a span {
-  color: #9b919f;
-  font: 600 12px "Plus Jakarta Sans";
+  background: var(--paper-low);
+  color: var(--mulberry-2);
+  font: 700 13px "Plus Jakarta Sans";
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-right: 14px;
+  transition: background .2s, color .2s;
 }
 
 .category-index a strong {
-  font-size: 18px;
-  font-weight: 550;
+  font-size: 17px;
+  font-weight: 600;
+  flex-grow: 1;
+  color: var(--ink);
 }
 
-.category-index a i {
-  color: var(--mulberry);
-  font-style: normal;
+.category-index a svg {
+  color: var(--muted);
+  transition: transform .2s ease, color .2s ease;
 }
 
 .category-index a:hover {
-  padding-left: 10px;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(72, 39, 106, 0.06);
+  border-color: var(--mulberry-2);
   color: var(--mulberry);
+}
+
+.category-index a:hover span {
+  background: var(--mulberry);
+  color: #fff;
+}
+
+.category-index a:hover svg {
+  color: var(--mulberry);
+  transform: translate(2px, -2px);
 }
 
 .discovery-cta {
@@ -1308,12 +1330,16 @@ textarea {
   border: 1px solid #cdc3d070;
   border-radius: 16px;
   padding: 26px;
-  transition: box-shadow .2s, transform .2s;
+  transition: box-shadow .2s, transform .2s, border-color .2s;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .folio:hover {
-  box-shadow: var(--shadow);
-  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(72, 39, 106, 0.08);
+  transform: translateY(-4px);
+  border-color: var(--mulberry-2);
 }
 
 .folio-head {
@@ -1321,23 +1347,100 @@ textarea {
   align-items: center;
   justify-content: space-between;
   gap: 20px;
+  margin-bottom: 12px;
+}
+
+.folio-body {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .folio h2 {
-  font-size: 25px;
+  font-size: 21px;
   line-height: 1.45;
-  margin: 18px 0 4px;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  color: var(--ink);
+  transition: color 0.2s;
+}
+
+.folio h2 a:hover {
+  color: var(--mulberry);
+}
+
+.folio-abstract {
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 10px 0 16px;
+  color: var(--muted);
+  flex-grow: 1;
 }
 
 .folio-meta {
   display: flex;
-  gap: 18px;
+  align-items: center;
+  justify-content: space-between;
   flex-wrap: wrap;
-  padding-top: 18px;
-  margin-top: 20px;
+  gap: 12px;
+  padding-top: 14px;
+  margin-top: auto;
   border-top: 1px solid #cdc3d060;
-  font-size: 14px;
+  font-size: 13.5px;
   color: var(--muted);
+}
+
+.meta-year {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+}
+
+.meta-stats {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.meta-stats > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.inline-icon {
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+.folio-action {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.read-more-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--mulberry-2);
+  transition: color 0.2s, gap 0.2s;
+}
+
+.read-more-link:hover {
+  color: var(--mulberry);
+  gap: 8px;
+}
+
+.read-more-link .arrow-icon {
+  transition: transform 0.2s;
+}
+
+.read-more-link:hover .arrow-icon {
+  transform: translateX(2px);
 }
 
 .citation-line {

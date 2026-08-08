@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Eye, Download, Calendar, ArrowRight } from "lucide-react";
 
 import type { ResearchViewModel } from "@/src/features/research/adapters";
 
@@ -60,44 +61,55 @@ export function FolioCard({ item, variant = "default" }: ResearchItemProps) {
             <span><small>Academic year</small>{item.year}</span>
           </div>
           <div className="explore-folio-stats" aria-label="สถิติผลงาน">
-            <span title="จำนวนการเข้าชม">◉ {item.views.toLocaleString()}</span>
-            <span title="จำนวนดาวน์โหลด">⇩ {item.downloads.toLocaleString()}</span>
+            <span title="จำนวนการเข้าชม"><Eye size={14} className="inline-icon" /> {item.views.toLocaleString()}</span>
+            <span title="จำนวนดาวน์โหลด"><Download size={14} className="inline-icon" /> {item.downloads.toLocaleString()}</span>
           </div>
         </footer>
       </article>
     );
   }
 
+  const truncatedAbstract = item.abstract && item.abstract.length > 140
+    ? item.abstract.substring(0, 140) + "..."
+    : item.abstract || "ไม่มีบทคัดย่อ";
+
   return (
     <article className="folio">
       <div className="folio-head">
         <ArchiveTab>{item.category}</ArchiveTab>
-
         <span className="mono muted">[ {item.ref} ]</span>
       </div>
 
-      <h2>
-        <Link prefetch={false} href={`/research/${item.id}`}>
-          {item.titleTh}
-        </Link>
-      </h2>
-
-      <em className="latin">{item.titleEn}</em>
-
-      <p className="muted">{item.abstract}</p>
+      <div className="folio-body">
+        <h2>
+          <Link prefetch={false} href={`/research/${item.id}`}>
+            {item.titleTh}
+          </Link>
+        </h2>
+        {item.titleEn && <em className="latin">{item.titleEn}</em>}
+        <p className="muted folio-abstract">{truncatedAbstract}</p>
+      </div>
 
       <div className="folio-meta">
         <Status tone={statusTone(item.status)}>
           {statusLabel(item)}
         </Status>
 
-        <span>
-          ปีการศึกษา: <b>{item.year}</b>
+        <span className="meta-year" title="ปีการศึกษา">
+          <Calendar size={14} className="inline-icon" /> {item.year}
         </span>
 
-        <span className="latin">
-          ◉ {item.views}　⇩ {item.downloads}
+        <span className="meta-stats">
+          <span title="จำนวนการเข้าชม"><Eye size={14} className="inline-icon" /> {item.views}</span>
+          <span title="จำนวนดาวน์โหลด"><Download size={14} className="inline-icon" /> {item.downloads}</span>
         </span>
+      </div>
+
+      <div className="folio-action">
+        <Link prefetch={false} href={`/research/${item.id}`} className="read-more-link">
+          <span>อ่านรายละเอียด</span>
+          <ArrowRight size={15} className="arrow-icon" />
+        </Link>
       </div>
 
       <span className="citation-line" aria-hidden="true" />
