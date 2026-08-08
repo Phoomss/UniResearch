@@ -19,7 +19,7 @@ export default async function SavedResearchPage() {
       <main className="dash-main">
         <p className="eyebrow">[ คลังผลงานส่วนตัว ]</p>
         <h1 className="title">ผลงานวิจัยที่บันทึกไว้</h1>
-        <p className="muted">รายการโปรดสามารถใช้งานได้สำหรับทุกบัญชีผู้ใช้งานที่เปิดใช้งาน ระบบหลังบ้านจะส่งคืนเฉพาะไอดีผลงานวิจัยและวันที่บันทึกเท่านั้น ดัชนีนี้จึงไม่ได้สร้างชื่อเรื่องหรือข้อมูลเมทาดาตาขึ้นมาเอง</p>
+        <p className="muted">รายการโปรดสามารถใช้งานได้สำหรับทุกบัญชีผู้ใช้งานที่เปิดใช้งาน เพื่อหลีกเลี่ยงการเพิ่มยอดเข้าชมโดยไม่จำเป็น ระบบจะแสดงรายการเป็นรหัสอ้างอิงและวันเวลาที่ทำการบันทึกเท่านั้น</p>
         
         <div style={{ display: "flex", gap: "16px", marginBottom: "24px", borderBottom: "1px solid #cdc3d030", paddingBottom: "12px" }}>
           <Link href="/account/saved" style={{ fontWeight: "bold", borderBottom: "2px solid var(--mulberry)", paddingBottom: "12px", marginBottom: "-14px", color: "var(--mulberry)" }}>
