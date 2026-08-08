@@ -15,7 +15,7 @@ interface AdminUserManagerProps {
 
 export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
   const router = useRouter();
-  const { success, error, warning } = useToast();
+  const { success, error } = useToast();
   const [users, setUsers] = useState<UserResponse[]>(initialUsers);
   
   // Search & Filter state
@@ -380,7 +380,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                   </span>
                 </div>
 
-                {/* 5. Active Switch style */}
+                {/* 5. Active Status Pill */}
                 <div style={{ display: "flex", alignItems: "center" }}>
                   <span 
                     className={`status ${user.is_active ? "approved" : "rejected"}`} 
@@ -417,7 +417,6 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                     }}
                     onClick={() => setEditingUser(user)}
                     title="แก้ไขข้อมูลผู้ใช้"
-                    className="hover-scale"
                   >
                     <Edit2 size={14} />
                   </button>
@@ -437,7 +436,6 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                     }}
                     onClick={() => setDeletingUser(user)}
                     title="ลบผู้ใช้งาน"
-                    className="hover-scale"
                   >
                     <Trash2 size={14} />
                   </button>
