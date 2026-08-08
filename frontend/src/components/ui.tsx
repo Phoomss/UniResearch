@@ -222,10 +222,23 @@ export function Status({
   let displayValue = children;
   if (typeof children === "string") {
     const val = children.trim().toLowerCase();
-    if (val === "approved") displayValue = "อนุมัติแล้ว";
-    else if (val === "rejected") displayValue = "ไม่อนุมัติ";
-    else if (val === "pending") displayValue = "รอตรวจสอบ";
-    else if (val === "needs_revision") displayValue = "ส่งกลับแก้ไข";
+    let lang = "th";
+    if (typeof window !== "undefined") {
+      const match = document.cookie.match(/(^|;)\s*lang\s*=\s*([^;]+)/);
+      lang = match && match[2] === "en" ? "en" : "th";
+    }
+    
+    if (lang === "en") {
+      if (val === "approved") displayValue = "Approved";
+      else if (val === "rejected") displayValue = "Rejected";
+      else if (val === "pending") displayValue = "Pending";
+      else if (val === "needs_revision" || val === "revision_needed") displayValue = "Revision Needed";
+    } else {
+      if (val === "approved") displayValue = "อนุมัติแล้ว";
+      else if (val === "rejected") displayValue = "ไม่อนุมัติ";
+      else if (val === "pending") displayValue = "รอตรวจสอบ";
+      else if (val === "needs_revision" || val === "revision_needed") displayValue = "ส่งกลับแก้ไข";
+    }
   }
   return <span className={`status ${tone}`}>{displayValue}</span>;
 }
