@@ -113,10 +113,10 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <AdminBrand />
         <AdminNavigation pathname={pathname} />
         <div className="admin-sidebar-footer">
-          <div className="admin-profile">
+          <Link href="/admin/profile" className="admin-profile" style={{ display: "flex", gap: "12px", alignItems: "center", textDecoration: "none", color: "inherit", cursor: "pointer" }}>
             <span><UserRound size={17} /></span>
             <div><strong>โปรไฟล์ผู้ดูแลระบบ</strong><small>หัวหน้ามหาวิทยาลัย</small></div>
-          </div>
+          </Link>
           <Link href="/"><ExternalLink size={15} /> <span>เว็บไซต์หลัก</span></Link>
           <LogoutButton />
         </div>
@@ -131,7 +131,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <Search aria-hidden="true" size={18} />
             <input name="q" type="search" placeholder="ค้นหาคลังข้อมูล [ / ]" />
           </form>
-          <span className="admin-avatar" aria-label="บัญชีผู้ดูแลระบบ"><UserRound size={18} /></span>
+          <Link href="/admin/profile" className="admin-avatar" aria-label="บัญชีผู้ดูแลระบบ" style={{ display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", color: "inherit" }}><UserRound size={18} /></Link>
           <details className="admin-mobile-menu">
             <summary aria-label="เปิดเมนูผู้ดูแลระบบ"><Menu size={22} /></summary>
             <div>

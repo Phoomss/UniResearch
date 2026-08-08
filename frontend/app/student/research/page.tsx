@@ -24,6 +24,7 @@ export default async function StudentSubmissionsPage() {
   const t = {
     favorites: isEn ? "Favorites" : "รายการโปรดที่บันทึกไว้ (Favorites)",
     mySubmissions: isEn ? "My Submissions" : "ผลงานวิจัยของฉัน (My Submissions)",
+    profile: isEn ? "Profile" : "ข้อมูลส่วนตัว (Profile)",
     personalRepo: isEn ? "Personal Repository" : "คลังผลงานส่วนตัว",
     mySubmissionsTitle: isEn ? "My Submissions" : "ผลงานวิจัยของฉัน",
     mySubmissionsSubtitle: isEn 
@@ -46,6 +47,9 @@ export default async function StudentSubmissionsPage() {
           </Link>
           <Link href="/student/research" style={{ fontWeight: "bold", borderBottom: "2px solid var(--mulberry)", paddingBottom: "12px", marginBottom: "-14px", color: "var(--mulberry)" }}>
             {t.mySubmissions}
+          </Link>
+          <Link href="/student/profile" style={{ color: "var(--muted)", paddingBottom: "12px" }}>
+            {t.profile}
           </Link>
         </div>
 

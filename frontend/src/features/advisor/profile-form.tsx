@@ -15,6 +15,7 @@ export function ProfileForm({ initialUser, departments }: ProfileFormProps) {
   const [lastName, setLastName] = useState(initialUser.last_name || "");
   const [email, setEmail] = useState(initialUser.email || "");
   const [department, setDepartment] = useState(initialUser.department || "");
+  const [studentId, setStudentId] = useState(initialUser.student_id || "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   
@@ -40,6 +41,10 @@ export function ProfileForm({ initialUser, departments }: ProfileFormProps) {
       email: email,
       department: department || null,
     };
+
+    if (initialUser.role === "student") {
+      updateData.student_id = studentId || null;
+    }
     
     if (password) {
       updateData.password = password;
@@ -114,6 +119,20 @@ export function ProfileForm({ initialUser, departments }: ProfileFormProps) {
           style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: "8px", outline: "none", fontSize: "14px" }}
         />
       </div>
+
+      {/* Student ID */}
+      {initialUser.role === "student" && (
+        <div>
+          <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#374151", marginBottom: "6px" }}>รหัสนักศึกษา</label>
+          <input 
+            type="text" 
+            value={studentId} 
+            onChange={(e) => setStudentId(e.target.value)} 
+            placeholder="รหัสนักศึกษา"
+            style={{ width: "100%", padding: "10px 12px", border: "1px solid #e5e7eb", borderRadius: "8px", outline: "none", fontSize: "14px" }}
+          />
+        </div>
+      )}
 
       {/* Department Dropdown */}
       <div>
