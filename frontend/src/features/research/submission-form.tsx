@@ -172,21 +172,50 @@ function FileDrop({
 export function SubmissionForm({
   categories,
   participants,
+  research,
 }: {
   categories: CategoryResponse[];
   participants: ResearchParticipantsResponse;
+  research?: ResearchWorkResponse;
 }) {
   const [step, setStep] = useState(0),
-    [values, setValues] = useState(initial),
+    [values, setValues] = useState<Values>(() => {
+      if (research) {
+        return {
+          title_th: research.title_th ?? "",
+          title_en: research.title_en ?? "",
+          category_id: research.category_id ? String(research.category_id) : "",
+          department: research.department ?? "",
+          work_type: research.work_type ?? "",
+          academic_year: research.academic_year ? String(research.academic_year) : "",
+          abstract: research.abstract ?? "",
+          keywords: research.keywords ?? "",
+        };
+      }
+      return initial;
+    }),
     [errors, setErrors] = useState<Errors>({});
   const rowSequence = useRef(1);
   const currentAuthor = participants.authors.find(
     (person) => person.is_current,
   );
-  const [authors, setAuthors] = useState(() => [
-    { key: "author-0", userId: currentAuthor ? String(currentAuthor.id) : "" },
-  ]);
-  const [advisorId, setAdvisorId] = useState("");
+  const [authors, setAuthors] = useState(() => {
+    if (research && research.authors && research.authors.length > 0) {
+      return research.authors.map((a, index) => ({
+        key: `author-${index}`,
+        userId: String(a.user_id),
+      }));
+    }
+    return [
+      { key: "author-0", userId: currentAuthor ? String(currentAuthor.id) : "" },
+    ];
+  });
+  const [advisorId, setAdvisorId] = useState(() => {
+    if (research && research.advisors && research.advisors.length > 0) {
+      return String(research.advisors[0].user_id);
+    }
+    return "";
+  });
   const [cover, setCover] = useState<File | null>(null),
     [document, setDocument] = useState<File | null>(null),
     [fileErrors, setFileErrors] = useState<{
@@ -339,20 +368,23 @@ export function SubmissionForm({
     );
     if (cover) form.set("cover_image", cover);
     if (document) form.set("document", document);
+    const isEdit = !!research;
+    const url = isEdit ? `/api/research/${research.id}` : "/api/research";
+    const method = isEdit ? "PUT" : "POST";
     try {
-      const response = await fetch("/api/research", {
-        method: "POST",
+      const response = await fetch(url, {
+        method: method,
         body: form,
       });
       const body = await response.json().catch(() => ({}));
       if (response.status===401) {
         window.location.assign(
-          `/login?next=${encodeURIComponent("/student/research/new")}`,
+          `/login?next=${encodeURIComponent(isEdit ? `/student/research/edit/${research.id}` : "/student/research/new")}`,
         );
         return;
       }
       if (response.status===403) {
-        warning("บัญชีนี้ไม่มีสิทธิ์ส่งผลงาน ระบบอนุญาตเฉพาะนักศึกษาและผู้ดูแลระบบ");
+        warning(isEdit ? "บัญชีนี้ไม่มีสิทธิ์แก้ไขผลงานวิจัยนี้" : "บัญชีนี้ไม่มีสิทธิ์ส่งผลงาน ระบบอนุญาตเฉพาะนักศึกษาและผู้ดูแลระบบ");
         return;
       }
       if (!response.ok) {
@@ -360,19 +392,20 @@ export function SubmissionForm({
         if (Object.keys(mapped).length) setErrors(mapped);
         const msg = response.status===413
           ? "ไฟล์มีขนาดเกินขีดจำกัดของเซิร์ฟเวอร์หรือโครงสร้างพื้นฐาน"
-          : (body.error?.message ?? "ไม่สามารถส่งผลงานได้ กรุณาลองอีกครั้ง");
+          : (body.error?.message ?? (isEdit ? "ไม่สามารถแก้ไขผลงานได้ กรุณาลองอีกครั้ง" : "ไม่สามารถส่งผลงานได้ กรุณาลองอีกครั้ง"));
         error(msg);
         return;
       }
       setResult({ kind: "success", research: body as ResearchWorkResponse });
     } catch {
-      error("ไม่สามารถเชื่อมต่อบริการส่งผลงานได้ ข้อมูลในแบบฟอร์มยังคงอยู่และสามารถลองใหม่ได้");
+      error("ไม่สามารถเชื่อมต่อบริการได้ ข้อมูลในแบบฟอร์มยังคงอยู่และสามารถลองใหม่ได้");
     } finally {
       setPending(false);
       focusAlert();
     }
   }
-  if (result?.kind === "success")
+  if (result?.kind === "success") {
+    const isEdit = !!research;
     return (
       <section
         ref={alertRef}
@@ -380,10 +413,10 @@ export function SubmissionForm({
         className="panel submission-result"
         role="status"
       >
-        <p className="eyebrow">[ Submission complete ]</p>
-        <h2 className="section-title">ส่งผลงานเรียบร้อยแล้ว</h2>
+        <p className="eyebrow">{isEdit ? "[ Update complete ]" : "[ Submission complete ]"}</p>
+        <h2 className="section-title">{isEdit ? "แก้ไขผลงานเรียบร้อยแล้ว" : "ส่งผลงานเรียบร้อยแล้ว"}</h2>
         <p>
-          ระบบสร้างผลงานหมายเลข {result.research.id} และกำหนดสถานะเป็น{" "}
+          ระบบ{isEdit ? "อัปเดต" : "สร้าง"}ผลงานหมายเลข {result.research.id} และกำหนดสถานะเป็น{" "}
           <code>{result.research.status}</code>
         </p>
         <div className="form-actions">
@@ -393,22 +426,23 @@ export function SubmissionForm({
           >
             ดูรายละเอียดผลงาน
           </Link>
-          <Link className="btn btn-secondary" href="/dashboard/student">
-            กลับแดชบอร์ด
+          <Link className="btn btn-secondary" href="/account/saved">
+            กลับหน้าผลงานของฉัน
           </Link>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setValues(initial);
-              setAuthors([
-                {
-                  key: "author-reset",
-                  userId: currentAuthor ? String(currentAuthor.id) : "",
-                },
-              ]);
-              setAdvisorId("");
-              setCover(null);
-              setDocument(null);
+          {!isEdit && (
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setValues(initial);
+                setAuthors([
+                  {
+                    key: "author-reset",
+                    userId: currentAuthor ? String(currentAuthor.id) : "",
+                  },
+                ]);
+                setAdvisorId("");
+                setCover(null);
+                setDocument(null);
               setFileErrors({});
               setErrors({});
               setStep(0);
@@ -417,9 +451,11 @@ export function SubmissionForm({
           >
             ส่งผลงานอีกชิ้น
           </Button>
+          )}
         </div>
       </section>
     );
+  }
   return (
     <form className="submission-workflow" onSubmit={submit} noValidate>
       <ol className="stepper" aria-label="ขั้นตอนการส่งผลงาน">

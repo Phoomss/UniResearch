@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/src/components/shells";
 import { ArchiveTab, StatePanel, Status } from "@/src/components/ui";
 import { ResearchActions } from "@/src/features/research/actions";
-import { getCategories, getResearch } from "@/src/features/research/api";
+import { getCategories, getResearch, getCurrentUser } from "@/src/features/research/api";
 import { adaptResearch } from "@/src/features/research/adapters";
 import { hasSession } from "@/src/lib/api/session";
 import { AbstractRenderer } from "@/src/features/research/abstract-renderer";
@@ -15,13 +15,25 @@ export default async function ResearchDetail({params}:{params:Promise<{id:string
   if(!Number.isInteger(id)||id<1)notFound();
   const [result,categories,authenticated]=await Promise.all([getResearch(id),getCategories(),hasSession()]);
   if(!result.ok&&result.error.status===404)notFound();
+
+  let isOwner = false;
+  if (authenticated && result.ok) {
+    const userRes = await getCurrentUser();
+    if (userRes.ok) {
+      const user = userRes.data;
+      isOwner = !!(user.role === "admin" || 
+                result.data.submitted_by_id === user.id || 
+                result.data.authors?.some(a => a.user_id === user.id));
+    }
+  }
+
   return <><SiteHeader/><main className="detail-page"><article className="detail">
     {!result.ok?<StatePanel kind="error" title="Research could not be loaded" detail={result.error.message}/>:(()=>{
       const item=adaptResearch(result.data,categories.ok?categories.data:[]);
       return <>
         <header className="detail-heading"><div className="folio-heading"><ArchiveTab>{item.category}</ArchiveTab><span className="mono muted">[ FOLIO: {item.ref} ]</span></div><h1 className="title">{item.titleTh}</h1><p className="latin detail-subtitle">{item.titleEn}</p></header>
         <div className="detail-meta rule"><div><span className="eyebrow">Status</span><br/><Status tone={tone(item.statusRaw)}>{item.statusRaw}</Status></div><div><span className="eyebrow">Year</span><br/>{item.year}</div><div><span className="eyebrow">Created</span><br/>{item.created}</div><div><span className="eyebrow">Published</span><br/>{item.published}</div></div>
-        <ResearchActions researchId={item.id} hasDocument={item.hasDocument} authenticated={authenticated}/>
+        <ResearchActions researchId={item.id} hasDocument={!!item.hasDocument} authenticated={!!authenticated} isOwner={isOwner}/>
         <div className="detail-body">
           <section><h2 className="section-title">Abstract</h2><AbstractRenderer abstract={item.abstract}/></section>
           <section>

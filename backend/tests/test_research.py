@@ -187,4 +187,49 @@ async def test_get_pending_research(client: AsyncClient, db_session, test_user, 
     assert len(pending_list) >= 1
     assert any(item["title_en"] == "Pending Research" for item in pending_list)
 
+@pytest.mark.asyncio
+async def test_update_and_delete_research(client: AsyncClient, db_session, test_user, advisor_user):
+    # Log in student
+    student_token = (await client.post("/auth/login", data={"username": "student@test.com", "password": "password123"})).json()["access_token"]
+    student_headers = {"Authorization": f"Bearer {student_token}"}
+
+    # Create category
+    from app.models.category import Category
+    category = Category(category_name="Crud Category")
+    db_session.add(category)
+    await db_session.commit()
+    await db_session.refresh(category)
+
+    # Create research
+    data = {
+        "title_th": "ชื่อเดิม",
+        "title_en": "Old Title",
+        "category_id": category.id,
+        "author_ids": json.dumps([test_user.id]),
+        "advisor_ids": json.dumps([advisor_user.id])
+    }
+    create_resp = await client.post("/research/", data=data, headers=student_headers)
+    assert create_resp.status_code == 200
+    res_id = create_resp.json()["id"]
+
+    # Update research
+    update_data = {
+        "title_th": "ชื่อใหม่",
+        "title_en": "New Title",
+        "category_id": category.id,
+        "author_ids": json.dumps([test_user.id]),
+        "advisor_ids": json.dumps([advisor_user.id])
+    }
+    update_resp = await client.put(f"/research/{res_id}", data=update_data, headers=student_headers)
+    assert update_resp.status_code == 200
+    assert update_resp.json()["title_en"] == "New Title"
+
+    # Delete research
+    delete_resp = await client.delete(f"/research/{res_id}", headers=student_headers)
+    assert delete_resp.status_code == 200
+
+    # Ensure it's deleted
+    get_resp = await client.get(f"/research/{res_id}")
+    assert get_resp.status_code == 404
+
 

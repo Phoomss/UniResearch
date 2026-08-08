@@ -41,11 +41,11 @@ export function ReviewForm({ researchId }: { researchId: number }) {
         body: JSON.stringify({ comment_text: comment, status_result: decision }),
       });
       const body = await response.json().catch(() => ({}));
-      if (response.status === 401) { 
+      if (response.status===401) { 
         window.location.assign(`/login?next=${encodeURIComponent(`/advisor/reviews/${researchId}`)}`); 
         return; 
       }
-      if (response.status === 403) { 
+      if (response.status===403) { 
         warning("บัญชีของคุณไม่มีสิทธิ์ในการตรวจประเมินผลงานวิจัยนี้"); 
         return; 
       }

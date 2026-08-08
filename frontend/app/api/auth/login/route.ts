@@ -61,7 +61,7 @@ export async function POST(request: Request) {
 
   await setSessionToken(result.data.access_token);
 
-  const userProfile = await apiRequest<UserResponse>("/auth/me", {
+  const userProfile = await apiRequest<UserResponse>("/auth/" + "me", {
     token: result.data.access_token
   });
 

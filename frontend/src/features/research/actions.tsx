@@ -4,10 +4,10 @@ import { useState } from "react";
 import { Button, ButtonLink } from "@/src/components/ui";
 import { useToast } from "@/src/components/ui/Toast";
 import { AnimatePresence, motion } from "framer-motion";
-import { ExternalLink, X, FileText, Download, Bookmark } from "lucide-react";
+import { Edit2, Trash2, ExternalLink, X, FileText, Download, Bookmark } from "lucide-react";
 
-export function ResearchActions({ researchId, hasDocument, authenticated }: { researchId: number; hasDocument: boolean; authenticated: boolean }) {
-  const [pending, setPending] = useState<"favorite" | "download" | "preview" | null>(null);
+export function ResearchActions({ researchId, hasDocument, authenticated, isOwner }: { researchId: number; hasDocument: boolean; authenticated?: boolean | null; isOwner?: boolean }) {
+  const [pending, setPending] = useState<"favorite" | "download" | "preview" | "delete" | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { success, error, warning } = useToast();
   const loginHref = `/login?next=${encodeURIComponent(`/research/${researchId}`)}`;
@@ -62,6 +62,25 @@ export function ResearchActions({ researchId, hasDocument, authenticated }: { re
     }
   }
 
+  async function deleteResearch() {
+    if (!window.confirm("คุณต้องการลบผลงานวิจัยนี้ใช่หรือไม่? การกระทำนี้ไม่สามารถย้อนกลับได้")) return;
+    setPending("delete");
+    try {
+      const response = await fetch(`/api/research/${researchId}`, { method: "DELETE" });
+      if (response.ok) {
+        success("ลบผลงานวิจัยเรียบร้อยแล้ว");
+        window.location.assign("/account/saved");
+      } else {
+        const body = await response.json().catch(() => ({}));
+        error(body.error?.message ?? "ไม่สามารถลบผลงานวิจัยได้");
+      }
+    } catch {
+      error("ไม่สามารถเชื่อมต่อบริการลบผลงานวิจัยได้");
+    } finally {
+      setPending(null);
+    }
+  }
+
   return (
     <>
       <section className="research-actions" aria-label="Research actions">
@@ -78,6 +97,20 @@ export function ResearchActions({ researchId, hasDocument, authenticated }: { re
             <Bookmark size={16} />
             {pending === "favorite" ? "Saving…" : "Save research"}
           </Button>
+          {isOwner && (
+            <>
+              <ButtonLink href={`/student/research/edit/${researchId}`} variant="secondary">
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+                  <Edit2 size={16} />
+                  แก้ไขผลงาน (Edit)
+                </span>
+              </ButtonLink>
+              <Button type="button" variant="ghost" onClick={deleteResearch} disabled={pending !== null} style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "var(--red, #ef4444)" }}>
+                <Trash2 size={16} />
+                {pending === "delete" ? "กำลังลบ…" : "ลบผลงาน (Delete)"}
+              </Button>
+            </>
+          )}
         </div>
         {!hasDocument && <p className="muted" role="status">No document file is available for this record.</p>}
       </section>

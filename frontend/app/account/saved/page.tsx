@@ -1,29 +1,29 @@
 import { redirect } from "next/navigation";
 import { DashboardShell } from "@/src/components/shells";
 import { StatePanel } from "@/src/components/ui";
-import { getMyResearch } from "@/src/features/research/api";
+import { listFavorites } from "@/src/features/research/api";
 import { SavedResearchList } from "@/src/features/research/saved-research-list";
 import { hasSession } from "@/src/lib/api/session";
 
 export default async function SavedResearchPage() {
   if (!await hasSession()) redirect(`/login?next=${encodeURIComponent("/account/saved")}`);
 
-  const myResearch = await getMyResearch();
+  const favorites = await listFavorites();
 
-  if (!myResearch.ok && myResearch.error.status === 401) redirect(`/login?next=${encodeURIComponent("/account/saved")}`);
+  if (!favorites.ok && favorites.error.status === 401) redirect(`/login?next=${encodeURIComponent("/account/saved")}`);
 
   return (
     <DashboardShell>
       <main className="dash-main">
         <p className="eyebrow">[ คลังผลงานส่วนตัว ]</p>
-        <h1 className="title">ผลงานวิจัยของฉัน</h1>
-        <p className="muted">รายการผลงานวิจัยที่คุณเป็นผู้สร้างหรือผู้ส่งเข้าระบบในทุกสถานะการดำเนินงาน</p>
-        {!myResearch.ok ? (
-          <StatePanel kind="error" title="ไม่สามารถแสดงผลงานวิจัยของคุณได้" detail={`${myResearch.error.message} [${myResearch.error.code}]`} />
-        ) : myResearch.data.length === 0 ? (
-          <StatePanel kind="empty" title="ไม่มีผลงานวิจัยของคุณในระบบ" detail="คุณยังไม่ได้ยื่นส่งผลงานวิจัยใดๆ ในระบบ" />
+        <h1 className="title">ผลงานวิจัยที่บันทึกไว้</h1>
+        <p className="muted">รายการโปรดสามารถใช้งานได้สำหรับทุกบัญชีผู้ใช้งานที่เปิดใช้งาน ระบบหลังบ้านจะส่งคืนเฉพาะไอดีผลงานวิจัยและวันที่บันทึกเท่านั้น ดัชนีนี้จึงไม่ได้สร้างชื่อเรื่องหรือข้อมูลเมทาดาตาขึ้นมาเอง</p>
+        {!favorites.ok ? (
+          <StatePanel kind="error" title="ไม่สามารถแสดงผลงานวิจัยที่บันทึกไว้ได้" detail={`${favorites.error.message} [${favorites.error.code}]`} />
+        ) : favorites.data.length === 0 ? (
+          <StatePanel kind="empty" title="ไม่มีผลงานวิจัยที่บันทึกไว้" detail="เปิดดูหน้ารายละเอียดผลงานวิจัยแล้วเลือก 'บันทึกผลงาน' เพื่อเพิ่มลงในรายการนี้" />
         ) : (
-          <SavedResearchList items={myResearch.data} />
+          <SavedResearchList items={favorites.data} />
         )}
       </main>
     </DashboardShell>

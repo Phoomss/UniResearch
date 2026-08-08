@@ -123,3 +123,39 @@ async def review_research(
     current_user: User = Depends(require_role(["advisor", "admin"]))
 ):
     return await research_service.review_research(db, current_user, research_id, review_in)
+
+@router.put("/{research_id}", response_model=ResearchWorkResponse)
+async def update_research(
+    research_id: int,
+    title_th: str = Form(...),
+    title_en: str = Form(...),
+    category_id: int = Form(...),
+    abstract: Optional[str] = Form(None),
+    department: Optional[str] = Form(None),
+    work_type: Optional[str] = Form(None),
+    academic_year: Optional[int] = Form(None),
+    keywords: Optional[str] = Form(None),
+    author_ids: str = Form("[]"),
+    advisor_ids: str = Form("[]"),
+    cover_image: UploadFile = File(None),
+    document: UploadFile = File(None),
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["admin", "student", "advisor"]))
+):
+    return await research_service.update_research(
+        db=db, research_id=research_id, current_user=current_user,
+        title_th=title_th, title_en=title_en, category_id=category_id,
+        abstract=abstract, department=department, work_type=work_type,
+        academic_year=academic_year, keywords=keywords,
+        author_ids=author_ids, advisor_ids=advisor_ids,
+        cover_image=cover_image, document=document
+    )
+
+@router.delete("/{research_id}")
+async def delete_research(
+    research_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["admin", "student", "advisor"]))
+):
+    await research_service.delete_research(db=db, research_id=research_id, current_user=current_user)
+    return {"message": "Research deleted successfully"}
