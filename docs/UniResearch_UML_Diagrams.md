@@ -4,63 +4,69 @@
 
 ---
 
+
+
+---
+
 ## 1. Use Case Diagram (แผนภาพยูสเคส)
 
 แสดงบทบาทของผู้ใช้ (Actors) ทั้ง 4 กลุ่มและความสัมพันธ์กับฟังก์ชันหลักของระบบ (Use Cases):
 
 ```mermaid
-  leftToRightDirection
-  actor Guest as "Guest\n(ผู้เข้าชมทั่วไป)"
-  actor Student as "Student\n(นักศึกษา/ผู้แต่ง)"
-  actor Advisor as "Advisor\n(อาจารย์/ผู้ประเมิน)"
-  actor Admin as "Admin\n(ผู้ดูแลระบบ)"
+flowchart LR
+    subgraph Actors [บทบาทผู้ใช้]
+        Guest["Guest (ผู้เข้าชมทั่วไป)"]
+        Student["Student (นักศึกษา/ผู้แต่ง)"]
+        Advisor["Advisor (อาจารย์/ผู้ประเมิน)"]
+        Admin["Admin (ผู้ดูแลระบบ)"]
+    end
 
-  rectangle UniResearch_System {
-    usecase UC_Register as "สมัครสมาชิก (เฉพาะ Student)"
-    usecase UC_Login as "เข้าสู่ระบบ / จัดการเซสชัน"
-    usecase UC_EditProfile as "ดู/แก้ไขโปรไฟล์ตนเอง"
-    usecase UC_Search as "ค้นหาและกรองผลงานวิจัย"
-    usecase UC_Download as "ดาวน์โหลดเอกสาร PDF"
-    usecase UC_Submit as "ส่งผลงานวิจัยใหม่"
-    usecase UC_Upload as "อัปโหลดปก/ไฟล์ PDF"
-    usecase UC_Revision as "ส่งเอกสารรุ่นปรับปรุง (Revision)"
-    usecase UC_Favorite as "บันทึกผลงานโปรด (Bookmark)"
-    usecase UC_Review as "ตรวจประเมินผลงาน (คิวงาน)"
-    usecase UC_ManageUsers as "จัดการบัญชีและสิทธิ์ผู้ใช้"
-    usecase UC_ManageCats as "จัดการหมวดหมู่และตัวเลือก"
-    usecase UC_Dashboard as "ดูสถิติภาพรวมระบบ"
-  }
+    subgraph UniResearch [ระบบ UniResearch]
+        UC_Register("สมัครสมาชิก (เฉพาะ Student)")
+        UC_Login("เข้าสู่ระบบ / จัดการเซสชัน")
+        UC_EditProfile("ดู/แก้ไขโปรไฟล์ตนเอง")
+        UC_Search("ค้นหาและกรองผลงานวิจัย")
+        UC_Download("ดาวน์โหลดเอกสาร PDF")
+        UC_Submit("ส่งผลงานวิจัยใหม่")
+        UC_Upload("อัปโหลดปก/ไฟล์ PDF")
+        UC_Revision("ส่งเอกสารรุ่นปรับปรุง (Revision)")
+        UC_Favorite("บันทึกผลงานโปรด (Bookmark)")
+        UC_Review("ตรวจประเมินผลงาน (คิวงาน)")
+        UC_ManageUsers("จัดการบัญชีและสิทธิ์ผู้ใช้")
+        UC_ManageCats("จัดการหมวดหมู่และตัวเลือก")
+        UC_Dashboard("ดูสถิติภาพรวมระบบ")
+    end
 
-  Guest --> UC_Register
-  Guest --> UC_Login
-  Guest --> UC_Search
-  Guest --> UC_Download
+    Guest --> UC_Register
+    Guest --> UC_Login
+    Guest --> UC_Search
+    Guest --> UC_Download
 
-  Student --> UC_Login
-  Student --> UC_EditProfile
-  Student --> UC_Search
-  Student --> UC_Download
-  Student --> UC_Submit
-  Student --> UC_Upload
-  Student --> UC_Revision
-  Student --> UC_Favorite
+    Student --> UC_Login
+    Student --> UC_EditProfile
+    Student --> UC_Search
+    Student --> UC_Download
+    Student --> UC_Submit
+    Student --> UC_Upload
+    Student --> UC_Revision
+    Student --> UC_Favorite
 
-  Advisor --> UC_Login
-  Advisor --> UC_EditProfile
-  Advisor --> UC_Search
-  Advisor --> UC_Download
-  Advisor --> UC_Review
-  Advisor --> UC_Favorite
+    Advisor --> UC_Login
+    Advisor --> UC_EditProfile
+    Advisor --> UC_Search
+    Advisor --> UC_Download
+    Advisor --> UC_Review
+    Advisor --> UC_Favorite
 
-  Admin --> UC_Login
-  Admin --> UC_EditProfile
-  Admin --> UC_Search
-  Admin --> UC_Download
-  Admin --> UC_Submit
-  Admin --> UC_Review
-  Admin --> UC_ManageUsers
-  Admin --> UC_ManageCats
-  Admin --> UC_Dashboard
+    Admin --> UC_Login
+    Admin --> UC_EditProfile
+    Admin --> UC_Search
+    Admin --> UC_Download
+    Admin --> UC_Submit
+    Admin --> UC_Review
+    Admin --> UC_ManageUsers
+    Admin --> UC_ManageCats
+    Admin --> UC_Dashboard
 ```
 
 ---
@@ -185,10 +191,100 @@ classDiagram
 
 ## 3. Entity-Relationship Diagram (ER Diagram)
 
-แสดงความเชื่อมโยงเชิงโครงสร้างฐานข้อมูล คีย์หลัก (PK) คีย์นอก (FK) และความสัมพันธ์แบบ Cardinality (1:1, 1:N, N:M):
+แสดงความเชื่อมโยงเชิงโครงสร้างฐานข้อมูล คีย์หลัก (PK) คีย์นอก (FK) และความสัมพันธ์แบบ Cardinality (1:1, 1:N, N:M) พร้อมรายละเอียดแอตทริบิวต์และประเภทข้อมูล:
 
 ```mermaid
 erDiagram
+    users {
+        int id PK
+        string email
+        string hashed_password
+        string role
+        string student_id
+        string department
+        string first_name
+        string last_name
+        boolean is_active
+    }
+    departments {
+        int id PK
+        string name
+    }
+    work_types {
+        int id PK
+        string name
+    }
+    research_works {
+        int id PK
+        string title_th
+        string title_en
+        text abstract
+        int category_id FK
+        string department
+        string work_type
+        int academic_year
+        string keywords
+        string cover_image_path
+        string file_path
+        string status
+        int view_count
+        int download_count
+        datetime published_at
+        datetime created_at
+        datetime updated_at
+        int submitted_by_id FK
+    }
+    categories {
+        int id PK
+        string category_name
+        string description
+    }
+    research_authors {
+        int id PK
+        int research_id FK
+        int user_id FK
+        string role_in_work
+    }
+    research_advisors {
+        int id PK
+        int research_id FK
+        int user_id FK
+    }
+    file_revisions {
+        int id PK
+        int research_id FK
+        string file_path
+        int version_no
+        int uploaded_by FK
+        datetime uploaded_at
+    }
+    review_comments {
+        int id PK
+        int research_id FK
+        int reviewer_id FK
+        text comment_text
+        string status_result
+        datetime created_at
+    }
+    favorites {
+        int id PK
+        int user_id FK
+        int research_id FK
+        datetime saved_at
+    }
+    download_view_logs {
+        int id PK
+        int research_id FK
+        int user_id FK
+        string action_type
+        datetime action_at
+    }
+    search_logs {
+        int id PK
+        string keyword
+        datetime searched_at
+    }
+
     users ||--o{ research_works : "submits"
     users ||--o{ research_authors : "authored_by"
     users ||--o{ research_advisors : "advises_by"
@@ -240,28 +336,25 @@ stateDiagram-v2
 แสดงเวิร์กโฟลว์ของกระบวนการอัปโหลด ส่งผลงานวิจัย และการดำเนินงานของผู้ประเมินในการอนุมัติผลงาน:
 
 ```mermaid
-  grid
-  activityDiagram
-  start
-  :นักศึกษากรอกข้อมูลผลงานวิจัย;
-  :อัปโหลดภาพหน้าปกและไฟล์ PDF;
-  :ระบุอาจารย์ที่ปรึกษาและหมวดหมู่;
-  :คลิกส่งผลงาน (Submit);
-  --> ทำให้อัพเดตสถานะเป็น Pending;
-  
-  if (อาจารย์เปิดคิวงานตรวจสอบและคัดเลือกงานนี้) then (ตรวจแล้วข้อมูลถูกต้อง)
-    :อนุมัติผลงานวิจัย (Approved);
-    :ระบบอัปเดตสถานะเป็น Approved;
-    :ตั้งค่าวันที่เผยแพร่และนำขึ้นแสดงสาธารณะ;
-  else (ตรวจแล้วต้องปรับปรุงแก้ไข)
-    :เขียนข้อคิดเห็นจุดที่ต้องปรับปรุง;
-    :ส่งกลับแก้ไข (Needs Revision);
-    :นักศึกษาเข้าดูข้อคิดเห็นบนหน้าจอผู้แต่ง;
-    :นักศึกษาแก้ไขรายละเอียดหรืออัปโหลดไฟล์ใหม่ (Revision);
-    :กดส่งกลับเข้าระบบอีกครั้ง;
-    --> ทำให้อัพเดตสถานะเป็น Pending;
-  endif
-  stop
+flowchart TD
+    Start([เริ่มต้น]) --> InputData[นักศึกษากรอกข้อมูลผลงานวิจัย]
+    InputData --> UploadFiles[อัปโหลดภาพหน้าปกและไฟล์ PDF]
+    UploadFiles --> SelectAdvisor[ระบุอาจารย์ที่ปรึกษาและเลือกหมวดหมู่]
+    SelectAdvisor --> Submit[คลิกส่งผลงาน / Submit]
+    Submit --> SetPending[ระบบเปลี่ยนสถานะเป็น Pending รอตรวจสอบ]
+    
+    SetPending --> ReviewQueue{อาจารย์ตรวจสอบผลงาน}
+    
+    ReviewQueue -- ข้อมูลถูกต้อง --> Approve[อนุมัติผลงาน / Approved]
+    Approve --> Publish[ระบบตั้งค่าเผยแพร่ published_at และแสดงผลสาธารณะ]
+    Publish --> End([สิ้นสุดกระบวนการ])
+
+    ReviewQueue -- ข้อมูลไม่ถูกต้อง/ต้องปรับปรุง --> NeedsRevision[ส่งกลับแก้ไข / Needs Revision]
+    NeedsRevision --> WriteComment[เขียนข้อคิดเห็น/ReviewComment แจ้งนักศึกษา]
+    WriteComment --> ViewComment[นักศึกษาเปิดดูข้อคิดเห็นบนระบบ]
+    ViewComment --> EditWork[นักศึกษาแก้ไขข้อมูลหรือแนบไฟล์เอกสารเพิ่มเติม]
+    EditWork --> SubmitRevision[กดส่งเอกสารรุ่นปรับปรุง / FileRevision]
+    SubmitRevision --> SetPending
 ```
 
 ---
