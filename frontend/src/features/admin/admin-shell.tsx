@@ -94,7 +94,10 @@ function AdminBrand() {
         height={36}
         alt=""
       />
-      <strong>UniResearch</strong>
+      <span>
+        <strong>UniResearch</strong>
+        <small>Research Admin</small>
+      </span>
     </Link>
   );
 }
@@ -112,10 +115,18 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <AdminNavigation pathname={pathname} />
         <div className="admin-sidebar-footer">
           <div className="admin-profile">
-            <span><UserRound size={17} /></span>
-            <div><strong>โปรไฟล์ผู้ดูแลระบบ</strong><small>หัวหน้ามหาวิทยาลัย</small></div>
+            <span>
+              <UserRound size={17} />
+            </span>
+            <div>
+              <strong>โปรไฟล์ผู้ดูแลระบบ</strong>
+              <small>หัวหน้ามหาวิทยาลัย</small>
+            </div>
           </div>
-          <Link href="/"><ExternalLink size={15} /> <span>เว็บไซต์หลัก</span></Link>
+          <Link href="/">
+            <ExternalLink size={15} />
+            <span>เว็บไซต์หลัก</span>
+          </Link>
           <LogoutButton />
         </div>
       </aside>
@@ -123,15 +134,27 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <div className="admin-workspace">
         <header className="admin-topbar">
           <div className="admin-breadcrumb">
-            <span>ผู้ดูแลระบบ</span><ChevronRight size={15} /><strong>{currentItem?.label ?? "พื้นที่ทำงาน"}</strong>
+            <span>ผู้ดูแลระบบ</span>
+            <ChevronRight size={15} />
+            <strong>{currentItem?.label ?? "พื้นที่ทำงาน"}</strong>
           </div>
           <form className="admin-global-search" action="/admin/research">
             <Search aria-hidden="true" size={18} />
             <input name="q" type="search" placeholder="ค้นหาคลังข้อมูล [ / ]" />
           </form>
-          <span className="admin-avatar" aria-label="บัญชีผู้ดูแลระบบ"><UserRound size={18} /></span>
+          <div className="admin-topbar-profile" aria-label="บัญชีผู้ดูแลระบบ">
+            <span className="admin-avatar">
+              <UserRound size={18} />
+            </span>
+            <span>
+              <strong>ผู้ดูแลระบบ</strong>
+              <small>Administrator</small>
+            </span>
+          </div>
           <details className="admin-mobile-menu">
-            <summary aria-label="เปิดเมนูผู้ดูแลระบบ"><Menu size={22} /></summary>
+            <summary aria-label="เปิดเมนูผู้ดูแลระบบ">
+              <Menu size={22} />
+            </summary>
             <div>
               <AdminBrand />
               <AdminNavigation pathname={pathname} />
