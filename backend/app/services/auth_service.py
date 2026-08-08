@@ -12,7 +12,15 @@ async def create_user(db: AsyncSession, user_in: UserCreate) -> User:
         raise HTTPException(status_code=400, detail="Email already registered")
     
     hashed_password = get_password_hash(user_in.password)
-    new_user = User(email=user_in.email, hashed_password=hashed_password, role=user_in.role)
+    new_user = User(
+        email=user_in.email,
+        hashed_password=hashed_password,
+        role=user_in.role,
+        student_id=user_in.student_id,
+        department=user_in.department,
+        first_name=user_in.first_name,
+        last_name=user_in.last_name
+    )
     db.add(new_user)
     await db.commit()
     await db.refresh(new_user)
