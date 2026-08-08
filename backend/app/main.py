@@ -3,17 +3,33 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, RedirectResponse
 from app.core.config import settings
-from app.db.database import engine, Base
+from app.db.database import engine, Base, AsyncSessionLocal
 from app.models.user import User
 from app.models.category import Category
+from app.models.options import Department, WorkType
 from app.models.research import ResearchWork, ResearchAuthor, ResearchAdvisor, FileRevision, ReviewComment
 from app.models.interactions import Favorite, DownloadViewLog, SearchLog
-from app.routers import auth, research, stats, category, interactions, home
+from app.routers import auth, research, stats, category, interactions, home, options
+from sqlalchemy.future import select
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+        
+    async with AsyncSessionLocal() as db:
+        depts_check = await db.execute(select(Department))
+        if not depts_check.scalars().first():
+            defaults_depts = ["วิทยาการคอมพิวเตอร์", "เทคโนโลยีสารสนเทศ", "วิศวกรรมคอมพิวเตอร์", "วิศวกรรมซอฟต์แวร์", "เทคโนโลยีมัลติมีเดีย", "การจัดการเทคโนโลยีสารสนเทศ"]
+            for name in defaults_depts:
+                db.add(Department(name=name))
+            
+        types_check = await db.execute(select(WorkType))
+        if not types_check.scalars().first():
+            defaults_types = ["โครงงานวิทยาศาสตร์", "วิทยานิพนธ์", "สารนิพนธ์", "งานวิจัยระดับปริญญาตรี", "งานวิจัยระดับบัณฑิตศึกษา", "บทความวิชาการ", "โครงงานพัฒนาซอฟต์แวร์"]
+            for name in defaults_types:
+                db.add(WorkType(name=name))
+        await db.commit()
     yield
 
 # Disable default docs_url to serve our custom styled Thai Swagger UI
@@ -53,7 +69,7 @@ async def custom_swagger_ui():
                     presets: [
                         SwaggerUIBundle.presets.apis,
                         SwaggerUIStandalonePreset
-                    ],
+                     ],
                     layout: "BaseLayout",
                     persistAuthorization: true
                 }});
@@ -143,6 +159,7 @@ app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 
 app.include_router(auth.router)
 app.include_router(category.router)
+app.include_router(options.router)
 app.include_router(research.router)
 app.include_router(interactions.router)
 app.include_router(stats.router)
