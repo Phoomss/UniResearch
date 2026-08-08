@@ -10,6 +10,7 @@ import {
   type InputHTMLAttributes,
 } from "react";
 import { Button, Field, Input } from "@/src/components/ui";
+import { useToast } from "@/src/components/ui/Toast";
 
 interface ClientError {
   code?: string;
@@ -80,9 +81,9 @@ export function LoginForm({
   nextPath?: string;
 }) {
   const errorRef = useRef<HTMLParagraphElement>(null);
-  const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [pending, setPending] = useState(false);
+  const { error: toastError } = useToast();
   const hydrated = useSyncExternalStore(
     subscribeHydration,
     clientHydrated,
@@ -90,7 +91,6 @@ export function LoginForm({
   );
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setError("");
     setFieldErrors({});
     const form = event.currentTarget;
     const emailInput = form.elements.namedItem("email");
@@ -140,9 +140,8 @@ export function LoginForm({
       })) as { redirect_to?: string };
       window.location.assign(result.redirect_to ?? nextPath);
     } catch (value) {
-      setError(errorMessage(value, "ไม่สามารถเข้าสู่ระบบได้"));
+      toastError(errorMessage(value, "ไม่สามารถเข้าสู่ระบบได้"));
       setPending(false);
-      queueMicrotask(() => errorRef.current?.focus());
     }
   }
   return (
@@ -154,6 +153,7 @@ export function LoginForm({
       aria-busy={pending}
       data-hydrated={hydrated}
       noValidate
+      tabIndex={-1}
     >
       <div className="eyebrow" style={{ textAlign: "center" }}>
         เข้าสู่ระบบด้วยอีเมล
@@ -210,16 +210,6 @@ export function LoginForm({
           </p>
         )}
       </div>
-      {error && (
-        <p
-          ref={errorRef}
-          className="login-general-error"
-          role="alert"
-          tabIndex={-1}
-        >
-          {error}
-        </p>
-      )}
       <Button type="submit" disabled={pending || !hydrated}>
         {pending ? "กำลังเข้าสู่ระบบ…" : "เข้าสู่ระบบ"}
       </Button>
@@ -237,9 +227,8 @@ export function LoginForm({
 }
 
 export function RegisterForm() {
-  const errorRef = useRef<HTMLParagraphElement>(null);
-  const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const { error: toastError } = useToast();
   const hydrated = useSyncExternalStore(
     subscribeHydration,
     clientHydrated,
@@ -248,12 +237,10 @@ export function RegisterForm() {
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setPending(true);
-    setError("");
     const data = new FormData(event.currentTarget);
     if (data.get("password") !== data.get("confirmPassword")) {
-      setError("รหัสผ่านทั้งสองช่องไม่ตรงกัน [validation]");
+      toastError("รหัสผ่านทั้งสองช่องไม่ตรงกัน [validation]");
       setPending(false);
-      queueMicrotask(() => errorRef.current?.focus());
       return;
     }
     try {
@@ -265,9 +252,8 @@ export function RegisterForm() {
       });
       window.location.assign("/login?registered=1");
     } catch (value) {
-      setError(errorMessage(value, "ไม่สามารถสร้างบัญชีได้"));
+      toastError(errorMessage(value, "ไม่สามารถสร้างบัญชีได้"));
       setPending(false);
-      queueMicrotask(() => errorRef.current?.focus());
     }
   }
   return (
@@ -278,6 +264,7 @@ export function RegisterForm() {
       onSubmit={submit}
       aria-busy={pending}
       data-hydrated={hydrated}
+      tabIndex={-1}
     >
       <div className="auth-name-fields">
         <Field label="ชื่อ" required>
@@ -334,16 +321,6 @@ export function RegisterForm() {
       <p className="muted">
         สร้างบัญชีเพื่อเข้าร่วมชุมชนนักวิจัย
       </p>
-      {error && (
-        <p
-          ref={errorRef}
-          className="status-message error"
-          role="alert"
-          tabIndex={-1}
-        >
-          {error}
-        </p>
-      )}
       <Button type="submit" disabled={pending || !hydrated}>
         {pending ? "กำลังสร้างบัญชี…" : "สร้างบัญชี"}
       </Button>

@@ -2,20 +2,19 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { Button, Field, Select, Textarea } from "@/src/components/ui";
+import { useToast } from "@/src/components/ui/Toast";
 
 type Decision = "approved" | "rejected" | "needs_revision";
-type FormStatus = { kind: "success" | "error" | "forbidden"; message: string } | null;
 
 export function ReviewForm({ researchId }: { researchId: number }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, setPending] = useState(false);
-  const [status, setStatus] = useState<FormStatus>(null);
   const [decision, setDecision] = useState<Decision>("approved");
+  const { success, error, warning } = useToast();
 
   function requestConfirmation(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setStatus(null);
     const form = new FormData(event.currentTarget);
     setDecision(form.get("status_result") as Decision);
     dialogRef.current?.showModal();
@@ -28,7 +27,7 @@ export function ReviewForm({ researchId }: { researchId: number }) {
     const comment = String(data.get("comment_text") ?? "").trim();
     if (!comment) {
       dialogRef.current?.close();
-      setStatus({ kind: "error", message: "กรุณากรอกความคิดเห็นประกอบการประเมิน" });
+      error("กรุณากรอกความคิดเห็นประกอบการประเมิน");
       return;
     }
     setPending(true);
@@ -45,19 +44,19 @@ export function ReviewForm({ researchId }: { researchId: number }) {
         return; 
       }
       if (response.status === 403) { 
-        setStatus({ kind: "forbidden", message: "บัญชีของคุณไม่มีสิทธิ์ในการตรวจประเมินผลงานวิจัยนี้" }); 
+        warning("บัญชีของคุณไม่มีสิทธิ์ในการตรวจประเมินผลงานวิจัยนี้"); 
         return; 
       }
       if (!response.ok) { 
-        setStatus({ kind: "error", message: body.error?.message ?? "ไม่สามารถบันทึกผลการประเมินได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง" }); 
+        error(body.error?.message ?? "ไม่สามารถบันทึกผลการประเมินได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง"); 
         return; 
       }
       
       const statusTh = body.status_result === "approved" ? "อนุมัติ" : body.status_result === "rejected" ? "ไม่อนุมัติ" : "ส่งกลับแก้ไข";
-      setStatus({ kind: "success", message: `บันทึกผลการประเมินผลงานสำเร็จ (รหัสอ้างอิงการประเมิน: #${body.id}, สถานะใหม่: ${statusTh})` });
+      success(`บันทึกผลการประเมินผลงานสำเร็จ (รหัสอ้างอิงการประเมิน: #${body.id}, สถานะใหม่: ${statusTh})`);
       form.reset();
     } catch {
-      setStatus({ kind: "error", message: "ไม่สามารถเชื่อมต่อระบบประเมินได้ในขณะนี้ ความคิดเห็นของคุณจะยังคงอยู่ในหน้านี้จนกว่าคุณจะปิดหรือออกจากหน้านี้" });
+      error("ไม่สามารถเชื่อมต่อระบบประเมินได้ในขณะนี้ ความคิดเห็นของคุณจะยังคงอยู่ในหน้านี้จนกว่าคุณจะปิดหรือออกจากหน้านี้");
     } finally { 
       setPending(false); 
     }
@@ -80,7 +79,6 @@ export function ReviewForm({ researchId }: { researchId: number }) {
           <Textarea name="comment_text" required minLength={1} disabled={pending} />
         </Field>
         <p id="review-contract-note" className="muted">หมายเหตุ: คะแนน การมอบหมายคิว และประวัติการประเมินย้อนหลัง ยังไม่เปิดใช้งานในระบบหลังบ้าน</p>
-        {status && <p className={`status-message ${status.kind}`} role={status.kind === "success" ? "status" : "alert"}>{status.message}</p>}
         <Button type="submit" disabled={pending}>{pending ? "กำลังบันทึกผลการประเมิน…" : "ยืนยันผลการประเมิน"}</Button>
       </form>
       <dialog ref={dialogRef} className="confirm-dialog" aria-labelledby="confirm-review-title">
