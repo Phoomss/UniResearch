@@ -8,13 +8,13 @@ export default async function AdminCategoriesPage() {
 
   return (
       <main className="dash-main admin-categories-page">
-        <p className="eyebrow">[ Supported administration ]</p>
-        <h1 className="title">Research categories</h1>
-        <p className="muted">The backend supports listing and creating categories only. It does not support edit, delete, slug, or category-detail operations. Permission to create is decided by the backend.</p>
+        <p className="eyebrow">[ การดูแลระบบที่รองรับ ]</p>
+        <h1 className="title">หมวดหมู่งานวิจัย</h1>
+        <p className="muted">ระบบส่วนหลัง (Backend) รองรับการแสดงรายการและสร้างหมวดหมู่เท่านั้น ไม่รองรับการแก้ไข การลบ สลัก (slug) หรือรายละเอียดหมวดหมู่ สิทธิ์ในการสร้างจะถูกควบคุมโดยส่วนหลัง</p>
         <div className="dashboard-grid category-workspace">
           <section className="panel">
-            <h2 className="section-title">Current index</h2>
-            {!categories.ok ? <StatePanel kind="error" title="Categories unavailable" detail={`${categories.error.message} [${categories.error.code}]`} /> : categories.data.length === 0 ? <StatePanel kind="empty" title="No categories" detail="An administrator can create the first category using this page." /> : <CategoryTable categories={categories.data} />}
+            <h2 className="section-title">หมวดหมู่ในปัจจุบัน</h2>
+            {!categories.ok ? <StatePanel kind="error" title="ไม่สามารถโหลดข้อมูลหมวดหมู่ได้" detail={`${categories.error.message} [${categories.error.code}]`} /> : categories.data.length === 0 ? <StatePanel kind="empty" title="ไม่มีหมวดหมู่" detail="ผู้ดูแลระบบสามารถสร้างหมวดหมู่แรกได้โดยใช้ฟอร์มในหน้านี้" /> : <CategoryTable categories={categories.data} />}
           </section>
           <CategoryForm />
         </div>

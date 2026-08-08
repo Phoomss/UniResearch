@@ -20,14 +20,14 @@ export function AdminUserManager() {
         <button type="button" aria-label="ตัวกรองเพิ่มเติม"><Filter size={18} /></button>
       </section>
       <section className="admin-table-card admin-users-card">
-        <div className="admin-users-grid admin-table-head"><span>User</span><span>Email Contact</span><span>ID Num [รหัส]</span><span>Department</span><span>Role / Access</span></div>
+        <div className="admin-users-grid admin-table-head"><span>ผู้ใช้งาน</span><span>อีเมลติดต่อ</span><span>รหัสประจำตัว</span><span>ภาควิชา</span><span>บทบาท / สิทธิ์การเข้าถึง</span></div>
         {filtered.map((user) => <article className="admin-users-grid admin-user-row" key={user.email}>
           <div className="admin-user-identity"><span><UserRound size={18} /></span><div><strong>{user.name}</strong><small>{user.subtitle}</small></div></div>
           <code>{user.email}</code><span>{user.id}</span><strong>{user.department}</strong><span className={`admin-role role-${user.role}`}>{user.role}</span>
         </article>)}
         {!filtered.length && <div className="admin-empty-row">ไม่พบผู้ใช้งาน</div>}
       </section>
-      <div className="admin-pagination"><span>Showing [ 1 - {filtered.length} ] of {adminUsers.length} records</span><div><button disabled>‹</button><button className="active">1</button><button>2</button><button>3</button><span>…</span><button>125</button><button>›</button></div></div>
+      <div className="admin-pagination"><span>แสดง [ 1 - {filtered.length} ] จากทั้งหมด {adminUsers.length} รายการ</span><div><button disabled>‹</button><button className="active">1</button><button>2</button><button>3</button><span>…</span><button>125</button><button>›</button></div></div>
     </>
   );
 }
