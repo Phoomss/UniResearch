@@ -69,7 +69,7 @@ export async function POST(request: Request) {
   if (userProfile.ok) {
     const role = userProfile.data.role;
     if (role === "advisor" || role === "reviewer") {
-      redirectTo = "/dashboard/reviewer";
+      redirectTo = "/advisor";
     } else if (role === "admin") {
       redirectTo = "/admin";
     }

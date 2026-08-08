@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Button, Field, Select, Textarea } from "@/src/components/ui";
 import { useToast } from "@/src/components/ui/Toast";
 import { AnimatePresence, motion } from "framer-motion";
@@ -9,6 +10,7 @@ import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 type Decision = "approved" | "rejected" | "needs_revision";
 
 export function ReviewForm({ researchId }: { researchId: number }) {
+  const router = useRouter();
   const formRef = useRef<HTMLFormElement>(null);
   const [pending, setPending] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -57,6 +59,7 @@ export function ReviewForm({ researchId }: { researchId: number }) {
       const statusTh = body.status_result === "approved" ? "อนุมัติ" : body.status_result === "rejected" ? "ไม่อนุมัติ" : "ส่งกลับแก้ไข";
       success(`บันทึกผลการประเมินผลงานสำเร็จ (รหัสอ้างอิงการประเมิน: #${body.id}, สถานะใหม่: ${statusTh})`);
       form.reset();
+      router.refresh();
     } catch {
       error("ไม่สามารถเชื่อมต่อระบบประเมินได้ในขณะนี้ ความคิดเห็นของคุณจะยังคงอยู่ในหน้านี้จนกว่าคุณจะปิดหรือออกจากหน้านี้");
     } finally { 

@@ -34,14 +34,14 @@ test("legacy dashboards consolidate into canonical supported routes",()=>{
   assert.match(source("app/dashboard/student/submit/page.tsx"),/redirect\("\/student\/research\/new"\)/);
 });
 
-test("reviewer landing validates a known positive ID without inventing a queue call",()=>{
-  const page=source("app/dashboard/reviewer/page.tsx");
-  const form=source("src/features/review/known-research-id-form.tsx");
-  assert.match(page,/KnownResearchIdForm/);
-  assert.match(form,/Number\.isInteger\(id\)/);
-  assert.match(form,/id<1/);
-  assert.match(form,/\/advisor\/reviews\/\$\{id\}/);
-  assert.doesNotMatch([page,form].join("\n"),/fetch\(|axios/);
+test("legacy reviewer landing redirects to the role-specific advisor workspace",()=>{
+  const legacyPage=source("app/dashboard/reviewer/page.tsx");
+  const advisorPage=source("app/advisor/page.tsx");
+  const queuePage=source("app/advisor/reviews/page.tsx");
+  assert.match(legacyPage,/redirect\("\/advisor"\)/);
+  assert.match(advisorPage,/getPendingResearch/);
+  assert.match(queuePage,/AdminReviewQueueDashboard/);
+  assert.match(queuePage,/reviewBasePath="\/advisor\/reviews"/);
 });
 
 test("authentication uses a safe same-origin return path and no unsupported profile fields",()=>{

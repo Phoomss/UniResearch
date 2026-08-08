@@ -3896,12 +3896,76 @@ textarea {
 .admin-status.status-revision_needed { background: #f0ebff; color: #48276a; }
 .admin-row-actions { display: flex !important; grid-auto-flow: column; justify-content: start; gap: 8px !important; }
 .admin-row-actions>a { display: grid; width: 34px; height: 34px; place-items: center; border-radius: 50%; background: #f0ebff; color: #48276a; }
+.admin-row-actions .admin-delete-row-action { display: grid; width: 34px; height: 34px; place-items: center; border: 0; border-radius: 50%; background: #ffdad6; color: #ba1a1a; cursor: pointer; }
 .admin-row-actions .admin-review-link { width: auto; padding: 0 14px; border: 1px solid #48276a; background: white; border-radius: 999px; }
 .admin-table-footer { display: flex; min-height: 62px; align-items: center; justify-content: space-between; padding: 12px 24px; border-top: 1px solid #cdc3d02c; background: #fcf8ff; font: 12px Georgia, Kanit, serif; }
 .admin-table-footer>div, .admin-pagination>div { display: flex; gap: 8px; align-items: center; }
 .admin-table-footer button, .admin-pagination button { width: 34px; height: 34px; border: 0; border-radius: 6px; background: #f0ebff; color: #1c1a29; }
 .admin-table-footer button.active, .admin-pagination button.active { background: #48276a; color: white; }
 .admin-empty-row { padding: 60px 24px; color: #7c7480; text-align: center; }
+
+/* Advisor workspace reuses the administrator information architecture while
+   keeping its role-specific actions and data boundaries explicit. */
+.advisor-app .admin-sidebar { background: linear-gradient(180deg, #48276a 0%, #603f83 58%, #415d9a 130%); }
+.advisor-app,
+.advisor-app * {
+  font-family: Kanit, "Noto Sans Thai", sans-serif !important;
+}
+.advisor-app .admin-brand {
+  min-height: 80px;
+  gap: 12px;
+  padding: 18px 30px;
+  font-size: 24px;
+  font-weight: 700;
+}
+.advisor-app .admin-brand img {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  object-fit: cover;
+}
+.advisor-app .admin-topbar {
+  height: 80px;
+  gap: 24px;
+  padding-inline: 48px;
+}
+.advisor-app .admin-nav-group>a {
+  min-height: 48px;
+  gap: 13px;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.advisor-app .admin-nav-group>p {
+  font-size: 12px;
+  letter-spacing: .08em;
+}
+.advisor-app .admin-breadcrumb {
+  gap: 12px;
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.advisor-app .admin-global-search {
+  width: min(320px, 30vw);
+  height: 40px;
+  font-size: 14px;
+}
+.advisor-app .admin-global-search input { font-size: 14px; }
+.advisor-app .admin-avatar { width: 40px; height: 40px; }
+.advisor-metric-grid { margin-top: 36px; }
+.advisor-directory-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 34px 0 28px; }
+.advisor-participant-filter { grid-template-columns: minmax(280px, 2fr) minmax(190px, .8fr); }
+.advisor-participant-table { display: grid; grid-template-columns: minmax(300px, 1.7fr) 150px 160px minmax(180px, 1fr); gap: 16px; align-items: center; }
+.advisor-participant-table.admin-table-row { min-height: 94px; }
+.advisor-participant-table>div { display: grid; gap: 6px; min-width: 0; }
+.advisor-person-mark { display: grid; width: 48px; height: 48px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: #f0ebff; color: #48276a; }
+.advisor-app .admin-review-sidebar .review-form { margin: 0; padding: 24px; border: 1px solid #cdc3d030; border-top: 4px solid #415d9a; border-radius: 14px; background: white; box-shadow: none; }
+.advisor-app .admin-review-sidebar .review-form .section-title { font-size: 20px; }
+.advisor-app .admin-review-sidebar .review-form .field { margin-top: 18px; }
+.advisor-app .admin-review-sidebar .review-form textarea { min-height: 150px; }
+.advisor-app .admin-review-sidebar .review-form>.btn { width: 100%; margin-top: 16px; }
 
 .admin-review-queue-heading { align-items: center; padding-bottom: 48px; border-bottom: 1px solid #cdc3d040; }
 .admin-review-queue-heading p { color: #4b444f; }
@@ -3912,6 +3976,7 @@ textarea {
 .admin-review-queue-heading dt { color: #48276a; font: 650 32px/1 "Plus Jakarta Sans"; }
 .admin-review-queue-heading dd { margin: 7px 0 0; font-size: 13px; }
 .admin-review-tabs { display: flex; gap: 10px; margin: 64px 0 38px; }
+.advisor-app .admin-review-tabs { max-width: 100%; overflow-x: auto; }
 .admin-review-tabs button { min-width: 150px; padding: 9px 20px; border: 0; border-radius: 999px; background: #f0ebff; color: #1c1a29; }
 .admin-review-tabs button.active { background: #48276a; color: white; }
 .admin-review-list { position: relative; display: grid; gap: 24px; }
@@ -4064,11 +4129,15 @@ textarea {
   .admin-nav-group>a { justify-content: center; padding-inline: 10px; }
   .admin-sidebar-footer { padding-inline: 10px; }
   .admin-profile, .admin-sidebar-footer>a, .admin-sidebar-footer .btn { justify-content: center; padding-inline: 7px; }
+  .advisor-app .admin-brand { padding-inline: 12px; }
+  .advisor-app .admin-brand img { width: 36px; height: 36px; border-radius: 8px; }
+  .advisor-app .admin-topbar { padding-inline: 32px; }
   .admin-workspace { margin-left: 78px; }
   .admin-main, .admin-app .dash-main { width: min(100% - 40px, 1050px); }
   .admin-filter-grid { grid-template-columns: repeat(2, 1fr); }
   .admin-research-table { grid-template-columns: minmax(290px, 1.8fr) 130px 145px 120px; }
   .admin-research-table>*:nth-child(4) { display: none; }
+  .advisor-participant-table { min-width: 760px; }
   .admin-users-grid { grid-template-columns: minmax(220px, 1.3fr) minmax(180px, 1fr) 130px 100px; }
   .admin-users-grid>*:nth-child(3) { display: none; }
   .admin-user-filters { overflow-x: auto; }
@@ -4079,12 +4148,17 @@ textarea {
   .admin-sidebar { display: none; }
   .admin-workspace { margin-left: 0; }
   .admin-topbar { height: 68px; padding-inline: 18px; }
+  .advisor-app .admin-topbar { height: 80px; padding-inline: 16px; }
   .admin-breadcrumb, .admin-avatar { display: none; }
   .admin-global-search { width: min(100%, 420px); margin-left: 0; }
   .admin-mobile-menu { position: relative; display: block; margin-left: auto; }
   .admin-mobile-menu summary { display: grid; width: 40px; height: 40px; place-items: center; border: 1px solid #cdc3d0; border-radius: 8px; background: white; color: #48276a; cursor: pointer; list-style: none; }
   .admin-mobile-menu summary::-webkit-details-marker { display: none; }
   .admin-mobile-menu>div { position: fixed; top: 68px; right: 0; bottom: 0; width: min(320px, 88vw); overflow-y: auto; padding-bottom: 30px; background: #603f83; box-shadow: -12px 15px 30px #1c1a2933; }
+  .advisor-app .admin-mobile-menu>div { top: 80px; }
+  .advisor-app .admin-mobile-menu .admin-brand { justify-content: flex-start; padding-inline: 30px; }
+  .advisor-app .admin-mobile-menu .admin-brand strong { display: inline; }
+  .advisor-app .admin-mobile-menu .admin-brand img { width: 42px; height: 42px; border-radius: 10px; }
   .admin-main, .admin-app .dash-main { width: min(100% - 32px, 720px); padding: 44px 0 76px; }
   .admin-metric-grid, .admin-analytics-metrics { grid-template-columns: repeat(2, 1fr); }
   .admin-dashboard-columns, .admin-review-layout, .admin-analytics-grid { grid-template-columns: 1fr; }
@@ -4102,6 +4176,7 @@ textarea {
   .admin-table-card { overflow-x: auto; }
   .admin-users-grid { min-width: 760px; }
   .admin-research-table { min-width: 800px; }
+  .advisor-participant-table { min-width: 760px; }
 }
 
 @media (max-width: 620px) {
@@ -4113,6 +4188,8 @@ textarea {
   .admin-attention>article { align-items: flex-start; flex-direction: column; }
   .admin-attention article h3 { max-width: 70vw; }
   .admin-filter-grid { grid-template-columns: 1fr; }
+  .advisor-directory-metrics { grid-template-columns: 1fr; }
+  .admin-review-sidebar { grid-template-columns: 1fr; }
   .admin-heading-actions>div:last-child { flex-direction: column; }
   .admin-review-queue-heading dl>div { padding-inline: 8px; }
   .admin-review-tabs { overflow-x: auto; padding-bottom: 6px; }

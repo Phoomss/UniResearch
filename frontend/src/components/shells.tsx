@@ -90,7 +90,7 @@ import { getCurrentUser } from "@/src/features/research/api";
 export function ResearchRail({ active = "01", role = "guest" }: { active?: string; role?: string }) {
     let dashboardUrl = "/account/saved";
     if (role === "advisor" || role === "reviewer") {
-        dashboardUrl = "/dashboard/reviewer";
+        dashboardUrl = "/advisor";
     } else if (role === "admin") {
         dashboardUrl = "/admin";
     } else if (role === "guest") {

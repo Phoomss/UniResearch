@@ -14,9 +14,9 @@ test("authenticated account opens the canonical saved index",async({page})=>{
   await login(page,studentEmail,studentPassword,"/account/saved");await expect(page.getByRole("heading",{name:"Saved research"})).toBeVisible();
 });
 
-test("advisor uses the known-ID reviewer entry without a fabricated queue",async({page})=>{
+test("advisor opens the server-backed review queue",async({page})=>{
   test.skip(!advisorEmail||!advisorPassword,"Disposable advisor credentials are required.");
-  await login(page,advisorEmail,advisorPassword,"/dashboard/reviewer");await expect(page.getByText("No review queue is available")).toBeVisible();await page.getByLabel("Research ID").fill("1");await page.getByRole("button",{name:"Open research review"}).click();await expect(page).toHaveURL(/\/advisor\/reviews\/1$/);
+  await login(page,advisorEmail,advisorPassword,"/advisor/reviews");await expect(page.getByRole("heading",{name:"คิวตรวจประเมิน"})).toBeVisible();
 });
 
 test("administrator opens totals and category management",async({page})=>{

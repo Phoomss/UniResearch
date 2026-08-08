@@ -8,13 +8,19 @@ import type { ResearchWorkResponse } from "@/src/lib/api/types";
 interface AdminReviewQueueDashboardProps {
   initialResearch: ResearchWorkResponse[];
   categories: Array<{ id: number; category_name: string }>;
+  reviewBasePath?: string;
+  heading?: string;
+  eyebrow?: string;
 }
 
-type TabType = "pending" | "revision" | "approved";
+type TabType = "pending" | "revision" | "approved" | "rejected";
 
 export function AdminReviewQueueDashboard({
   initialResearch,
-  categories
+  categories,
+  reviewBasePath = "/admin/reviews",
+  heading = "งานรอตรวจสอบ",
+  eyebrow = "การจัดการความเห็นชอบ",
 }: AdminReviewQueueDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabType>("pending");
 
@@ -26,12 +32,14 @@ export function AdminReviewQueueDashboard({
   const pendingList = initialResearch.filter(rw => rw.status === "pending");
   const revisionList = initialResearch.filter(rw => rw.status === "needs_revision" || rw.status === "revision_needed");
   const approvedList = initialResearch.filter(rw => rw.status === "approved");
+  const rejectedList = initialResearch.filter(rw => rw.status === "rejected");
 
   const getActiveList = () => {
     switch (activeTab) {
       case "pending": return pendingList;
       case "revision": return revisionList;
       case "approved": return approvedList;
+      case "rejected": return rejectedList;
     }
   };
 
@@ -43,9 +51,9 @@ export function AdminReviewQueueDashboard({
         <div>
           <p style={{ display: "flex", alignItems: "center", gap: "8px", margin: "0 0 8px", fontSize: "14px", fontWeight: "600", color: "var(--muted)" }}>
             <ClipboardList size={18} style={{ background: "var(--lavender)", color: "var(--mulberry)", padding: "4px", boxSizing: "content-box", borderRadius: "6px" }} />
-            <span>การจัดการความเห็นชอบ</span>
+            <span>{eyebrow}</span>
           </p>
-          <h1 style={{ fontSize: "36px", fontWeight: "750", color: "var(--mulberry)", margin: 0 }}>งานรอตรวจสอบ</h1>
+          <h1 style={{ fontSize: "36px", fontWeight: "750", color: "var(--mulberry)", margin: 0 }}>{heading}</h1>
         </div>
 
         {/* Dynamic Interactive Stat Cards */}
@@ -185,6 +193,23 @@ export function AdminReviewQueueDashboard({
         >
           อนุมัติแล้ว [ {approvedList.length} ]
         </button>
+        <button
+          style={{
+            border: "none",
+            background: activeTab === "rejected" ? "white" : "transparent",
+            color: activeTab === "rejected" ? "#ba1a1a" : "var(--muted)",
+            fontWeight: "600",
+            fontSize: "13px",
+            padding: "8px 20px",
+            borderRadius: "100px",
+            cursor: "pointer",
+            boxShadow: activeTab === "rejected" ? "0 2px 8px rgba(0,0,0,0.06)" : "none",
+            transition: "all 0.2s ease"
+          }}
+          onClick={() => setActiveTab("rejected")}
+        >
+          ไม่อนุมัติ [ {rejectedList.length} ]
+        </button>
       </div>
 
       {/* Review List */}
@@ -292,7 +317,7 @@ export function AdminReviewQueueDashboard({
                     </div>
                     
                     <Link 
-                      href={`/admin/reviews/${item.id}`}
+                      href={`${reviewBasePath}/${item.id}`}
                       style={{ 
                         display: "inline-flex", 
                         alignItems: "center", 
