@@ -14,7 +14,9 @@ export function SubmittedResearchList({ idsString }: { idsString: string }) {
     const ids = idsString.split(",").map(Number).filter(Boolean);
     if (ids.length === 0) return;
 
-    setLoading(true);
+    Promise.resolve().then(() => {
+      setLoading(true);
+    });
     Promise.all(
       ids.map(id =>
         fetch(`/api/research/${id}`)

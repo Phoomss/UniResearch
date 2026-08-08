@@ -68,12 +68,17 @@ async def get_my_research(
     current_user: User = Depends(get_current_active_user)
 ):
     from sqlalchemy import select, or_
-    from app.models.research import ResearchWork, ResearchAuthor
+    from sqlalchemy.orm import selectinload
+    from app.models.research import ResearchWork, ResearchAuthor, ResearchAdvisor, ReviewComment
     query = select(ResearchWork).where(
         or_(
             ResearchWork.submitted_by_id == current_user.id,
             ResearchWork.id.in_(select(ResearchAuthor.research_id).where(ResearchAuthor.user_id == current_user.id))
         )
+    ).options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+        selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
     ).order_by(ResearchWork.created_at.desc())
     result = await db.execute(query)
     return result.scalars().all()
@@ -84,8 +89,13 @@ async def get_pending_research(
     current_user: User = Depends(require_role(["admin", "advisor"]))
 ):
     from sqlalchemy import select
-    from app.models.research import ResearchWork
-    query = select(ResearchWork).where(ResearchWork.status == "pending").order_by(ResearchWork.created_at.desc())
+    from sqlalchemy.orm import selectinload
+    from app.models.research import ResearchWork, ResearchAuthor, ResearchAdvisor, ReviewComment
+    query = select(ResearchWork).where(ResearchWork.status == "pending").options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+        selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+    ).order_by(ResearchWork.created_at.desc())
     result = await db.execute(query)
     return result.scalars().all()
 

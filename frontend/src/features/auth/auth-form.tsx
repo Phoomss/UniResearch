@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
 import {
-  useRef,
   useState,
   useSyncExternalStore,
   type FormEvent,
@@ -80,7 +79,6 @@ export function LoginForm({
 }: {
   nextPath?: string;
 }) {
-  const errorRef = useRef<HTMLParagraphElement>(null);
   const [fieldErrors, setFieldErrors] = useState<LoginFieldErrors>({});
   const [pending, setPending] = useState(false);
   const { error: toastError } = useToast();

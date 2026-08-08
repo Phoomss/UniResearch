@@ -114,7 +114,12 @@ async def create_research(db: AsyncSession, current_user: User, title_th: str, t
         db.add_all([ResearchAuthor(research_id=research.id, user_id=user_id, role_in_work="primary" if index == 0 else "co-author") for index, user_id in enumerate(authors)])
         db.add_all([ResearchAdvisor(research_id=research.id, user_id=user_id) for user_id in advisors])
         await db.commit()
-        await db.refresh(research)
+        query = select(ResearchWork).where(ResearchWork.id == research.id).options(
+            selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+            selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+            selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+        )
+        research = (await db.execute(query)).scalars().first()
         return research
     except HTTPException:
         await db.rollback()
@@ -152,6 +157,11 @@ async def search_research(db: AsyncSession, q: Optional[str], category_id: Optio
         query = query.where(or_(ResearchWork.title_th.ilike(f"%{q}%"), ResearchWork.title_en.ilike(f"%{q}%"), ResearchWork.keywords.ilike(f"%{q}%")))
         db.add(SearchLog(keyword=q)); await db.flush()
     if category_id: query = query.where(ResearchWork.category_id == category_id)
+    query = query.options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+        selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+    )
     result = await db.execute(query); await db.commit(); return result.scalars().all()
 
 

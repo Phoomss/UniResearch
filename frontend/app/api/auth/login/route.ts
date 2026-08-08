@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { apiRequest } from "@/src/lib/api/client";
 import { setSessionToken } from "@/src/lib/api/session";
-import type { TokenResponse } from "@/src/lib/api/types";
+import type { TokenResponse, UserResponse } from "@/src/lib/api/types";
 
 const DEVELOPMENT_ADMIN_USERNAME = "admin";
 const DEVELOPMENT_ADMIN_PASSWORD = "password";
@@ -61,7 +61,7 @@ export async function POST(request: Request) {
 
   await setSessionToken(result.data.access_token);
 
-  const userProfile = await apiRequest<any>("/auth/me", {
+  const userProfile = await apiRequest<UserResponse>("/auth/me", {
     token: result.data.access_token
   });
 

@@ -10,7 +10,7 @@ import {
   type FormEvent,
   type KeyboardEvent,
 } from "react";
-import { Button, Field, Input, Select, Textarea } from "@/src/components/ui";
+import { Button, Field, Input, Select } from "@/src/components/ui";
 import { Bold, Italic, Heading1, Heading2, List, ListOrdered, Eye, Edit2 } from "lucide-react";
 import { useToast } from "@/src/components/ui/Toast";
 import type {
@@ -120,7 +120,6 @@ function FileDrop({
         role="button"
         tabIndex={disabled ? -1 : 0}
         aria-disabled={disabled}
-        aria-invalid={Boolean(error)}
         aria-describedby={`${id}-hint${error ? ` ${id}-error` : ""}`}
         onClick={() => !disabled && input.current?.click()}
         onKeyDown={keyDown}
@@ -196,7 +195,7 @@ export function SubmissionForm({
     }>({}),
     [result, setResult] = useState<Result>(null),
     [pending, setPending] = useState(false);
-  const { success, error, warning } = useToast();
+  const { error, warning } = useToast();
   const alertRef = useRef<HTMLDivElement>(null);
   const abstractRef = useRef<HTMLTextAreaElement>(null);
   const [abstractMode, setAbstractMode] = useState<"edit" | "preview">("edit");
@@ -719,7 +718,7 @@ export function SubmissionForm({
                       }}
                     />
                   ) : (
-                    <p className="muted-empty-preview">ยังไม่มีข้อความบทคัดย่อ กรุณาเปลี่ยนเป็นแท็บ "เขียน" เพื่อกรอกข้อมูล</p>
+                     <p className="muted-empty-preview">ยังไม่มีข้อความบทคัดย่อ กรุณาเปลี่ยนเป็นแท็บ &quot;เขียน&quot; เพื่อกรอกข้อมูล</p>
                   )}
                 </div>
               )}
