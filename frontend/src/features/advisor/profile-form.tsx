@@ -20,16 +20,14 @@ export function ProfileForm({ initialUser, departments }: ProfileFormProps) {
   const [confirmPassword, setConfirmPassword] = useState("");
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
   
   const { success, error } = useToast();
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setErrorMsg("");
     
     if (password && password !== confirmPassword) {
-      setErrorMsg("รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน");
+      error("รหัสผ่านและการยืนยันรหัสผ่านไม่ตรงกัน");
       return;
     }
     
@@ -63,12 +61,10 @@ export function ProfileForm({ initialUser, departments }: ProfileFormProps) {
         setPassword("");
         setConfirmPassword("");
       } else {
-        setErrorMsg(data.error?.message || "เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
-        error(data.error?.message || "เกิดข้อผิดพลาด");
+        error(data.error?.message || "เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
       }
     } catch (err) {
-      setErrorMsg("ไม่สามารถเชื่อมต่อระบบเพื่ออัปเดตข้อมูลได้");
-      error("การเชื่อมต่อล้มเหลว");
+      error("ไม่สามารถเชื่อมต่อระบบเพื่ออัปเดตข้อมูลได้");
     } finally {
       setIsSubmitting(false);
     }
@@ -76,12 +72,6 @@ export function ProfileForm({ initialUser, departments }: ProfileFormProps) {
 
   return (
     <form onSubmit={handleSubmit} style={{ maxWidth: "600px", display: "flex", flexDirection: "column", gap: "20px" }}>
-      {errorMsg && (
-        <div style={{ display: "flex", alignItems: "center", gap: "10px", padding: "12px 16px", background: "#fef2f2", border: "1px solid #fee2e2", color: "#b91c1c", borderRadius: "8px", fontSize: "14px" }}>
-          <AlertCircle size={18} />
-          <span>{errorMsg}</span>
-        </div>
-      )}
 
       {/* Name fields */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>

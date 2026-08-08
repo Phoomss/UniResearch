@@ -34,7 +34,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: Kanit, "Noto Sans Thai", sans-serif;
+  font-family: var(--font-kanit), Kanit, "Noto Sans Thai", sans-serif;
   font-size: 18px;
   line-height: 1.75;
   overflow-wrap: break-word;
@@ -70,7 +70,7 @@ textarea {
 }
 
 .latin {
-  font-family: "Plus Jakarta Sans", Arial, sans-serif;
+  font-family: var(--font-plus-jakarta-sans), "Plus Jakarta Sans", Arial, sans-serif;
 }
 
 .mono {
