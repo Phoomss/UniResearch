@@ -226,7 +226,15 @@ export function Status({
   children,
   tone = "review",
 }: StatusProps) {
-  return <span className={`status ${tone}`}>{children}</span>;
+  let displayValue = children;
+  if (typeof children === "string") {
+    const val = children.trim().toLowerCase();
+    if (val === "approved") displayValue = "อนุมัติแล้ว";
+    else if (val === "rejected") displayValue = "ไม่อนุมัติ";
+    else if (val === "pending") displayValue = "รอตรวจสอบ";
+    else if (val === "needs_revision") displayValue = "ส่งกลับแก้ไข";
+  }
+  return <span className={`status ${tone}`}>{displayValue}</span>;
 }
 
 type StatePanelKind = "loading" | "empty" | "success" | "error";
