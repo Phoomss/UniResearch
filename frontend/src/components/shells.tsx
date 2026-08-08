@@ -2,45 +2,48 @@ import Link from "next/link";
 import { Brand, ButtonLink, LanguageSwitch } from "./ui";
 import { hasSession } from "@/src/lib/api/session";
 import { LogoutButton } from "@/src/features/auth/session-controls";
+import { getLanguage, translations } from "@/src/lib/i18n";
 
 export async function SiteHeader(
     { variant = "default" }: { variant?: "default" | "home" } = {},
 ) {
     const authenticated = await hasSession();
     const usesHomeDesign = variant === "home" || !authenticated;
+    const lang = await getLanguage();
+    const t = translations[lang];
 
     return (
         <header className={`site-header ${usesHomeDesign ? "home-header" : ""}`}>
             <div className="container site-header-inner">
                 <Brand />
                 <nav className="nav" aria-label="เมนูหลัก">
-                    <Link href="/research">ค้นหาผลงาน</Link>
-                    <Link href="/research">สำรวจหมวดหมู่</Link>
-                    <Link href="/#about">เกี่ยวกับระบบ</Link>
+                    <Link href="/research">{t.searchWorks}</Link>
+                    <Link href="/#categories">{t.exploreCategories}</Link>
+                    <Link href="/#about">{t.aboutSystem}</Link>
                 </nav>
                 <div className="header-actions">
                     <LanguageSwitch />
-                    {authenticated ? <LogoutButton /> : <ButtonLink href="/login" variant="secondary">เข้าสู่ระบบ</ButtonLink>}
-                    <ButtonLink href="/dashboard/student/submit">ส่งผลงานวิจัย</ButtonLink>
+                    {authenticated ? <LogoutButton /> : <ButtonLink href="/login" variant="secondary">{t.login}</ButtonLink>}
+                    <ButtonLink href="/dashboard/student/submit">{t.submitResearch}</ButtonLink>
                     {usesHomeDesign ? (
                         <details className="mobile-nav">
                             <summary aria-label="เปิดเมนูหลัก">
                                 <span aria-hidden="true">☰</span>
                             </summary>
                             <nav className="mobile-nav-menu" aria-label="เมนูหลักบนมือถือ">
-                                <Link href="/research">ค้นหาผลงาน</Link>
-                                <Link href="/research">สำรวจหมวดหมู่</Link>
-                                <Link href="/#about">เกี่ยวกับระบบ</Link>
+                                <Link href="/research">{t.searchWorks}</Link>
+                                <Link href="/#categories">{t.exploreCategories}</Link>
+                                <Link href="/#about">{t.aboutSystem}</Link>
                                 <LanguageSwitch />
                                 {authenticated ? (
                                     <LogoutButton />
                                 ) : (
                                     <ButtonLink href="/login" variant="secondary">
-                                        เข้าสู่ระบบ
+                                        {t.login}
                                     </ButtonLink>
                                 )}
                                 <ButtonLink href="/dashboard/student/submit">
-                                    ส่งผลงานวิจัย
+                                    {t.submitResearch}
                                 </ButtonLink>
                             </nav>
                         </details>
@@ -51,14 +54,17 @@ export async function SiteHeader(
     );
 }
 
-export function SiteFooter() {
+export async function SiteFooter() {
+    const lang = await getLanguage();
+    const t = translations[lang];
+
     return (
         <footer className="site-footer">
             <div className="container footer-grid">
                 <div><Brand /><p>คลังรวบรวมและเผยแพร่ผลงานวิจัยระดับอุดมศึกษา เพื่อสร้างสรรค์สังคมแห่งการเรียนรู้ที่ยั่งยืน</p></div>
-                <div><h3>QUICK LINKS</h3><p><Link href="/research">ค้นหาผลงาน</Link></p><p><Link href="/research">หมวดหมู่</Link></p><p><Link href="/dashboard/student/submit">ขั้นตอนการส่ง</Link></p></div>
-                <div><h3>SUPPORT</h3><p>support@uniresearch.ac.th</p><p>02–123–4567</p></div>
-                <div><LanguageSwitch /><p className="latin">© 2026 University Research Index.<br />Edit by SE67</p></div>
+                <div><h3>{t.quickLinks}</h3><p><Link href="/research">{t.searchWorks}</Link></p><p><Link href="/#categories">{t.exploreCategories}</Link></p><p><Link href="/dashboard/student/submit">{t.submitResearch}</Link></p></div>
+                <div><h3>{t.support}</h3><p>support@uniresearch.ac.th</p><p>02–123–4567</p></div>
+                <div><LanguageSwitch /><p className="latin">{t.rightsReserved}</p></div>
             </div>
         </footer>
     );

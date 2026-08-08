@@ -28,6 +28,7 @@ const steps = [
   "ไฟล์",
   "ตรวจสอบ",
 ] as const;
+
 type Values = {
   title_th: string;
   title_en: string;
@@ -178,8 +179,8 @@ export function SubmissionForm({
   participants: ResearchParticipantsResponse;
   research?: ResearchWorkResponse;
 }) {
-  const [step, setStep] = useState(0),
-    [values, setValues] = useState<Values>(() => {
+  const [step, setStep] = useState(0);
+  const [values, setValues] = useState<Values>(() => {
       if (research) {
         return {
           title_th: research.title_th ?? "",
@@ -193,8 +194,21 @@ export function SubmissionForm({
         };
       }
       return initial;
-    }),
-    [errors, setErrors] = useState<Errors>({});
+    });
+  const [errors, setErrors] = useState<Errors>({});
+  const [departments, setDepartments] = useState<string[]>([]);
+  const [workTypes, setWorkTypes] = useState<string[]>([]);
+
+  useEffect(() => {
+    fetch("/api/options")
+      .then((res) => res.json())
+      .then((data) => {
+        setDepartments(data.departments || []);
+        setWorkTypes(data.work_types || []);
+      })
+      .catch(() => {});
+  }, []);
+
   const rowSequence = useRef(1);
   const currentAuthor = participants.authors.find(
     (person) => person.is_current,
@@ -566,23 +580,37 @@ export function SubmissionForm({
             )}
             <div className="form-grid">
               <Field label="ภาควิชา / หลักสูตร" hint="ไม่บังคับ">
-                <Input
+                <Select
                   name="department"
                   value={values.department}
                   onChange={(e) => update("department", e.target.value)}
                   disabled={pending}
-                />
+                >
+                  <option value="">เลือกภาควิชา / หลักสูตร</option>
+                  {departments.map((dept) => (
+                    <option key={dept} value={dept}>
+                      {dept}
+                    </option>
+                  ))}
+                </Select>
               </Field>
               <Field
                 label="ประเภทผลงาน"
                 hint="ไม่บังคับ"
               >
-                <Input
+                <Select
                   name="work_type"
                   value={values.work_type}
                   onChange={(e) => update("work_type", e.target.value)}
                   disabled={pending}
-                />
+                >
+                  <option value="">เลือกประเภทผลงาน</option>
+                  {workTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </Select>
               </Field>
               <Field
                 label="ปีการศึกษา"

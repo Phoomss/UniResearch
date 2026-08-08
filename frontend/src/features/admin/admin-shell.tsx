@@ -16,6 +16,7 @@ import {
   Shapes,
   UserRound,
   Users,
+  Settings,
   type LucideIcon,
 } from "lucide-react";
 import { LogoutButton } from "@/src/features/auth/session-controls";
@@ -42,6 +43,7 @@ const groups: AdminNavGroup[] = [
     items: [
       { href: "/admin/users", label: "ผู้ใช้งาน", icon: Users },
       { href: "/admin/categories", label: "หมวดหมู่", icon: Shapes },
+      { href: "/admin/options", label: "ภาควิชาและประเภทผลงาน", icon: Settings },
       { href: "/admin/research?documents=1", label: "เอกสาร", icon: FileText },
     ],
   },

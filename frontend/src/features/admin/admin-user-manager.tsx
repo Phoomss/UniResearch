@@ -2,15 +2,15 @@
 
 import { Filter, Search, UserRound } from "lucide-react";
 import { useMemo, useState } from "react";
-import { adminUsers } from "./admin-data";
 
-export function AdminUserManager() {
+
+export function AdminUserManager({ users = [] }) {
   const [query, setQuery] = useState("");
   const [role, setRole] = useState("all");
-  const filtered = useMemo(() => adminUsers.filter((user) => {
+  const filtered = useMemo(() => users.filter((user) => {
     const text = `${user.name} ${user.email} ${user.id} ${user.department}`.toLocaleLowerCase("th");
     return (!query.trim() || text.includes(query.trim().toLocaleLowerCase("th"))) && (role === "all" || user.role === role);
-  }), [query, role]);
+  }), [query, role, users]);
 
   return (
     <>
@@ -27,7 +27,7 @@ export function AdminUserManager() {
         </article>)}
         {!filtered.length && <div className="admin-empty-row">ไม่พบผู้ใช้งาน</div>}
       </section>
-      <div className="admin-pagination"><span>แสดง [ 1 - {filtered.length} ] จากทั้งหมด {adminUsers.length} รายการ</span><div><button disabled>‹</button><button className="active">1</button><button>2</button><button>3</button><span>…</span><button>125</button><button>›</button></div></div>
+      <div className="admin-pagination"><span>แสดง [ 1 - {filtered.length} ] จากทั้งหมด {users.length} รายการ</span><div><button disabled>‹</button><button className="active">1</button><button>2</button><button>3</button><span>…</span><button>125</button><button>›</button></div></div>
     </>
   );
 }

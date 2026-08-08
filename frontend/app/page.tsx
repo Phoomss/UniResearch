@@ -6,16 +6,12 @@ import { adaptResearch } from "@/src/features/research/adapters";
 import { getCategories, getLatest, getPopular, getStats } from "@/src/features/research/api";
 import { FileUp, SlidersHorizontal, ArrowUpRight } from "lucide-react";
 import SearchTypewriter from "@/src/components/ui/SearchTypewriter";
-const SEARCH_SUGGESTIONS = [
-  "ค้นหาจากชื่อผลงานวิจัย",
-  "ค้นหาจากชื่อผู้จัดทำ",
-  "ค้นหาจากอาจารย์ที่ปรึกษา",
-  "ค้นหาด้วยคำสำคัญ เช่น AI หรือ Data Science",
-  "ค้นหาโครงงาน Web Application",
-  "ค้นหาผลงานตามปีการศึกษา",
-];
+import { getLanguage, translations } from "@/src/lib/i18n";
 
 export default async function Home() {
+  const lang = await getLanguage();
+  const t = translations[lang];
+
   const [stats, latest, popular, categories] = await Promise.all([
     getStats(),
     getLatest(3),
@@ -40,59 +36,58 @@ export default async function Home() {
                 <i aria-hidden="true" />
               </div>
               <h1 className="discovery-title">
-                ทุกงานวิจัย คือ
+                {t.heroTitlePart1}
                 <br />
-                <span>จุดเริ่มต้นของคำถามถัดไป</span>
+                <span>{t.heroTitlePart2}</span>
               </h1>
               <p className="discovery-intro">
-                ฐานข้อมูลงานวิจัย โครงงาน และวิทยานิพนธ์ ที่เปิดพื้นที่ให้องค์ความรู้ถูกส่งต่อ<br></br>และต่อยอดอย่างไม่มีที่สิ้นสุด
+                {t.heroSubtitle}
               </p>
               <form className="discovery-search" action="/research">
-  <label className="sr-only" htmlFor="home-search">
-    คำค้นงานวิจัย
-  </label>
+                <label className="sr-only" htmlFor="home-search">
+                  {t.searchWorks}
+                </label>
 
-  <span aria-hidden="true" className="search-glyph">
-    ⌕
-  </span>
+                <span aria-hidden="true" className="search-glyph">
+                  ⌕
+                </span>
 
-  <input
-    id="home-search"
-    name="q"
-    type="search"
-    placeholder=" "
-    autoComplete="off"
-  />
+                <input
+                  id="home-search"
+                  name="q"
+                  type="search"
+                  placeholder=" "
+                  autoComplete="off"
+                />
 
-  <SearchTypewriter
-    texts={SEARCH_SUGGESTIONS}
-    typingSpeed={70}
-    deletingSpeed={40}
-    waitTime={1400}
-    className="search-typewriter"
-  />
+                <SearchTypewriter
+                  texts={[...t.searchSuggestions]}
+                  typingSpeed={70}
+                  deletingSpeed={40}
+                  waitTime={1400}
+                  className="search-typewriter"
+                />
 
-  <Link
-    className="search-filter"
-    href="/research"
-    aria-label="เปิดตัวกรองการค้นหา"
-  >
-    <SlidersHorizontal size={18} />
-  </Link>
+                <Link
+                  className="search-filter"
+                  href="/research"
+                  aria-label="เปิดตัวกรองการค้นหา"
+                >
+                  <SlidersHorizontal size={18} />
+                </Link>
 
-  <Button type="submit">ค้นหา</Button>
-</form>
+                <Button type="submit">{t.searchButton}</Button>
+              </form>
             </div>
 
             <aside className="discovery-feature" aria-label="ผลงานวิจัยยอดนิยม">
-
               <div className="ghost-folio" aria-hidden="true">
                 <span>REF.492</span>
                 <div /><div />
                 <figure><b>∿</b><b>⌁</b><b>∿</b></figure>
               </div>
               <article className="featured-folio">
-                <span className="featured-tab">Featured</span>
+                <span className="featured-tab">{t.featured}</span>
                 <div className="featured-art" aria-hidden="true"><span>◌</span><i /><i /><i /></div>
                 <div className="featured-body">
                   {featuredWork ? (
@@ -101,14 +96,14 @@ export default async function Home() {
                       <h2>{featuredWork.titleTh}</h2>
                       <p>{featuredWork.category} · {featuredWork.year}</p>
                       <Link href={`/research/${featuredWork.id}`} prefetch={false} aria-label={`เปิด ${featuredWork.titleTh}`}>
-                        <span>เปิดผลงาน</span> ↗
+                        <span>{t.openFolio}</span> ↗
                       </Link>
                     </>
                   ) : (
                     <>
                       <div className="featured-meta"><span>FEATURED</span><b>••</b></div>
-                      <h2>{popular.ok ? "ยังไม่มีผลงานยอดนิยม" : "ไม่สามารถโหลดผลงานยอดนิยมได้"}</h2>
-                      <p>คลังความรู้ของมหาวิทยาลัย</p>
+                      <h2>{popular.ok ? t.noFeatured : "Failed to load featured works"}</h2>
+                      <p>University Research Repository</p>
                     </>
                   )}
                 </div>
@@ -121,10 +116,10 @@ export default async function Home() {
           <div className="container home-container discovery-stat-grid">
             {stats.ok ? (
               <>
-                <div><strong>{stats.data.total_research_works.toLocaleString()}</strong><span>ผลงานวิจัยทั้งหมด</span></div>
-                <div><strong>{stats.data.total_users.toLocaleString()}</strong><span>ผู้จัดทำและนักวิจัย</span></div>
-                <div><strong>{categoryItems.length.toLocaleString()}</strong><span>หมวดหมู่วิชาการ</span></div>
-                <div><strong>{stats.data.total_downloads.toLocaleString()}</strong><span>ยอดดาวน์โหลดทั้งหมด</span></div>
+                <div><strong>{stats.data.total_research_works.toLocaleString()}</strong><span>{t.totalResearch}</span></div>
+                <div><strong>{stats.data.total_users.toLocaleString()}</strong><span>{t.totalResearchers}</span></div>
+                <div><strong>{categoryItems.length.toLocaleString()}</strong><span>{t.academicCategories}</span></div>
+                <div><strong>{stats.data.total_downloads.toLocaleString()}</strong><span>{t.totalDownloads}</span></div>
               </>
             ) : (
               <div className="discovery-stat-error"><strong>—</strong><span>{stats.error.message}</span></div>
@@ -134,21 +129,21 @@ export default async function Home() {
 
         <section className="discovery-section container home-container" aria-labelledby="latest-research">
           <div className="discovery-section-heading">
-            <div><p className="eyebrow">[ Latest Research ]</p><h2 className="eyebrow-h2" id="latest-research">ผลงานล่าสุดจากคลังวิจัย</h2></div>
-            <Link href="/research">สำรวจทั้งหมด <span aria-hidden="true">→</span></Link>
+            <div><p className="eyebrow">[ Latest Research ]</p><h2 className="eyebrow-h2" id="latest-research">{t.latestResearch}</h2></div>
+            <Link href="/research">{t.exploreAll} <span aria-hidden="true">→</span></Link>
           </div>
           {latestWorks.length ? (
             <div className="discovery-cards">{latestWorks.map(item => <FolioCard key={item.id} item={item} />)}</div>
           ) : (
-            <div className="state"><p>{latest.ok ? "ยังไม่มีผลงานที่เผยแพร่" : latest.error.message}</p></div>
+            <div className="state"><p>{latest.ok ? t.noLatest : latest.error.message}</p></div>
           )}
         </section>
 
-        <section className="discovery-categories" id="about">
+        <section className="discovery-categories" id="categories">
           <div className="container home-container">
             <div className="discovery-section-heading">
-              <div><p className="eyebrow">[ Research Index ]</p><h2 className="eyebrow-h2">สำรวจองค์ความรู้ตามหมวดหมู่</h2></div>
-              <Link href="/research">ค้นหาผลงาน <span aria-hidden="true">→</span></Link>
+              <div><p className="eyebrow">[ Research Index ]</p><h2 className="eyebrow-h2">{t.researchIndex}</h2></div>
+              <Link href="/research">{t.searchWorks} <span aria-hidden="true">→</span></Link>
             </div>
             {categoryItems.length ? (
               <nav className="category-index" aria-label="หมวดหมู่งานวิจัย">
@@ -164,12 +159,13 @@ export default async function Home() {
           </div>
         </section>
 
-        <section className="discovery-cta container home-container">
-          <div><p className="eyebrow">[ Contribute ]</p><h2 className="eyebrow-h2">เริ่มต้นบทสนทนาทางวิชาการครั้งถัดไป</h2><p>เผยแพร่ผลงานของคุณในคลังกลางที่เชื่อมโยงผู้เรียน นักวิจัย และสังคมแห่งการเรียนรู้</p></div>
-          <Link href="/dashboard/student/submit" className="btn btn-primary">ส่งผลงานวิจัย  <FileUp size={18} /></Link>
+        <section className="discovery-cta container home-container" id="about">
+          <div><p className="eyebrow">[ {t.contribute} ]</p><h2 className="eyebrow-h2">{t.ctaTitle}</h2><p>{t.ctaSubtitle}</p></div>
+          <Link href="/dashboard/student/submit" className="btn btn-primary">{t.submitResearch}  <FileUp size={18} /></Link>
         </section>
       </main>
       <SiteFooter />
     </>
   );
 }
+

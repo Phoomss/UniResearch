@@ -7,39 +7,33 @@ import { FolioCard } from "@/src/components/research";
 import { Button, Input, StatePanel } from "@/src/components/ui";
 import type { ResearchViewModel } from "@/src/features/research/adapters";
 
-export const RESEARCH_CATEGORIES = [
-  "เทคโนโลยีสารสนเทศและคอมพิวเตอร์",
-  "วิศวกรรมศาสตร์และเทคโนโลยี",
-  "วิทยาศาสตร์และนวัตกรรม",
-  "สุขภาพและการแพทย์",
-  "เกษตรและอาหาร",
-  "สิ่งแวดล้อมและทรัพยากรธรรมชาติ",
-  "บริหารธุรกิจและเศรษฐศาสตร์",
-  "การศึกษาและการเรียนรู้",
-  "สังคมศาสตร์และพฤติกรรมศาสตร์",
-  "รัฐศาสตร์ กฎหมาย และการบริหารรัฐกิจ",
-  "มนุษยศาสตร์ ภาษา และศิลปกรรม",
-  "นิเทศศาสตร์และสื่อดิจิทัล",
-  "การท่องเที่ยวและบริการ",
-  "การพัฒนาชุมชนและท้องถิ่น",
-  "สหวิทยาการ",
-] as const;
-
-type ResearchCategory = (typeof RESEARCH_CATEGORIES)[number];
+import type { CategoryResponse } from "@/src/lib/api/types";
 
 type ResearchExplorerProps = {
   works: ResearchViewModel[];
+  categories: CategoryResponse[];
   initialQuery?: string;
+  initialCategoryId?: string;
   errorMessage?: string;
 };
 
 export function ResearchExplorer({
   works,
+  categories,
   initialQuery = "",
+  initialCategoryId = "",
   errorMessage,
 }: ResearchExplorerProps) {
   const [searchTerm, setSearchTerm] = useState(initialQuery);
-  const [selectedCategories, setSelectedCategories] = useState<ResearchCategory[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
+    if (initialCategoryId) {
+      const match = categories.find((c) => String(c.id) === initialCategoryId);
+      if (match) {
+        return [match.category_name];
+      }
+    }
+    return [];
+  });
   const [academicYearRange, setAcademicYearRange] = useState({ from: "", to: "" });
 
   const fromYear = Number.parseInt(academicYearRange.from, 10);
@@ -81,7 +75,7 @@ export function ResearchExplorer({
     });
   }, [fromYear, hasFromYear, hasToYear, searchTerm, selectedCategories, toYear, works]);
 
-  function toggleCategory(category: ResearchCategory) {
+  function toggleCategory(category: string) {
     setSelectedCategories((current) =>
       current.includes(category)
         ? current.filter((item) => item !== category)
@@ -97,6 +91,7 @@ export function ResearchExplorer({
     setAcademicYearRange({ from: "", to: "" });
     setSelectedCategories([]);
   }
+
 
   return (
     <div className="research-explore-layout">
@@ -216,17 +211,17 @@ export function ResearchExplorer({
               )}
             </div>
             <div className="research-category-options">
-              {RESEARCH_CATEGORIES.map((category) => {
-                const selected = selectedCategories.includes(category);
+              {categories.map((category) => {
+                const selected = selectedCategories.includes(category.category_name);
 
                 return (
-                  <label className={selected ? "selected" : undefined} key={category}>
+                  <label className={selected ? "selected" : undefined} key={category.id}>
                     <input
                       type="checkbox"
                       checked={selected}
-                      onChange={() => toggleCategory(category)}
+                      onChange={() => toggleCategory(category.category_name)}
                     />
-                    <span>{category}</span>
+                    <span>{category.category_name}</span>
                   </label>
                 );
               })}

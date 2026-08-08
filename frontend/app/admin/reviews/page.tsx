@@ -1,8 +1,25 @@
-import Link from "next/link";
-import { ClipboardList } from "lucide-react";
-import { adminResearchSamples } from "@/src/features/admin/admin-data";
+import { getCategories } from "@/src/features/research/api";
+import { getSessionToken } from "@/src/lib/api/session";
+import { apiRequest } from "@/src/lib/api/client";
+import type { ResearchWorkResponse } from "@/src/lib/api/types";
+import { AdminReviewQueueDashboard } from "@/src/features/admin/admin-review-queue-dashboard";
 
-export default function AdminReviewQueuePage() {
-  const pending = adminResearchSamples.filter((item) => item.status === "pending");
-  return <main className="admin-main"><header className="admin-review-queue-heading"><div><p><ClipboardList size={19} /> รายการรอตรวจสอบ</p><h1>งานรอตรวจสอบ</h1></div><dl><div><dt>{pending.length}</dt><dd>รอตรวจสอบ</dd></div><div><dt>5</dt><dd>ต้องแก้ไข</dd></div><div><dt>28</dt><dd>อนุมัติแล้ว</dd></div></dl></header><div className="admin-review-tabs"><button className="active">รอตรวจสอบ [ {pending.length} ]</button><button>ต้องแก้ไข [ 5 ]</button><button>อนุมัติแล้ว [ 28 ]</button></div><section className="admin-review-list">{pending.map((item) => <article key={item.id}><span className="admin-review-node" /><div className="admin-review-card-meta"><span className="admin-category-tag">{item.category}</span><code>{item.ref}</code><small>[ ส่งเมื่อ: {item.updated} ]</small></div><h2>{item.title}</h2><p>{item.abstract}</p><footer><span className="admin-author-avatar">{item.author.slice(0, 2)}</span><strong>{item.author}</strong><Link href={`/admin/reviews/${item.id}`}><ClipboardList size={17} />ตรวจสอบผลงาน</Link></footer></article>)}</section></main>;
+export default async function AdminReviewQueuePage() {
+  const categoriesResult = await getCategories();
+  const token = await getSessionToken();
+  
+  // Fetch all research works on the server side to filter them into categories
+  const allResearchResult = await apiRequest<ResearchWorkResponse[]>("/research/search", { token });
+
+  const categories = categoriesResult.ok ? categoriesResult.data : [];
+  const allResearch = allResearchResult.ok ? allResearchResult.data : [];
+
+  return (
+    <main className="admin-main">
+      <AdminReviewQueueDashboard 
+        initialResearch={allResearch}
+        categories={categories}
+      />
+    </main>
+  );
 }
