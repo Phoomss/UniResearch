@@ -931,22 +931,21 @@ textarea {
 
 .category-index {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
-  border-top: none;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 48px;
+  border-top: 1px solid rgba(72, 39, 106, 0.1);
   padding-top: 10px;
 }
 
 .category-index a {
-  display: flex;
+  display: grid;
+  grid-template-columns: 48px 1fr auto;
   align-items: center;
-  justify-content: space-between;
-  background: var(--paper-white);
-  border: 1px solid #cdc3d070;
-  border-radius: 14px;
-  padding: 20px 24px;
-  min-height: auto;
-  transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease, color .25s ease;
+  min-height: 80px;
+  padding: 16px 8px;
+  border-bottom: 1px solid rgba(72, 39, 106, 0.1);
+  transition: padding .25s ease, background-color .25s ease, border-color .25s ease, color .25s ease;
+  color: var(--ink);
 }
 
 .category-index a:nth-child(odd) {
@@ -954,43 +953,44 @@ textarea {
 }
 
 .category-index a span {
-  background: var(--paper-low);
-  color: var(--mulberry-2);
-  font: 700 13px "Plus Jakarta Sans";
-  padding: 6px 10px;
-  border-radius: 8px;
-  margin-right: 14px;
-  transition: background .2s, color .2s;
+  color: var(--muted);
+  font: 600 13px "Plus Jakarta Sans";
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+  transition: color .2s ease;
 }
 
 .category-index a strong {
-  font-size: 17px;
-  font-weight: 600;
-  flex-grow: 1;
+  font-size: 18px;
+  font-weight: 550;
   color: var(--ink);
+  transition: color .2s ease;
 }
 
 .category-index a svg {
   color: var(--muted);
-  transition: transform .2s ease, color .2s ease;
+  opacity: 0.7;
+  transition: transform .25s ease, color .25s ease, opacity .25s ease;
 }
 
 .category-index a:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(72, 39, 106, 0.06);
-  border-color: var(--mulberry-2);
+  background-color: rgba(72, 39, 106, 0.03);
+  padding-left: 18px;
+  padding-right: 8px;
+  border-bottom-color: var(--mulberry-2);
   color: var(--mulberry);
 }
 
 .category-index a:hover span {
-  background: var(--mulberry);
-  color: #fff;
+  color: var(--mulberry);
 }
 
 .category-index a:hover svg {
   color: var(--mulberry);
-  transform: translate(2px, -2px);
+  opacity: 1;
+  transform: translate(3px, -3px);
 }
+
 
 .discovery-cta {
   display: flex;
