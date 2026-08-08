@@ -29,14 +29,7 @@ export function Brand() {
   );
 }
 
-export function LanguageSwitch() {
-  return (
-    <span className="lang-switch" aria-label="ภาษา">
-      <span className="active">TH</span>
-      <span>EN</span>
-    </span>
-  );
-}
+export { LanguageSwitch } from "./LanguageSwitch";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
 
