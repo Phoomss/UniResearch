@@ -39,6 +39,7 @@ const groups: NavGroup[] = [
       { href: "/advisor/submissions", label: "ผลงานที่ฉันส่ง", icon: Files },
       { href: "/advisor/participants", label: "ผู้เกี่ยวข้อง", icon: UsersRound },
       { href: "/advisor/new", label: "ส่งผลงานใหม่", icon: FilePlus2 },
+      { href: "/advisor/profile", label: "ข้อมูลส่วนตัว", icon: UserRound },
     ],
   },
 ];

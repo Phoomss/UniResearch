@@ -13,9 +13,11 @@ export async function getResearchParticipants(){ return apiRequest<ResearchParti
 export async function listFavorites(){ return apiRequest<FavoriteResponse[]>("/favorites/",{token:await getSessionToken()}); }
 export async function getMyResearch(){ return apiRequest<ResearchWorkResponse[]>("/research/my",{token:await getSessionToken()}); }
 export async function getPendingResearch(){ return apiRequest<ResearchWorkResponse[]>("/research/pending",{token:await getSessionToken()}); }
+export async function getReviewHistory(){ return apiRequest<ResearchWorkResponse[]>("/research/history",{token:await getSessionToken()}); }
 export async function toggleFavorite(id:number){ return apiRequest<FavoriteResponse|FavoriteRemovedResponse>(`/favorites/${id}`,{method:"POST",token:await getSessionToken()}); }
 
 export async function getCurrentUser(){ return apiRequest<UserResponse>("/auth/" + "me",{token:await getSessionToken()}); }
+export async function updateCurrentUser(data: any){ return apiRequest<UserResponse>("/auth/me",{method:"PUT",token:await getSessionToken(),headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}); }
 export async function startDownload(id:number){ return apiRequest<DownloadHandshake>(`/research/${id}/download`,{method:"POST",token:await getSessionToken()}); }
 
 export interface OptionsResponse {
