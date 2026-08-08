@@ -1,11 +1,13 @@
-import { apiJson } from "@/src/lib/api/client";
+import { getOptions, updateOptions } from "@/src/features/research/api";
 import { getSessionToken } from "@/src/lib/api/session";
 import { toRouteResponse } from "@/src/lib/api/route-response";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
-  return toRouteResponse(
-    await apiJson("/options/", "GET", null)
-  );
+  const response = await toRouteResponse(await getOptions());
+  response.headers.set("Cache-Control", "no-store, max-age=0, must-revalidate");
+  return response;
 }
 
 export async function POST(request: Request) {
@@ -20,12 +22,10 @@ export async function POST(request: Request) {
       return Response.json({ error: { message: "ข้อมูลไม่ถูกต้อง" } }, { status: 422 });
     }
 
-    return toRouteResponse(
-      await apiJson("/options/", "POST", {
-        departments: body.departments.map((x: string) => String(x).trim()).filter(Boolean),
-        work_types: body.work_types.map((x: string) => String(x).trim()).filter(Boolean)
-      }, token)
-    );
+    const depts = body.departments.map((x: string) => String(x).trim()).filter(Boolean);
+    const types = body.work_types.map((x: string) => String(x).trim()).filter(Boolean);
+
+    return toRouteResponse(await updateOptions(depts, types));
   } catch (error: any) {
     return Response.json({ error: { message: error.message } }, { status: 500 });
   }

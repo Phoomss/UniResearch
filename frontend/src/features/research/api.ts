@@ -18,4 +18,23 @@ export async function toggleFavorite(id:number){ return apiRequest<FavoriteRespo
 export async function getCurrentUser(){ const result=await apiRequest<UserResponse>("/auth/" + "me",{token:await getSessionToken()}); if(!result.ok&&result.error.status===401)await clearSession(); return result; }
 export async function startDownload(id:number){ return apiRequest<DownloadHandshake>(`/research/${id}/download`,{method:"POST",token:await getSessionToken()}); }
 
+export interface OptionsResponse {
+  departments: string[];
+  work_types: string[];
+}
+
+export function getOptions() {
+  return apiRequest<OptionsResponse>("/options/");
+}
+
+export async function updateOptions(departments: string[], workTypes: string[]) {
+  return apiRequest<{ success: boolean }>("/options/", {
+    method: "POST",
+    token: await getSessionToken(),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ departments, work_types: workTypes }),
+  });
+}
+
+
 
