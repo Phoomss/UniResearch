@@ -18,3 +18,14 @@ class UserResponse(UserBase):
 
     class Config:
         from_attributes = True
+
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    role: Optional[str] = None
+    student_id: Optional[str] = None
+    department: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    password: Optional[str] = None
+    is_active: Optional[bool] = None
+

@@ -164,6 +164,7 @@ app.include_router(research.router)
 app.include_router(interactions.router)
 app.include_router(stats.router)
 app.include_router(home.router)
+app.include_router(users.router)
 
 @app.get("/")
 def read_root():
