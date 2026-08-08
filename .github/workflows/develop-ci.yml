@@ -1,0 +1,139 @@
+name: Develop CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  backend-test:
+    name: Backend Lint and Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libpq-dev build-essential
+
+      - name: Install Python Dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pytest pytest-asyncio anyio httpx aiosqlite
+
+      - name: Run Backend Tests
+        run: |
+          cd backend
+          PYTHONPATH=. pytest tests/ -v
+
+  frontend-test-build:
+    name: Frontend Lint, Test, and Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install Frontend Dependencies
+        run: |
+          cd frontend
+          pnpm install --frozen-lockfile
+
+      - name: Run Type Checking
+        run: |
+          cd frontend
+          pnpm typecheck
+
+      - name: Run Linter
+        run: |
+          cd frontend
+          pnpm lint
+
+      - name: Run Frontend Tests
+        run: |
+          cd frontend
+          pnpm test
+
+      - name: Run Frontend Build
+        run: |
+          cd frontend
+          pnpm build
+
+  discord-notification:
+    name: Discord Status Notification
+    needs: [backend-test, frontend-test-build]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Send Status to Discord via Python
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: |
+          python3 -c "
+          import os, urllib.request, json, subprocess
+          
+          status = 'SUCCESS' if '${{ needs.backend-test.result }}' == 'success' and '${{ needs.frontend-test-build.result }}' == 'success' else 'FAILED'
+          color = 3066993 if status == 'SUCCESS' else 15158332
+          
+          # Get merge info
+          commit_msg = subprocess.check_output(['git', 'log', '-1', '--pretty=%B']).decode('utf-8').strip()
+          source_branch = 'Direct Push / Squash Merge'
+          if 'Merge pull request' in commit_msg:
+              parts = commit_msg.split('from')
+              if len(parts) > 1:
+                  source_branch = parts[1].split('\n')[0].strip()
+          elif 'Merge branch' in commit_msg:
+              parts = commit_msg.split(\"'\" )
+              if len(parts) > 1:
+                  source_branch = parts[1]
+          
+          payload = {
+              'embeds': [{
+                  'title': f'CI/CD Build Alert: {status}',
+                  'description': 'Develop branch deployment pipeline has finished running.',
+                  'color': color,
+                  'fields': [
+                      {'name': 'Repository', 'value': '${{ github.repository }}', 'inline': True},
+                      {'name': 'Merged Branch', 'value': f'\`{source_branch}\`', 'inline': True},
+                      {'name': 'Commit Message', 'value': commit_msg.split('\n')[0], 'inline': False},
+                      {'name': 'Author', 'value': '${{ github.actor }}', 'inline': True},
+                      {'name': 'Backend Status', 'value': '${{ needs.backend-test.result }}', 'inline': True},
+                      {'name': 'Frontend Status', 'value': '${{ needs.frontend-test-build.result }}', 'inline': True}
+                  ]
+              }]
+          }
+          
+          webhook_url = os.environ.get('DISCORD_WEBHOOK')
+          if webhook_url:
+              req = urllib.request.Request(
+                  webhook_url,
+                  data=json.dumps(payload).encode('utf-8'),
+                  headers={
+                      'Content-Type': 'application/json',
+                      'User-Agent': 'Mozilla/5.0'
+                  }
+              )
+              urllib.request.urlopen(req)
+          "

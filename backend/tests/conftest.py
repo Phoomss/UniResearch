@@ -70,3 +70,12 @@ async def admin_user(db_session: AsyncSession):
     await db_session.commit()
     await db_session.refresh(user)
     return user
+
+@pytest_asyncio.fixture
+async def advisor_user(db_session: AsyncSession):
+    user = User(email="advisor@test.com", hashed_password=get_password_hash("password123"), role="advisor", is_active=True,
+                first_name="Ada", last_name="Advisor")
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user

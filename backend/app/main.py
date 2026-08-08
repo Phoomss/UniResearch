@@ -138,7 +138,8 @@ async def custom_swagger_ui():
     """
     return HTMLResponse(content=html_content)
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+settings.STATIC_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory=settings.STATIC_DIR), name="static")
 
 app.include_router(auth.router)
 app.include_router(category.router)
