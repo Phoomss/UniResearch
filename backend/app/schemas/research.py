@@ -30,6 +30,39 @@ class ResearchParticipantsResponse(BaseModel):
     authors: List[ResearchParticipantResponse]
     advisors: List[ResearchParticipantResponse]
 
+class ReviewCommentCreate(BaseModel):
+    comment_text: str
+    status_result: str
+
+class ReviewCommentResponse(ReviewCommentCreate):
+    id: int
+    research_id: int
+    reviewer_id: int
+    created_at: datetime
+    reviewer: Optional[ResearchParticipantResponse] = None
+
+    class Config:
+        from_attributes = True
+
+class ResearchAuthorSchema(BaseModel):
+    id: int
+    research_id: int
+    user_id: int
+    role_in_work: str
+    user: ResearchParticipantResponse
+
+    class Config:
+        from_attributes = True
+
+class ResearchAdvisorSchema(BaseModel):
+    id: int
+    research_id: int
+    user_id: int
+    user: ResearchParticipantResponse
+
+    class Config:
+        from_attributes = True
+
 class ResearchWorkResponse(ResearchWorkBase):
     id: int
     cover_image_path: Optional[str]
@@ -41,21 +74,10 @@ class ResearchWorkResponse(ResearchWorkBase):
     created_at: datetime
     updated_at: datetime
     submitted_by_id: int
+    authors: List[ResearchAuthorSchema] = []
+    advisors: List[ResearchAdvisorSchema] = []
+    reviews: List[ReviewCommentResponse] = []
 
     class Config:
         from_attributes = True
 
-class ReviewCommentCreate(BaseModel):
-    comment_text: str
-    status_result: str
-
-class ReviewCommentResponse(BaseModel):
-    id: int
-    research_id: int
-    reviewer_id: int
-    comment_text: str
-    status_result: str
-    created_at: datetime
-
-    class Config:
-        from_attributes = True

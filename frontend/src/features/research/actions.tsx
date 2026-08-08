@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button, ButtonLink } from "@/src/components/ui";
 import { useToast } from "@/src/components/ui/Toast";
 import { AnimatePresence, motion } from "framer-motion";
-import { ExternalLink, X } from "lucide-react";
+import { ExternalLink, X, FileText, Download, Bookmark } from "lucide-react";
 
 export function ResearchActions({ researchId, hasDocument, authenticated }: { researchId: number; hasDocument: boolean; authenticated: boolean }) {
   const [pending, setPending] = useState<"favorite" | "download" | "preview" | null>(null);
@@ -66,13 +66,16 @@ export function ResearchActions({ researchId, hasDocument, authenticated }: { re
     <>
       <section className="research-actions" aria-label="Research actions">
         <div className="action-buttons">
-          <Button type="button" onClick={previewFile} disabled={!hasDocument || pending !== null}>
+          <Button type="button" onClick={previewFile} disabled={!hasDocument || pending !== null} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <FileText size={16} />
             {pending === "preview" ? "Loading preview…" : "Preview PDF"}
           </Button>
-          <Button type="button" variant="secondary" onClick={downloadFile} disabled={!hasDocument || pending !== null}>
+          <Button type="button" variant="secondary" onClick={downloadFile} disabled={!hasDocument || pending !== null} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <Download size={16} />
             {pending === "download" ? "Preparing…" : "Download PDF"}
           </Button>
-          <Button type="button" variant="ghost" onClick={toggleFavorite} disabled={pending !== null}>
+          <Button type="button" variant="ghost" onClick={toggleFavorite} disabled={pending !== null} style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
+            <Bookmark size={16} />
             {pending === "favorite" ? "Saving…" : "Save research"}
           </Button>
         </div>
