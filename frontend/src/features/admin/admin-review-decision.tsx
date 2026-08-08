@@ -11,7 +11,7 @@ export function AdminReviewDecision() {
   }
   return (
     <section className="admin-review-decision">
-      <div className="admin-current-status"><span>Current Status</span><strong>รอตรวจสอบ (Pending Review)</strong></div>
+      <div className="admin-current-status"><span>สถานะปัจจุบัน</span><strong>รอตรวจสอบ (Pending Review)</strong></div>
       <label htmlFor="admin-review-comment">ความคิดเห็นสำหรับผู้จัดทำ (Review Comments)</label>
       <textarea id="admin-review-comment" value={comment} onChange={(event) => { setComment(event.target.value); setMessage(""); }} placeholder="พิมพ์ข้อเสนอแนะ แนวทางปรับปรุง หรือเหตุผลประกอบการตัดสินใจที่นี่…" />
       <div className="admin-decision-actions"><button className="approve" type="button" onClick={() => decide("อนุมัติ") }><CheckCircle2 size={17} />อนุมัติ</button><button type="button" onClick={() => decide("ส่งกลับให้แก้ไข")}><RotateCcw size={17} />ส่งกลับให้แก้ไข</button><button className="reject" type="button" onClick={() => decide("ไม่อนุมัติ")}><XCircle size={17} />ไม่อนุมัติ</button></div>

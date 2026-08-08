@@ -28,26 +28,26 @@ type AdminNavGroup = {
 const groups: AdminNavGroup[] = [
   {
     label: "",
-    items: [{ href: "/admin", label: "Dashboard", icon: LayoutDashboard }],
+    items: [{ href: "/admin", label: "แดชบอร์ด", icon: LayoutDashboard }],
   },
   {
-    label: "Research",
+    label: "ผลงานวิจัย",
     items: [
-      { href: "/admin/research", label: "All Research", icon: BookOpen },
-      { href: "/admin/reviews", label: "Review Queue", icon: ClipboardList },
+      { href: "/admin/research", label: "ผลงานวิจัยทั้งหมด", icon: BookOpen },
+      { href: "/admin/reviews", label: "รายการรอตรวจสอบ", icon: ClipboardList },
     ],
   },
   {
-    label: "Management",
+    label: "การจัดการ",
     items: [
-      { href: "/admin/users", label: "Users", icon: Users },
-      { href: "/admin/categories", label: "Categories", icon: Shapes },
-      { href: "/admin/research?documents=1", label: "Documents", icon: FileText },
+      { href: "/admin/users", label: "ผู้ใช้งาน", icon: Users },
+      { href: "/admin/categories", label: "หมวดหมู่", icon: Shapes },
+      { href: "/admin/research?documents=1", label: "เอกสาร", icon: FileText },
     ],
   },
   {
-    label: "Insights",
-    items: [{ href: "/admin/analytics", label: "Analytics", icon: BarChart3 }],
+    label: "ข้อมูลเชิงลึก",
+    items: [{ href: "/admin/analytics", label: "การวิเคราะห์", icon: BarChart3 }],
   },
 ];
 
@@ -113,9 +113,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <div className="admin-sidebar-footer">
           <div className="admin-profile">
             <span><UserRound size={17} /></span>
-            <div><strong>Admin Profile</strong><small>University Head</small></div>
+            <div><strong>โปรไฟล์ผู้ดูแลระบบ</strong><small>หัวหน้ามหาวิทยาลัย</small></div>
           </div>
-          <Link href="/"><ExternalLink size={15} /> <span>Main Site</span></Link>
+          <Link href="/"><ExternalLink size={15} /> <span>เว็บไซต์หลัก</span></Link>
           <LogoutButton />
         </div>
       </aside>
@@ -123,11 +123,11 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <div className="admin-workspace">
         <header className="admin-topbar">
           <div className="admin-breadcrumb">
-            <span>Admin</span><ChevronRight size={15} /><strong>{currentItem?.label ?? "Workspace"}</strong>
+            <span>ผู้ดูแลระบบ</span><ChevronRight size={15} /><strong>{currentItem?.label ?? "พื้นที่ทำงาน"}</strong>
           </div>
           <form className="admin-global-search" action="/admin/research">
             <Search aria-hidden="true" size={18} />
-            <input name="q" type="search" placeholder="Search Archive [ / ]" />
+            <input name="q" type="search" placeholder="ค้นหาคลังข้อมูล [ / ]" />
           </form>
           <span className="admin-avatar" aria-label="บัญชีผู้ดูแลระบบ"><UserRound size={18} /></span>
           <details className="admin-mobile-menu">
