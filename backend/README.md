@@ -99,3 +99,35 @@ uvicorn app.main:app --reload
 ```bash
 PYTHONPATH=. pytest tests/ -v
 ```
+
+## Development administrator provisioning
+
+The `python -m app.scripts.create_admin` command provisions an administrator only for local development, disposable testing databases, and approved development databases. It refuses missing, unknown, staging, and production `APP_ENV` values. It also refuses database targets that cannot be confirmed as local.
+
+Before running the command, inspect `DATABASE_URL` and confirm the target host and database name. Supported targets are SQLite or PostgreSQL on `localhost`, a loopback address, or the `db` service from this repository's local Docker Compose configuration. Never run this command against production or a shared staging database.
+
+Set credentials through environment variables only. Do not put real credentials in source control or documentation:
+
+```powershell
+Set-Location D:\Project-69\UniResearch\backend
+
+$env:APP_ENV='development'
+$env:DEV_ADMIN_EMAIL='admin-local@example.com'
+$env:DEV_ADMIN_PASSWORD='<enter-a-local-development-password>'
+
+python -m app.scripts.create_admin
+python -m uvicorn app.main:app --reload
+```
+
+The command always assigns the exact role `admin`, creates an active account, and hashes the password with the application's existing password helper. It never accepts a role argument and never prints the password. Running it again for an existing administrator succeeds without changing the password or creating a duplicate. If the email belongs to a student, advisor, guest, or any other non-admin role, the command refuses to promote or modify that account; use a separate development email or request an approved backend-team action.
+
+Start the frontend in a separate terminal:
+
+```powershell
+Set-Location D:\Project-69\UniResearch\frontend
+pnpm.cmd dev
+```
+
+Open `http://localhost:3000/login?next=/admin`, enter `DEV_ADMIN_EMAIL` and the development password, and submit. Confirm the redirect to `/admin`, then open `/admin/categories`. Merely viewing `/admin` does not prove administrator authorization because its statistics request is public. A category creation returning HTTP 200 verifies administrator authorization, but perform that write only against a disposable development database. HTTP 403 means login succeeded but the database account is not an administrator.
+
+Production administrator provisioning requires a separate approved backend-team process. This development command must remain separate from public registration, and credentials must never be committed.

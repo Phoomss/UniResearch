@@ -1,137 +1,295 @@
-import shutil
 import json
+import logging
+import os
 from pathlib import Path
 from typing import List, Optional
-from fastapi import UploadFile, HTTPException
+from uuid import uuid4
+
+from fastapi import HTTPException, UploadFile
+from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import or_
+from sqlalchemy.orm import selectinload
 
-from app.models.research import ResearchWork, ResearchAuthor, ResearchAdvisor, ReviewComment
+from app.core.config import settings
+from app.models.category import Category
 from app.models.interactions import DownloadViewLog, SearchLog
+from app.models.research import ResearchAdvisor, ResearchAuthor, ResearchWork, ReviewComment
 from app.models.user import User
 from app.schemas.research import ReviewCommentCreate
 
-UPLOAD_COVERS_DIR = Path("static/uploads/covers")
-UPLOAD_DOCS_DIR = Path("static/uploads/docs")
-UPLOAD_COVERS_DIR.mkdir(parents=True, exist_ok=True)
-UPLOAD_DOCS_DIR.mkdir(parents=True, exist_ok=True)
+logger = logging.getLogger(__name__)
+UPLOAD_COVERS_DIR = settings.STATIC_DIR / "uploads" / "covers"
+UPLOAD_DOCS_DIR = settings.STATIC_DIR / "uploads" / "docs"
+COVER_TYPES = {"image/jpeg": {".jpg", ".jpeg"}, "image/png": {".png"}, "image/webp": {".webp"}}
+DOCUMENT_TYPES = {"application/pdf": {".pdf"}}
 
-async def create_research(
-    db: AsyncSession,
-    current_user: User,
-    title_th: str,
-    title_en: str,
-    category_id: int,
-    abstract: Optional[str],
-    department: Optional[str],
-    work_type: Optional[str],
-    academic_year: Optional[int],
-    keywords: Optional[str],
-    author_ids: str,
-    advisor_ids: str,
-    cover_image: Optional[UploadFile],
-    document: Optional[UploadFile]
-) -> ResearchWork:
-    cover_path = None
-    doc_path = None
-    
-    if cover_image:
-        cover_path = str(UPLOAD_COVERS_DIR / cover_image.filename)
-        with open(cover_path, "wb") as buffer:
-            shutil.copyfileobj(cover_image.file, buffer)
-            
-    if document:
-        doc_path = str(UPLOAD_DOCS_DIR / document.filename)
-        with open(doc_path, "wb") as buffer:
-            shutil.copyfileobj(document.file, buffer)
+def _parse_ids(raw: str, field: str) -> list[int]:
+    try:
+        values = json.loads(raw)
+    except (TypeError, json.JSONDecodeError) as exc:
+        raise HTTPException(status_code=422, detail=f"{field} must be a JSON array of user IDs") from exc
+    if not isinstance(values, list) or any(isinstance(value, bool) or not isinstance(value, int) or value < 1 for value in values):
+        raise HTTPException(status_code=422, detail=f"{field} must be a JSON array of positive integer user IDs")
+    return list(dict.fromkeys(values))
 
-    new_project = ResearchWork(
-        title_th=title_th,
-        title_en=title_en,
-        category_id=category_id,
-        abstract=abstract,
-        department=department,
-        work_type=work_type,
-        academic_year=academic_year,
-        keywords=keywords,
-        cover_image_path=cover_path,
-        file_path=doc_path,
-        submitted_by_id=current_user.id
-    )
-    db.add(new_project)
-    await db.flush()
+def _participant(user: User, current_user: User) -> dict:
+    return {"id": user.id, "email": user.email, "role": user.role, "first_name": user.first_name,
+            "last_name": user.last_name, "student_id": user.student_id, "department": user.department,
+            "is_current": user.id == current_user.id}
 
-    authors = json.loads(author_ids)
-    for aid in authors:
-        db.add(ResearchAuthor(research_id=new_project.id, user_id=aid))
-        
-    advisors = json.loads(advisor_ids)
-    for adv_id in advisors:
-        db.add(ResearchAdvisor(research_id=new_project.id, user_id=adv_id))
+async def get_research_participants(db: AsyncSession, current_user: User) -> dict:
+    result = await db.execute(select(User).where(User.is_active.is_(True), User.role.in_(["student", "advisor"])).order_by(User.first_name, User.last_name, User.email))
+    users = result.scalars().all()
+    return {"authors": [_participant(user, current_user) for user in users if user.role == "student"],
+            "advisors": [_participant(user, current_user) for user in users if user.role == "advisor"]}
 
-    await db.commit()
-    await db.refresh(new_project)
-    return new_project
+async def _validate_relations(db: AsyncSession, category_id: int, author_ids: list[int], advisor_ids: list[int]) -> None:
+    if not await db.get(Category, category_id):
+        raise HTTPException(status_code=404, detail="Category not found")
+    requested = set(author_ids + advisor_ids)
+    if not requested:
+        return
+    result = await db.execute(select(User).where(User.id.in_(requested), User.is_active.is_(True)))
+    users = {user.id: user for user in result.scalars().all()}
+    missing = requested - users.keys()
+    if missing:
+        raise HTTPException(status_code=404, detail="One or more authors or advisors were not found")
+    if any(users[user_id].role != "student" for user_id in author_ids):
+        raise HTTPException(status_code=422, detail="author_ids may contain active student users only")
+    if any(users[user_id].role != "advisor" for user_id in advisor_ids):
+        raise HTTPException(status_code=422, detail="advisor_ids may contain active advisor users only")
 
-async def search_research(db: AsyncSession, q: Optional[str], category_id: Optional[int]) -> List[ResearchWork]:
-    query = select(ResearchWork).where(ResearchWork.status == "approved")
-    if q:
-        query = query.where(
-            or_(
-                ResearchWork.title_th.ilike(f"%{q}%"),
-                ResearchWork.title_en.ilike(f"%{q}%"),
-                ResearchWork.keywords.ilike(f"%{q}%")
-            )
-        )
-        db.add(SearchLog(keyword=q))
+def _signature_is_valid(content_type: str, content: bytes) -> bool:
+    if content_type == "application/pdf": return content.startswith(b"%PDF-")
+    if content_type == "image/png": return content.startswith(b"\x89PNG\r\n\x1a\n")
+    if content_type == "image/jpeg": return content.startswith(b"\xff\xd8\xff")
+    if content_type == "image/webp": return len(content) >= 12 and content[:4] == b"RIFF" and content[8:12] == b"WEBP"
+    return False
+
+async def _store_upload(upload: UploadFile, directory: Path, allowed: dict[str, set[str]], limit: int, label: str) -> tuple[Path, str]:
+    suffix = Path(upload.filename or "").suffix.lower()
+    if upload.content_type not in allowed or suffix not in allowed[upload.content_type]:
+        raise HTTPException(status_code=415, detail=f"Unsupported {label} file type")
+    content = await upload.read(limit + 1)
+    if len(content) > limit:
+        raise HTTPException(status_code=413, detail=f"{label} file is too large")
+    if not content or not _signature_is_valid(upload.content_type, content):
+        raise HTTPException(status_code=415, detail=f"Invalid {label} file content")
+    directory.mkdir(parents=True, exist_ok=True)
+    final_path = directory / f"{uuid4().hex}{suffix}"
+    temporary_path = directory / f".{final_path.name}.tmp"
+    try:
+        temporary_path.write_bytes(content)
+        os.replace(temporary_path, final_path)
+    except OSError as exc:
+        temporary_path.unlink(missing_ok=True)
+        logger.exception("Unable to store research %s", label)
+        raise HTTPException(status_code=500, detail=f"Unable to store {label} file") from exc
+    relative = final_path.relative_to(settings.STATIC_DIR).as_posix()
+    return final_path, f"static/{relative}"
+
+async def create_research(db: AsyncSession, current_user: User, title_th: str, title_en: str, category_id: int,
+    abstract: Optional[str], department: Optional[str], work_type: Optional[str], academic_year: Optional[int],
+    keywords: Optional[str], author_ids: str, advisor_ids: str, cover_image: Optional[UploadFile],
+    document: Optional[UploadFile]) -> ResearchWork:
+    authors = _parse_ids(author_ids, "author_ids")
+    advisors = _parse_ids(advisor_ids, "advisor_ids")
+    await _validate_relations(db, category_id, authors, advisors)
+    stored: list[Path] = []
+    try:
+        cover_path = doc_path = None
+        if cover_image:
+            disk_path, cover_path = await _store_upload(cover_image, UPLOAD_COVERS_DIR, COVER_TYPES, settings.MAX_COVER_IMAGE_BYTES, "cover image")
+            stored.append(disk_path)
+        if document:
+            disk_path, doc_path = await _store_upload(document, UPLOAD_DOCS_DIR, DOCUMENT_TYPES, settings.MAX_DOCUMENT_BYTES, "document")
+            stored.append(disk_path)
+        research = ResearchWork(title_th=title_th.strip(), title_en=title_en.strip(), category_id=category_id,
+            abstract=abstract, department=department, work_type=work_type, academic_year=academic_year, keywords=keywords,
+            cover_image_path=cover_path, file_path=doc_path, submitted_by_id=current_user.id)
+        db.add(research)
         await db.flush()
-        
-    if category_id:
-        query = query.where(ResearchWork.category_id == category_id)
+        db.add_all([ResearchAuthor(research_id=research.id, user_id=user_id, role_in_work="primary" if index == 0 else "co-author") for index, user_id in enumerate(authors)])
+        db.add_all([ResearchAdvisor(research_id=research.id, user_id=user_id) for user_id in advisors])
+        await db.commit()
+        query = select(ResearchWork).where(ResearchWork.id == research.id).options(
+            selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+            selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+            selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+        )
+        research = (await db.execute(query)).scalars().first()
+        return research
+    except HTTPException:
+        await db.rollback()
+        for path in stored: path.unlink(missing_ok=True)
+        raise
+    except IntegrityError as exc:
+        await db.rollback()
+        for path in stored: path.unlink(missing_ok=True)
+        logger.warning("Research creation violated a database constraint", exc_info=exc)
+        raise HTTPException(status_code=409, detail="Research data conflicts with an existing or related record") from exc
+    except SQLAlchemyError as exc:
+        await db.rollback()
+        for path in stored: path.unlink(missing_ok=True)
+        logger.exception("Research creation database failure")
+        raise HTTPException(status_code=500, detail="Unable to save research") from exc
 
-    result = await db.execute(query)
-    await db.commit()
-    return result.scalars().all()
+async def search_research(db: AsyncSession, q: Optional[str], category_id: Optional[int], current_user: Optional[User] = None) -> List[ResearchWork]:
+    if current_user:
+        if current_user.role in ["admin", "advisor"]:
+            query = select(ResearchWork)
+        elif current_user.role == "student":
+            query = select(ResearchWork).where(
+                or_(
+                    ResearchWork.status == "approved",
+                    ResearchWork.submitted_by_id == current_user.id,
+                    ResearchWork.id.in_(select(ResearchAuthor.research_id).where(ResearchAuthor.user_id == current_user.id))
+                )
+            )
+        else:
+            query = select(ResearchWork).where(ResearchWork.status == "approved")
+    else:
+        query = select(ResearchWork).where(ResearchWork.status == "approved")
+
+    if q:
+        query = query.where(or_(ResearchWork.title_th.ilike(f"%{q}%"), ResearchWork.title_en.ilike(f"%{q}%"), ResearchWork.keywords.ilike(f"%{q}%")))
+        db.add(SearchLog(keyword=q)); await db.flush()
+    if category_id: query = query.where(ResearchWork.category_id == category_id)
+    query = query.options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+        selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+    )
+    result = await db.execute(query); await db.commit(); return result.scalars().all()
+
 
 async def get_research_detail(db: AsyncSession, research_id: int) -> ResearchWork:
-    result = await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))
-    research = result.scalars().first()
-    if not research:
-        raise HTTPException(status_code=404, detail="Not found")
-    
-    research.view_count += 1
-    db.add(DownloadViewLog(research_id=research.id, action_type="view"))
-    await db.commit()
-    await db.refresh(research)
-    return research
+    query = select(ResearchWork).where(ResearchWork.id == research_id).options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+        selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+    )
+    research = (await db.execute(query)).scalars().first()
+    if not research: raise HTTPException(status_code=404, detail="Not found")
+    research.view_count += 1; db.add(DownloadViewLog(research_id=research.id, action_type="view")); await db.commit(); await db.refresh(research); return research
 
 async def download_research(db: AsyncSession, current_user: User, research_id: int) -> dict:
-    result = await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))
-    research = result.scalars().first()
-    if not research or not research.file_path:
-        raise HTTPException(status_code=404, detail="File not found")
-        
-    research.download_count += 1
-    db.add(DownloadViewLog(research_id=research.id, user_id=current_user.id, action_type="download"))
-    await db.commit()
-    
-    return {"file_url": f"/{research.file_path}"}
+    research = (await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))).scalars().first()
+    if not research or not research.file_path: raise HTTPException(status_code=404, detail="File not found")
+    research.download_count += 1; db.add(DownloadViewLog(research_id=research.id, user_id=current_user.id, action_type="download")); await db.commit(); return {"file_url": f"/{research.file_path}"}
 
 async def review_research(db: AsyncSession, current_user: User, research_id: int, review_in: ReviewCommentCreate) -> ReviewComment:
-    result = await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))
-    research = result.scalars().first()
-    if not research:
-        raise HTTPException(status_code=404, detail="Not found")
-        
-    new_review = ReviewComment(
-        research_id=research.id,
-        reviewer_id=current_user.id,
-        comment_text=review_in.comment_text,
-        status_result=review_in.status_result
+    research = (await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))).scalars().first()
+    if not research: raise HTTPException(status_code=404, detail="Not found")
+    review = ReviewComment(research_id=research.id, reviewer_id=current_user.id, comment_text=review_in.comment_text, status_result=review_in.status_result)
+    research.status = review_in.status_result; db.add(review); await db.commit(); await db.refresh(review); return review
+
+async def update_research(db: AsyncSession, research_id: int, current_user: User, title_th: str, title_en: str, category_id: int,
+    abstract: Optional[str], department: Optional[str], work_type: Optional[str], academic_year: Optional[int],
+    keywords: Optional[str], author_ids: str, advisor_ids: str, cover_image: Optional[UploadFile],
+    document: Optional[UploadFile]) -> ResearchWork:
+    query = select(ResearchWork).where(ResearchWork.id == research_id).options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user)
     )
-    research.status = review_in.status_result
-    db.add(new_review)
+    research = (await db.execute(query)).scalars().first()
+    if not research:
+        raise HTTPException(status_code=404, detail="Research not found")
+    
+    author_user_ids = [a.user_id for a in research.authors]
+    if current_user.role != "admin" and research.submitted_by_id != current_user.id and current_user.id not in author_user_ids:
+        raise HTTPException(status_code=403, detail="Not authorized to edit this research")
+
+    authors = _parse_ids(author_ids, "author_ids")
+    advisors = _parse_ids(advisor_ids, "advisor_ids")
+    await _validate_relations(db, category_id, authors, advisors)
+    stored: list[Path] = []
+    try:
+        if cover_image:
+            disk_path, cover_path = await _store_upload(cover_image, UPLOAD_COVERS_DIR, COVER_TYPES, settings.MAX_COVER_IMAGE_BYTES, "cover image")
+            stored.append(disk_path)
+            if research.cover_image_path:
+                old_path = settings.STATIC_DIR / research.cover_image_path.replace("static/", "", 1)
+                try:
+                    if old_path.exists(): old_path.unlink()
+                except Exception: pass
+            research.cover_image_path = cover_path
+        if document:
+            disk_path, doc_path = await _store_upload(document, UPLOAD_DOCS_DIR, DOCUMENT_TYPES, settings.MAX_DOCUMENT_BYTES, "document")
+            stored.append(disk_path)
+            if research.file_path:
+                old_path = settings.STATIC_DIR / research.file_path.replace("static/", "", 1)
+                try:
+                    if old_path.exists(): old_path.unlink()
+                except Exception: pass
+            research.file_path = doc_path
+        research.title_th = title_th.strip()
+        research.title_en = title_en.strip()
+        research.category_id = category_id
+        research.abstract = abstract
+        research.department = department
+        research.work_type = work_type
+        research.academic_year = academic_year
+        research.keywords = keywords
+        research.status = "pending" # Reset status to pending when updated
+        
+        from sqlalchemy import delete
+        await db.execute(delete(ResearchAuthor).where(ResearchAuthor.research_id == research.id))
+        await db.execute(delete(ResearchAdvisor).where(ResearchAdvisor.research_id == research.id))
+        db.add_all([ResearchAuthor(research_id=research.id, user_id=user_id, role_in_work="primary" if index == 0 else "co-author") for index, user_id in enumerate(authors)])
+        db.add_all([ResearchAdvisor(research_id=research.id, user_id=user_id) for user_id in advisors])
+        await db.commit()
+        query = select(ResearchWork).where(ResearchWork.id == research.id).options(
+            selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+            selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+            selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+        )
+        research = (await db.execute(query)).scalars().first()
+        return research
+    except HTTPException:
+        await db.rollback()
+        for path in stored: path.unlink(missing_ok=True)
+        raise
+    except IntegrityError as exc:
+        await db.rollback()
+        for path in stored: path.unlink(missing_ok=True)
+        logger.warning("Research update violated a database constraint", exc_info=exc)
+        raise HTTPException(status_code=409, detail="Research data conflicts with an existing or related record") from exc
+    except SQLAlchemyError as exc:
+        await db.rollback()
+        for path in stored: path.unlink(missing_ok=True)
+        logger.exception("Research update database failure")
+        raise HTTPException(status_code=500, detail="Unable to update research") from exc
+
+async def delete_research(db: AsyncSession, research_id: int, current_user: User) -> None:
+    query = select(ResearchWork).where(ResearchWork.id == research_id).options(
+        selectinload(ResearchWork.authors)
+    )
+    research = (await db.execute(query)).scalars().first()
+    if not research:
+        raise HTTPException(status_code=404, detail="Research not found")
+    
+    author_user_ids = [a.user_id for a in research.authors]
+    if current_user.role != "admin" and research.submitted_by_id != current_user.id and current_user.id not in author_user_ids:
+        raise HTTPException(status_code=403, detail="Not authorized to delete this research")
+
+    for file_path_attr in [research.cover_image_path, research.file_path]:
+        if file_path_attr:
+            old_path = settings.STATIC_DIR / file_path_attr.replace("static/", "", 1)
+            try:
+                if old_path.exists(): old_path.unlink()
+            except Exception: pass
+
+    from sqlalchemy import delete
+    from app.models.interactions import DownloadViewLog, Favorite
+    from app.models.research import FileRevision
+    await db.execute(delete(ResearchAuthor).where(ResearchAuthor.research_id == research.id))
+    await db.execute(delete(ResearchAdvisor).where(ResearchAdvisor.research_id == research.id))
+    await db.execute(delete(ReviewComment).where(ReviewComment.research_id == research.id))
+    await db.execute(delete(DownloadViewLog).where(DownloadViewLog.research_id == research.id))
+    await db.execute(delete(Favorite).where(Favorite.research_id == research.id))
+    await db.execute(delete(FileRevision).where(FileRevision.research_id == research.id))
+    await db.delete(research)
     await db.commit()
-    await db.refresh(new_review)
-    return new_review

@@ -1,0 +1,55 @@
+import { redirect } from "next/navigation";
+import { DashboardShell } from "@/src/components/shells";
+import { StatePanel } from "@/src/components/ui";
+import { listFavorites } from "@/src/features/research/api";
+import { SavedResearchList } from "@/src/features/research/saved-research-list";
+import { hasSession } from "@/src/lib/api/session";
+
+import { getLanguage } from "@/src/lib/i18n";
+import Link from "next/link";
+
+export default async function SavedResearchPage() {
+  if (!await hasSession()) redirect(`/login?next=${encodeURIComponent("/account/saved")}`);
+
+  const favorites = await listFavorites();
+
+  if (!favorites.ok && favorites.error.status === 401) redirect(`/login?next=${encodeURIComponent("/account/saved")}`);
+
+  const lang = await getLanguage();
+  const isEn = lang === "en";
+
+  const t = {
+    favorites: isEn ? "Favorites" : "รายการโปรดที่บันทึกไว้ (Favorites)",
+    mySubmissions: isEn ? "My Submissions" : "ผลงานวิจัยของฉัน (My Submissions)",
+    profile: isEn ? "Profile" : "ข้อมูลส่วนตัว (Profile)"
+  };
+
+  return (
+    <DashboardShell>
+      <main className="dash-main">
+        <p className="eyebrow">[ คลังผลงานส่วนตัว ]</p>
+        <h1 className="title">ผลงานวิจัยที่บันทึกไว้</h1>
+        <p className="muted">รายการโปรดสามารถใช้งานได้สำหรับทุกบัญชีผู้ใช้งานที่เปิดใช้งาน เพื่อหลีกเลี่ยงการเพิ่มยอดเข้าชมโดยไม่จำเป็น ระบบจะแสดงรายการเป็นรหัสอ้างอิงและวันเวลาที่ทำการบันทึกเท่านั้น</p>
+        
+        <div style={{ display: "flex", gap: "16px", marginBottom: "24px", borderBottom: "1px solid #cdc3d030", paddingBottom: "12px" }}>
+          <Link href="/account/saved" style={{ fontWeight: "bold", borderBottom: "2px solid var(--mulberry)", paddingBottom: "12px", marginBottom: "-14px", color: "var(--mulberry)" }}>
+            {t.favorites}
+          </Link>
+          <Link href="/student/research" style={{ color: "var(--muted)", paddingBottom: "12px" }}>
+            {t.mySubmissions}
+          </Link>
+          <Link href="/student/profile" style={{ color: "var(--muted)", paddingBottom: "12px" }}>
+            {t.profile}
+          </Link>
+        </div>
+        {!favorites.ok ? (
+          <StatePanel kind="error" title="ไม่สามารถแสดงผลงานวิจัยที่บันทึกไว้ได้" detail={`${favorites.error.message} [${favorites.error.code}]`} />
+        ) : favorites.data.length === 0 ? (
+          <StatePanel kind="empty" title="ไม่มีผลงานวิจัยที่บันทึกไว้" detail="เปิดดูหน้ารายละเอียดผลงานวิจัยแล้วเลือก 'บันทึกผลงาน' เพื่อเพิ่มลงในรายการนี้" />
+        ) : (
+          <SavedResearchList items={favorites.data} />
+        )}
+      </main>
+    </DashboardShell>
+  );
+}

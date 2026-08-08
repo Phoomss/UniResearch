@@ -2,8 +2,9 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import desc
+from sqlalchemy.orm import selectinload
 from app.db.database import get_db
-from app.models.research import ResearchWork
+from app.models.research import ResearchWork, ResearchAuthor, ResearchAdvisor, ReviewComment
 from app.schemas.research import ResearchWorkResponse
 from typing import List
 
@@ -14,6 +15,11 @@ async def get_latest_research(limit: int = 5, db: AsyncSession = Depends(get_db)
     result = await db.execute(
         select(ResearchWork)
         .where(ResearchWork.status == "approved")
+        .options(
+            selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+            selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+            selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+        )
         .order_by(desc(ResearchWork.published_at))
         .limit(limit)
     )
@@ -24,6 +30,11 @@ async def get_popular_research(limit: int = 5, db: AsyncSession = Depends(get_db
     result = await db.execute(
         select(ResearchWork)
         .where(ResearchWork.status == "approved")
+        .options(
+            selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+            selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+            selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+        )
         .order_by(desc(ResearchWork.view_count))
         .limit(limit)
     )
