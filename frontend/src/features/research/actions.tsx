@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { Button, ButtonLink } from "@/src/components/ui";
 import { useToast } from "@/src/components/ui/Toast";
+import { AnimatePresence, motion } from "framer-motion";
+import { ExternalLink, X } from "lucide-react";
 
 export function ResearchActions({ researchId, hasDocument, authenticated }: { researchId: number; hasDocument: boolean; authenticated: boolean }) {
-  const [pending, setPending] = useState<"favorite" | "download" | null>(null);
+  const [pending, setPending] = useState<"favorite" | "download" | "preview" | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const { success, error, warning } = useToast();
   const loginHref = `/login?next=${encodeURIComponent(`/research/${researchId}`)}`;
 
@@ -38,9 +41,74 @@ export function ResearchActions({ researchId, hasDocument, authenticated }: { re
     finally{setPending(null);}
   }
 
-  return <section className="research-actions" aria-label="Research actions">
-    <div className="action-buttons"><Button type="button" onClick={downloadFile} disabled={!hasDocument||pending!==null}>{pending==="download"?"Preparing…":"Download document"}</Button><Button type="button" variant="secondary" onClick={toggleFavorite} disabled={pending!==null}>{pending==="favorite"?"Saving…":"Save research"}</Button></div>
-    {!hasDocument&&<p className="muted" role="status">No document file is available for this record.</p>}
-  </section>;
+  async function previewFile() {
+    setPending("preview");
+    try {
+      const response = await fetch(`/api/research/${researchId}/download`);
+      if (response.status === 401) { window.location.assign(loginHref); return; }
+      if (response.status === 403) { warning("Your account is not permitted to view this file."); return; }
+      if (!response.ok) {
+        const body = await response.json().catch(() => ({}));
+        error(body.error?.message ?? "The document could not be loaded.");
+        return;
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      setPreviewUrl(url);
+    } catch {
+      error("The preview service is unavailable.");
+    } finally {
+      setPending(null);
+    }
+  }
+
+  return (
+    <>
+      <section className="research-actions" aria-label="Research actions">
+        <div className="action-buttons">
+          <Button type="button" onClick={previewFile} disabled={!hasDocument || pending !== null}>
+            {pending === "preview" ? "Loading preview…" : "Preview PDF"}
+          </Button>
+          <Button type="button" variant="secondary" onClick={downloadFile} disabled={!hasDocument || pending !== null}>
+            {pending === "download" ? "Preparing…" : "Download PDF"}
+          </Button>
+          <Button type="button" variant="ghost" onClick={toggleFavorite} disabled={pending !== null}>
+            {pending === "favorite" ? "Saving…" : "Save research"}
+          </Button>
+        </div>
+        {!hasDocument && <p className="muted" role="status">No document file is available for this record.</p>}
+      </section>
+
+      <AnimatePresence>
+        {previewUrl && (
+          <div className="pdf-preview-backdrop">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.25 }}
+              className="pdf-preview-container"
+            >
+              <div className="pdf-preview-header">
+                <span className="pdf-preview-title">Document Preview (Research #{researchId})</span>
+                <div className="pdf-preview-actions">
+                  <a href={previewUrl} className="btn btn-ghost mono" style={{ display: "flex", alignItems: "center", gap: 8 }} target="_blank" rel="noopener noreferrer">
+                    <ExternalLink size={14} /> Open in New Tab
+                  </a>
+                  <Button type="button" variant="ghost" onClick={() => { URL.revokeObjectURL(previewUrl); setPreviewUrl(null); }} style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: 8 }}>
+                    <X size={20} />
+                  </Button>
+                </div>
+              </div>
+              <div className="pdf-preview-body">
+                <iframe src={previewUrl} className="pdf-preview-iframe" title="PDF Document Preview" />
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+    </>
+  );
 }
+
 
