@@ -174,10 +174,14 @@ export function SubmissionForm({
   categories,
   participants,
   research,
+  returnPath = "/account/saved",
+  formPath,
 }: {
   categories: CategoryResponse[];
   participants: ResearchParticipantsResponse;
   research?: ResearchWorkResponse;
+  returnPath?: string;
+  formPath?: string;
 }) {
   const [step, setStep] = useState(0);
   const [values, setValues] = useState<Values>(() => {
@@ -393,12 +397,12 @@ export function SubmissionForm({
       const body = await response.json().catch(() => ({}));
       if (response.status===401) {
         window.location.assign(
-          `/login?next=${encodeURIComponent(isEdit ? `/student/research/edit/${research.id}` : "/student/research/new")}`,
+          `/login?next=${encodeURIComponent(formPath ?? (isEdit ? `/student/research/edit/${research.id}` : "/student/research/new"))}`,
         );
         return;
       }
       if (response.status===403) {
-        warning(isEdit ? "บัญชีนี้ไม่มีสิทธิ์แก้ไขผลงานวิจัยนี้" : "บัญชีนี้ไม่มีสิทธิ์ส่งผลงาน ระบบอนุญาตเฉพาะนักศึกษาและผู้ดูแลระบบ");
+        warning(isEdit ? "บัญชีนี้ไม่มีสิทธิ์แก้ไขผลงานวิจัยนี้" : "บัญชีนี้ไม่มีสิทธิ์ส่งผลงาน ระบบอนุญาตเฉพาะนักศึกษา อาจารย์ที่ปรึกษา และผู้ดูแลระบบ");
         return;
       }
       if (!response.ok) {
@@ -440,7 +444,7 @@ export function SubmissionForm({
           >
             ดูรายละเอียดผลงาน
           </Link>
-          <Link className="btn btn-secondary" href="/account/saved">
+          <Link className="btn btn-secondary" href={returnPath}>
             กลับหน้าผลงานของฉัน
           </Link>
           {!isEdit && (

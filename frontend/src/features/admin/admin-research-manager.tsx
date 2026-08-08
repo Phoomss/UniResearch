@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Eye, FilePenLine, Filter, Search } from "lucide-react";
+import { Eye, FilePenLine, Filter, Search, Trash2 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useToast } from "@/src/components/ui/Toast";
 import type { AdminResearchRecord } from "./admin-data";
 
 const statusLabels = {
@@ -12,23 +13,36 @@ const statusLabels = {
   revision_needed: "ต้องแก้ไข (Revision)",
 } as const;
 
-export function AdminResearchManager({ records }: { records: AdminResearchRecord[] }) {
+export function AdminResearchManager({ records, reviewBasePath = "/admin/reviews", editBasePath = "/student/research/edit", allowReview = true, allowManage = false }: { records: AdminResearchRecord[]; reviewBasePath?: string; editBasePath?: string; allowReview?: boolean; allowManage?: boolean }) {
+  const [items, setItems] = useState(records);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
   const [category, setCategory] = useState("all");
   const [year, setYear] = useState("all");
-  const categories = [...new Set(records.map((item) => item.category))];
-  const years = [...new Set(records.map((item) => item.year))];
+  const { success, error } = useToast();
+  const categories = [...new Set(items.map((item) => item.category))];
+  const years = [...new Set(items.map((item) => item.year))];
   const filtered = useMemo(() => {
     const keyword = query.trim().toLocaleLowerCase("th");
-    return records.filter((item) => {
+    return items.filter((item) => {
       const matchesQuery = !keyword || [item.title, item.titleEn, item.author, item.ref]
         .join(" ").toLocaleLowerCase("th").includes(keyword);
       return matchesQuery && (status === "all" || item.status === status) &&
         (category === "all" || item.category === category) &&
         (year === "all" || item.year === year);
     });
-  }, [category, query, records, status, year]);
+  }, [category, items, query, status, year]);
+
+  async function removeResearch(id: number) {
+    if (!window.confirm("ยืนยันการลบผลงานนี้อย่างถาวรหรือไม่")) return;
+    try {
+      const response = await fetch(`/api/research/${id}`, { method: "DELETE" });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) { error(body.error?.message ?? "ไม่สามารถลบผลงานได้"); return; }
+      setItems((current) => current.filter((item) => item.id !== id));
+      success("ลบผลงานเรียบร้อยแล้ว");
+    } catch { error("ไม่สามารถเชื่อมต่อบริการลบผลงานได้"); }
+  }
 
   return (
     <>
@@ -51,10 +65,10 @@ export function AdminResearchManager({ records }: { records: AdminResearchRecord
             <div><span className="admin-category-tag">{item.category}</span><small>ปี {item.year}</small></div>
             <div><span className={`admin-status status-${item.status}`}>{statusLabels[item.status]}</span></div>
             <div><small>{item.updated}</small></div>
-            <div className="admin-row-actions"><Link href={`/research/${item.id}`} aria-label={`ดู ${item.title}`}><Eye size={17} /></Link><Link href={`/admin/reviews/${item.id}`} aria-label={`ตรวจ ${item.title}`}><FilePenLine size={17} /></Link>{item.status === "pending" && <Link className="admin-review-link" href={`/admin/reviews/${item.id}`}>ตรวจ</Link>}</div>
+            <div className="admin-row-actions"><Link href={`/research/${item.id}`} aria-label={`ดู ${item.title}`}><Eye size={17} /></Link>{allowReview && <Link href={`${reviewBasePath}/${item.id}`} aria-label={`ตรวจ ${item.title}`}><FilePenLine size={17} /></Link>}{allowReview && item.status === "pending" && <Link className="admin-review-link" href={`${reviewBasePath}/${item.id}`}>ตรวจ</Link>}{allowManage && <Link href={`${editBasePath}/${item.id}`} aria-label={`แก้ไข ${item.title}`}><FilePenLine size={17} /></Link>}{allowManage && <button type="button" className="admin-delete-row-action" onClick={() => removeResearch(item.id)} aria-label={`ลบ ${item.title}`}><Trash2 size={17} /></button>}</div>
           </article>
         )) : <div className="admin-empty-row">ไม่พบผลงานที่ตรงกับตัวกรอง</div>}
-        <footer className="admin-table-footer"><span>แสดง {filtered.length} จาก {records.length} รายการผลงานวิจัย</span><div><button disabled>‹</button><button className="active">1</button><button disabled={filtered.length < 4}>2</button><button disabled>›</button></div></footer>
+        <footer className="admin-table-footer"><span>แสดง {filtered.length} จาก {items.length} รายการผลงานวิจัย</span><div><button disabled>‹</button><button className="active">1</button><button disabled={filtered.length < 4}>2</button><button disabled>›</button></div></footer>
       </section>
     </>
   );

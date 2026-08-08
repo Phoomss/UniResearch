@@ -8,13 +8,19 @@ import type { ResearchWorkResponse } from "@/src/lib/api/types";
 interface AdminReviewQueueDashboardProps {
   initialResearch: ResearchWorkResponse[];
   categories: Array<{ id: number; category_name: string }>;
+  reviewBasePath?: string;
+  heading?: string;
+  eyebrow?: string;
 }
 
-type TabType = "pending" | "revision" | "approved";
+type TabType = "pending" | "revision" | "approved" | "rejected";
 
 export function AdminReviewQueueDashboard({
   initialResearch,
-  categories
+  categories,
+  reviewBasePath = "/admin/reviews",
+  heading = "งานรอตรวจสอบ",
+  eyebrow = "การจัดการความเห็นชอบ",
 }: AdminReviewQueueDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabType>("pending");
 
@@ -26,303 +32,203 @@ export function AdminReviewQueueDashboard({
   const pendingList = initialResearch.filter(rw => rw.status === "pending");
   const revisionList = initialResearch.filter(rw => rw.status === "needs_revision" || rw.status === "revision_needed");
   const approvedList = initialResearch.filter(rw => rw.status === "approved");
+  const rejectedList = initialResearch.filter(rw => rw.status === "rejected");
 
   const getActiveList = () => {
     switch (activeTab) {
       case "pending": return pendingList;
       case "revision": return revisionList;
       case "approved": return approvedList;
+      case "rejected": return rejectedList;
     }
   };
 
   const activeList = getActiveList();
 
   return (
-    <>
-      <header className="admin-review-queue-heading" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--line)", paddingBottom: "32px", marginBottom: "32px" }}>
-        <div>
-          <p style={{ display: "flex", alignItems: "center", gap: "8px", margin: "0 0 8px", fontSize: "14px", fontWeight: "600", color: "var(--muted)" }}>
-            <ClipboardList size={18} style={{ background: "var(--lavender)", color: "var(--mulberry)", padding: "4px", boxSizing: "content-box", borderRadius: "6px" }} />
-            <span>การจัดการความเห็นชอบ</span>
-          </p>
-          <h1 style={{ fontSize: "36px", fontWeight: "750", color: "var(--mulberry)", margin: 0 }}>งานรอตรวจสอบ</h1>
-        </div>
-
-        {/* Dynamic Interactive Stat Cards */}
-        <dl style={{ display: "flex", gap: "16px", margin: 0, padding: 0 }}>
-          
-          {/* Pending Card */}
-          <div 
-            onClick={() => setActiveTab("pending")} 
-            style={{ 
-              cursor: "pointer", 
-              padding: "16px 24px", 
-              borderRadius: "12px", 
-              background: activeTab === "pending" ? "var(--paper-low)" : "var(--paper-white)",
-              border: activeTab === "pending" ? "2px solid var(--mulberry)" : "2px solid #cdc3d020",
-              boxShadow: activeTab === "pending" ? "0 4px 12px rgba(72,39,106,0.08)" : "none",
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-              minWidth: "160px",
-              transition: "all 0.2s ease"
-            }}
-          >
-            <div style={{ background: "rgba(72, 39, 106, 0.1)", color: "var(--mulberry)", padding: "10px", borderRadius: "50%" }}>
-              <Clock size={20} />
-            </div>
-            <div>
-              <dt style={{ fontSize: "28px", fontWeight: "750", color: "var(--mulberry)", lineHeight: 1 }}>{pendingList.length}</dt>
-              <dd style={{ margin: "4px 0 0", fontSize: "12px", color: "var(--muted)", fontWeight: "600" }}>รอตรวจสอบ</dd>
-            </div>
-          </div>
-
-          {/* Revision Card */}
-          <div 
-            onClick={() => setActiveTab("revision")} 
-            style={{ 
-              cursor: "pointer", 
-              padding: "16px 24px", 
-              borderRadius: "12px", 
-              background: activeTab === "revision" ? "var(--apricot)" : "var(--paper-white)",
-              border: activeTab === "revision" ? "2px solid #ff7a30" : "2px solid #cdc3d020",
-              boxShadow: activeTab === "revision" ? "0 4px 12px rgba(255,122,48,0.08)" : "none",
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-              minWidth: "160px",
-              transition: "all 0.2s ease"
-            }}
-          >
-            <div style={{ background: "rgba(255, 122, 48, 0.1)", color: "#ff7a30", padding: "10px", borderRadius: "50%" }}>
-              <AlertTriangle size={20} />
-            </div>
-            <div>
-              <dt style={{ fontSize: "28px", fontWeight: "750", color: "#8a3a00", lineHeight: 1 }}>{revisionList.length}</dt>
-              <dd style={{ margin: "4px 0 0", fontSize: "12px", color: "var(--muted)", fontWeight: "600" }}>ต้องแก้ไข</dd>
-            </div>
-          </div>
-
-          {/* Approved Card */}
-          <div 
-            onClick={() => setActiveTab("approved")} 
-            style={{ 
-              cursor: "pointer", 
-              padding: "16px 24px", 
-              borderRadius: "12px", 
-              background: activeTab === "approved" ? "rgba(33, 122, 82, 0.05)" : "var(--paper-white)",
-              border: activeTab === "approved" ? "2px solid var(--success)" : "2px solid #cdc3d020",
-              boxShadow: activeTab === "approved" ? "0 4px 12px rgba(33,122,82,0.08)" : "none",
-              display: "flex",
-              alignItems: "center",
-              gap: "16px",
-              minWidth: "160px",
-              transition: "all 0.2s ease"
-            }}
-          >
-            <div style={{ background: "rgba(33, 122, 82, 0.1)", color: "var(--success)", padding: "10px", borderRadius: "50%" }}>
-              <CheckCircle2 size={20} />
-            </div>
-            <div>
-              <dt style={{ fontSize: "28px", fontWeight: "750", color: "var(--success)", lineHeight: 1 }}>{approvedList.length}</dt>
-              <dd style={{ margin: "4px 0 0", fontSize: "12px", color: "var(--muted)", fontWeight: "600" }}>อนุมัติแล้ว</dd>
-            </div>
-          </div>
-
-        </dl>
+    <div className="adv-dashboard-container">
+      {/* Header and Title */}
+      <header className="admin-page-heading" style={{ marginBottom: "24px" }}>
+        <p style={{ display: "flex", alignItems: "center", gap: "8px", color: "#48276a", fontSize: "14px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+          <ClipboardList size={16} />
+          <span>{eyebrow}</span>
+        </p>
+        <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#111827", margin: "8px 0 0" }}>{heading}</h1>
       </header>
 
-      {/* Segmented Pill Tabs */}
-      <div className="admin-review-tabs" style={{ display: "flex", background: "var(--paper-low)", padding: "4px", borderRadius: "100px", border: "1px solid #cdc3d040", width: "fit-content", marginBottom: "32px" }}>
-        <button 
-          style={{ 
-            border: "none", 
-            background: activeTab === "pending" ? "white" : "transparent", 
-            color: activeTab === "pending" ? "var(--mulberry)" : "var(--muted)", 
-            fontWeight: "600", 
-            fontSize: "13px", 
-            padding: "8px 20px", 
-            borderRadius: "100px", 
-            cursor: "pointer", 
-            boxShadow: activeTab === "pending" ? "0 2px 8px rgba(0,0,0,0.06)" : "none", 
-            transition: "all 0.2s ease" 
-          }}
+      {/* Grid Metrics Stats - Left Aligned Icon Style */}
+      <section className="adv-stats-grid" style={{ marginBottom: "32px" }}>
+        {/* Pending Card */}
+        <div 
           onClick={() => setActiveTab("pending")}
+          className={`adv-stat-card flex-row purple-theme ${activeTab === "pending" ? "active-filter-card" : ""}`}
+          style={{ cursor: "pointer", border: activeTab === "pending" ? "1.5px solid #7c3aed" : "1px solid rgba(0, 0, 0, 0.06)" }}
         >
-          รอตรวจสอบ [ {pendingList.length} ]
-        </button>
-        <button 
-          style={{ 
-            border: "none", 
-            background: activeTab === "revision" ? "white" : "transparent", 
-            color: activeTab === "revision" ? "var(--mulberry)" : "var(--muted)", 
-            fontWeight: "600", 
-            fontSize: "13px", 
-            padding: "8px 20px", 
-            borderRadius: "100px", 
-            cursor: "pointer", 
-            boxShadow: activeTab === "revision" ? "0 2px 8px rgba(0,0,0,0.06)" : "none", 
-            transition: "all 0.2s ease" 
-          }}
-          onClick={() => setActiveTab("revision")}
-        >
-          ต้องแก้ไข [ {revisionList.length} ]
-        </button>
-        <button 
-          style={{ 
-            border: "none", 
-            background: activeTab === "approved" ? "white" : "transparent", 
-            color: activeTab === "approved" ? "var(--mulberry)" : "var(--muted)", 
-            fontWeight: "600", 
-            fontSize: "13px", 
-            padding: "8px 20px", 
-            borderRadius: "100px", 
-            cursor: "pointer", 
-            boxShadow: activeTab === "approved" ? "0 2px 8px rgba(0,0,0,0.06)" : "none", 
-            transition: "all 0.2s ease" 
-          }}
-          onClick={() => setActiveTab("approved")}
-        >
-          อนุมัติแล้ว [ {approvedList.length} ]
-        </button>
-      </div>
-
-      {/* Review List */}
-      <section className="admin-review-list" style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
-        {activeList.length === 0 ? (
-          <div style={{ padding: "64px 32px", textAlign: "center", background: "white", borderRadius: "16px", border: "1px dashed var(--line)" }}>
-            <p className="muted" style={{ margin: 0, fontSize: "16px", fontWeight: "500" }}>ไม่มีผลงานวิจัยในหมวดหมู่ที่เลือก</p>
+          <div className="adv-card-icon bg-purple-light">
+            <Clock size={24} />
           </div>
-        ) : (
-          activeList.map((item) => {
-            const authorName = item.authors?.[0]?.user 
-              ? `${item.authors[0].user.first_name || ""} ${item.authors[0].user.last_name || ""}`.trim()
-              : "ไม่ระบุผู้ส่ง";
-              
-            const categoryName = categoryMap.get(item.category_id) || "อื่นๆ";
-            const formattedDate = new Date(item.updated_at).toLocaleDateString("th-TH", {
-              year: "numeric",
-              month: "short",
-              day: "numeric"
-            });
+          <div className="adv-card-body">
+            <span className="adv-card-label">รอตรวจสอบ</span>
+            <strong className="adv-card-value">{pendingList.length}</strong>
+            <span className="adv-card-desc">รายการรอตรวจประเมิน</span>
+          </div>
+        </div>
 
-            // Extract tags
-            const tags = item.keywords ? item.keywords.split(/[,,;，\s]+/).map(k => k.trim()).filter(Boolean).slice(0, 3) : [];
+        {/* Revision Card */}
+        <div 
+          onClick={() => setActiveTab("revision")}
+          className={`adv-stat-card flex-row orange-theme ${activeTab === "revision" ? "active-filter-card" : ""}`}
+          style={{ cursor: "pointer", border: activeTab === "revision" ? "1.5px solid #ea580c" : "1px solid rgba(0, 0, 0, 0.06)" }}
+        >
+          <div className="adv-card-icon bg-orange-light">
+            <AlertTriangle size={24} />
+          </div>
+          <div className="adv-card-body">
+            <span className="adv-card-label">ต้องแก้ไข</span>
+            <strong className="adv-card-value">{revisionList.length}</strong>
+            <span className="adv-card-desc">งานที่ส่งกลับไปปรับปรุง</span>
+          </div>
+        </div>
 
-            return (
-              <article 
-                key={item.id} 
-                style={{ 
-                  position: "relative",
-                  display: "flex",
-                  gap: "24px",
-                  padding: "24px",
-                  border: "1px solid #cdc3d025", 
-                  borderRadius: "16px", 
-                  background: "white",
-                  boxShadow: "0 2px 8px rgba(38,36,52,0.03)",
-                  transition: "all 0.2s ease"
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = "translateY(-2px)";
-                  e.currentTarget.style.boxShadow = "0 6px 16px rgba(38,36,52,0.06)";
-                  e.currentTarget.style.borderColor = "var(--mulberry-2, #603f83)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = "translateY(0)";
-                  e.currentTarget.style.boxShadow = "0 2px 8px rgba(38,36,52,0.03)";
-                  e.currentTarget.style.borderColor = "#cdc3d025";
-                }}
-              >
-                {/* Paper Icon Container */}
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start" }}>
-                  <div style={{ background: "var(--paper-low)", color: "var(--mulberry)", padding: "16px", borderRadius: "12px", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <FileText size={32} />
-                  </div>
-                </div>
-
-                {/* Content Area */}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="admin-review-card-meta" style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap", marginBottom: "12px" }}>
-                    <span className="admin-category-tag" style={{ background: "var(--paper-mid)", color: "var(--mulberry)", padding: "4px 10px", borderRadius: "6px", fontSize: "11px", fontWeight: "600" }}>{categoryName}</span>
-                    <code style={{ fontSize: "12px", color: "var(--muted)", fontWeight: "600" }}>ID: {item.id}</code>
-                    {item.academic_year && (
-                      <span style={{ fontSize: "12px", color: "var(--muted)", display: "inline-flex", alignItems: "center", gap: "4px" }}>
-                        <Calendar size={13} />
-                        ปี {item.academic_year}
-                      </span>
-                    )}
-                  </div>
-                  
-                  <h2 style={{ margin: "0 0 10px", fontSize: "20px", fontWeight: "700", color: "var(--ink)", lineHeight: "1.4" }}>{item.title_th || item.title_en}</h2>
-                  
-                  <p style={{ 
-                    margin: "0 0 16px", 
-                    color: "var(--muted)", 
-                    fontSize: "14px", 
-                    lineHeight: "1.6",
-                    display: "-webkit-box", 
-                    WebkitLineClamp: 2, 
-                    WebkitBoxOrient: "vertical", 
-                    overflow: "hidden", 
-                    textOverflow: "ellipsis" 
-                  }}>
-                    {item.abstract || "ไม่มีบทคัดย่อ"}
-                  </p>
-
-                  {/* Render tag list */}
-                  {tags.length > 0 && (
-                    <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "18px" }}>
-                      {tags.map((tag) => (
-                        <span key={tag} style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "var(--muted)", background: "var(--paper)", padding: "2px 8px", borderRadius: "4px", border: "1px solid #cdc3d020" }}>
-                          <Tag size={10} />
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  
-                  <footer style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #cdc3d020", paddingTop: "14px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span className="admin-author-avatar" style={{ background: "var(--mulberry)", color: "white", width: "28px", height: "28px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: "700" }}>
-                        {authorName.slice(0, 2).toUpperCase()}
-                      </span>
-                      <strong style={{ fontSize: "13px", color: "var(--ink)" }}>{authorName}</strong>
-                      <span style={{ fontSize: "12px", color: "var(--muted)" }}>• ส่งเมื่อ {formattedDate}</span>
-                    </div>
-                    
-                    <Link 
-                      href={`/admin/reviews/${item.id}`}
-                      style={{ 
-                        display: "inline-flex", 
-                        alignItems: "center", 
-                        gap: "6px", 
-                        padding: "8px 16px", 
-                        borderRadius: "8px", 
-                        background: "var(--mulberry)", 
-                        color: "white", 
-                        fontSize: "13px",
-                        fontWeight: "600",
-                        boxShadow: "0 2px 6px rgba(72,39,106,0.15)",
-                        transition: "all 0.2s ease"
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = "var(--mulberry-2, #603f83)";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "var(--mulberry)";
-                      }}
-                    >
-                      <span>ตรวจสอบผลงาน</span>
-                      <ChevronRight size={14} />
-                    </Link>
-                  </footer>
-                </div>
-              </article>
-            );
-          })
-        )}
+        {/* Approved Card */}
+        <div 
+          onClick={() => setActiveTab("approved")}
+          className={`adv-stat-card flex-row green-theme ${activeTab === "approved" ? "active-filter-card" : ""}`}
+          style={{ cursor: "pointer", border: activeTab === "approved" ? "1.5px solid #059669" : "1px solid rgba(0, 0, 0, 0.06)" }}
+        >
+          <div className="adv-card-icon bg-green-light">
+            <CheckCircle2 size={24} />
+          </div>
+          <div className="adv-card-body">
+            <span className="adv-card-label">อนุมัติแล้ว</span>
+            <strong className="adv-card-value">{approvedList.length}</strong>
+            <span className="adv-card-desc">ผลงานที่เผยแพร่แล้ว</span>
+          </div>
+        </div>
       </section>
-    </>
+
+      {/* Main Workspace Layout */}
+      <div className="adv-workspace-layout" style={{ gridTemplateColumns: "1fr" }}>
+        <div className="adv-main-content-panel">
+          {/* Tabs Filter Bar */}
+          <div className="adv-tabs-bar" style={{ justifyContent: "flex-start", gap: "8px" }}>
+            <button 
+              type="button"
+              className={`adv-tab-trigger ${activeTab === "pending" ? "active" : ""}`}
+              onClick={() => setActiveTab("pending")}
+            >
+              <span>รอตรวจสอบ ({pendingList.length})</span>
+            </button>
+            <button 
+              type="button"
+              className={`adv-tab-trigger ${activeTab === "revision" ? "active" : ""}`}
+              onClick={() => setActiveTab("revision")}
+            >
+              <span>ต้องแก้ไข ({revisionList.length})</span>
+            </button>
+            <button 
+              type="button"
+              className={`adv-tab-trigger ${activeTab === "approved" ? "active" : ""}`}
+              onClick={() => setActiveTab("approved")}
+            >
+              <span>อนุมัติแล้ว ({approvedList.length})</span>
+            </button>
+            <button 
+              type="button"
+              className={`adv-tab-trigger ${activeTab === "rejected" ? "active" : ""}`}
+              style={{ color: activeTab === "rejected" ? "#white" : "#ef4444" }}
+              onClick={() => setActiveTab("rejected")}
+            >
+              <span>ไม่อนุมัติ ({rejectedList.length})</span>
+            </button>
+          </div>
+
+          {/* Review List */}
+          <div className="adv-results-list">
+            {activeList.length === 0 ? (
+              <div className="adv-empty-state">
+                <FileText size={48} className="text-gray-300 mb-2" />
+                <p>ไม่มีผลงานวิจัยในคิวตรวจสอบหมวดหมู่นี้</p>
+                <small className="text-gray-400">เมื่อมีผลงานส่งเข้ามาใหม่จะปรากฏขึ้นที่คิวนี้ทันที</small>
+              </div>
+            ) : (
+              activeList.map((item) => {
+                const authorName = item.authors?.[0]?.user 
+                  ? `${item.authors[0].user.first_name || ""} ${item.authors[0].user.last_name || ""}`.trim()
+                  : "ไม่ระบุผู้ส่ง";
+                  
+                const categoryName = categoryMap.get(item.category_id) || "อื่นๆ";
+                const formattedDate = new Date(item.updated_at).toLocaleDateString("th-TH", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric"
+                });
+
+                const tags = item.keywords ? item.keywords.split(/[,,;，\s]+/).map(k => k.trim()).filter(Boolean).slice(0, 3) : [];
+
+                return (
+                  <article key={item.id} className="adv-item-card" style={{ alignItems: "flex-start" }}>
+                    <div className="adv-item-main">
+                      <div className="adv-item-header">
+                        <div className="adv-item-meta">
+                          <span className="adv-meta-tag ref-id">ID: {item.id}</span>
+                          <span className="adv-meta-tag category">{categoryName}</span>
+                          {item.academic_year && (
+                            <span className="adv-meta-tag year">ปีการศึกษา {item.academic_year}</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <h3 className="adv-item-title" style={{ whiteSpace: "normal" }}>
+                        {item.title_th || item.title_en}
+                      </h3>
+                      {item.title_th && item.title_en && (
+                        <h4 className="adv-item-subtitle" style={{ whiteSpace: "normal" }}>{item.title_en}</h4>
+                      )}
+
+                      <p style={{ margin: "4px 0 12px", color: "#4b5563", fontSize: "14px", lineHeight: "1.6" }}>
+                        {item.abstract || "ไม่มีบทคัดย่อ"}
+                      </p>
+
+                      {tags.length > 0 && (
+                        <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", marginBottom: "12px" }}>
+                          {tags.map((tag) => (
+                            <span key={tag} style={{ display: "inline-flex", alignItems: "center", gap: "4px", fontSize: "11px", color: "#6b7280", background: "#f3f4f6", padding: "2px 8px", borderRadius: "4px" }}>
+                              <Tag size={10} />
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="adv-item-footer">
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ background: "#48276a", color: "white", width: "26px", height: "26px", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: "700" }}>
+                            {authorName.slice(0, 2).toUpperCase()}
+                          </span>
+                          <span style={{ fontWeight: "600", color: "#1f2937" }}>{authorName}</span>
+                          <span style={{ color: "#9ca3af" }}>• ส่งเมื่อ {formattedDate}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="adv-item-actions" style={{ alignSelf: "center" }}>
+                      <Link 
+                        href={`${reviewBasePath}/${item.id}`}
+                        className="adv-action-btn review"
+                        style={{ whiteSpace: "nowrap" }}
+                      >
+                        <span>ตรวจสอบผลงาน</span>
+                        <ChevronRight size={14} />
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

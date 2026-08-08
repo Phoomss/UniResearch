@@ -100,6 +100,27 @@ async def get_pending_research(
     return result.scalars().all()
 
 
+@router.get("/history", response_model=List[ResearchWorkResponse])
+async def get_review_history(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["admin", "advisor"]))
+):
+    from sqlalchemy import select
+    from sqlalchemy.orm import selectinload
+    from app.models.research import ResearchWork, ResearchAuthor, ResearchAdvisor, ReviewComment
+    query = select(ResearchWork).where(
+        ResearchWork.id.in_(
+            select(ReviewComment.research_id).where(ReviewComment.reviewer_id == current_user.id)
+        )
+    ).options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+        selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+    ).order_by(ResearchWork.updated_at.desc())
+    result = await db.execute(query)
+    return result.scalars().all()
+
+
 @router.get("/{research_id}", response_model=ResearchWorkResponse)
 async def get_research_detail(
     research_id: int, 
