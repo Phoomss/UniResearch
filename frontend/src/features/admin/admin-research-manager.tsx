@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Eye, FilePenLine, Filter, Search, Trash2 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useToast } from "@/src/components/ui/Toast";
 import type { AdminResearchRecord } from "./admin-data";
 
@@ -20,8 +20,13 @@ export function AdminResearchManager({ records, reviewBasePath = "/admin/reviews
   const [category, setCategory] = useState("all");
   const [year, setYear] = useState("all");
   const { success, error } = useToast();
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
   const categories = [...new Set(items.map((item) => item.category))];
   const years = [...new Set(items.map((item) => item.year))];
+  
   const filtered = useMemo(() => {
     const keyword = query.trim().toLocaleLowerCase("th");
     return items.filter((item) => {
@@ -32,6 +37,16 @@ export function AdminResearchManager({ records, reviewBasePath = "/admin/reviews
         (year === "all" || item.year === year);
     });
   }, [category, items, query, status, year]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query, status, category, year]);
+
+  const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+  const paginatedItems = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filtered.slice(startIndex, startIndex + pageSize);
+  }, [filtered, currentPage, pageSize]);
 
   async function removeResearch(id: number) {
     if (!window.confirm("ยืนยันการลบผลงานนี้อย่างถาวรหรือไม่")) return;
@@ -59,7 +74,7 @@ export function AdminResearchManager({ records, reviewBasePath = "/admin/reviews
 
       <section className="admin-table-card">
         <div className="admin-research-table admin-table-head"><span>รายละเอียดผลงาน</span><span>หมวดหมู่ &amp; ปีการศึกษา</span><span>สถานะ</span><span>ปรับปรุงเมื่อ</span><span>ดำเนินการ</span></div>
-        {filtered.length ? filtered.map((item) => (
+        {paginatedItems.length ? paginatedItems.map((item) => (
           <article className="admin-research-table admin-table-row" key={item.id}>
             <div className="admin-research-title-cell"><span className={`admin-document-mark status-${item.status}`}>{item.ref.slice(0, 2)}</span><div><Link href={`/research/${item.id}`}>{item.title}</Link><small>{item.author}</small><small className="mono">[อ้างอิง: {item.ref}]</small></div></div>
             <div><span className="admin-category-tag">{item.category}</span><small>ปี {item.year}</small></div>
@@ -68,7 +83,53 @@ export function AdminResearchManager({ records, reviewBasePath = "/admin/reviews
             <div className="admin-row-actions"><Link href={`/research/${item.id}`} aria-label={`ดู ${item.title}`}><Eye size={17} /></Link>{allowReview && <Link href={`${reviewBasePath}/${item.id}`} aria-label={`ตรวจ ${item.title}`}><FilePenLine size={17} /></Link>}{allowReview && item.status === "pending" && <Link className="admin-review-link" href={`${reviewBasePath}/${item.id}`}>ตรวจ</Link>}{allowManage && <Link href={`${editBasePath}/${item.id}`} aria-label={`แก้ไข ${item.title}`}><FilePenLine size={17} /></Link>}{allowManage && <button type="button" className="admin-delete-row-action" onClick={() => removeResearch(item.id)} aria-label={`ลบ ${item.title}`}><Trash2 size={17} /></button>}</div>
           </article>
         )) : <div className="admin-empty-row">ไม่พบผลงานที่ตรงกับตัวกรอง</div>}
-        <footer className="admin-table-footer"><span>แสดง {filtered.length} จาก {items.length} รายการผลงานวิจัย</span><div><button disabled>‹</button><button className="active">1</button><button disabled={filtered.length < 4}>2</button><button disabled>›</button></div></footer>
+        
+        <footer className="admin-table-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px" }}>
+          <span>
+            แสดง <strong>{filtered.length ? (currentPage - 1) * pageSize + 1 : 0} - {Math.min(filtered.length, currentPage * pageSize)}</strong> จากทั้งหมด <strong>{filtered.length}</strong> รายการ
+          </span>
+          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+            <button 
+              type="button" 
+              disabled={currentPage === 1} 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              style={{ width: "auto", minWidth: "75px", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(205, 195, 208, 0.4)", background: "#ffffff", cursor: currentPage === 1 ? "not-allowed" : "pointer", opacity: currentPage === 1 ? 0.5 : 1, fontSize: "13px", fontWeight: 500 }}
+            >
+              ก่อนหน้า
+            </button>
+            {Array.from({ length: totalPages }).map((_, idx) => {
+              const pageNum = idx + 1;
+              return (
+                <button
+                  key={pageNum}
+                  type="button"
+                  onClick={() => setCurrentPage(pageNum)}
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "8px",
+                    border: pageNum === currentPage ? "none" : "1px solid rgba(205, 195, 208, 0.4)",
+                    background: pageNum === currentPage ? "var(--primary)" : "#ffffff",
+                    color: pageNum === currentPage ? "#ffffff" : "var(--muted)",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    fontSize: "13px"
+                  }}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+            <button 
+              type="button" 
+              disabled={currentPage === totalPages} 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              style={{ width: "auto", minWidth: "75px", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(205, 195, 208, 0.4)", background: "#ffffff", cursor: currentPage === totalPages ? "not-allowed" : "pointer", opacity: currentPage === totalPages ? 0.5 : 1, fontSize: "13px", fontWeight: 500 }}
+            >
+              ถัดไป
+            </button>
+          </div>
+        </footer>
       </section>
     </>
   );

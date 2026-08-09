@@ -5,7 +5,18 @@ from app.core.config import settings
 import ssl
 
 connect_args = {}
-if "localhost" not in settings.DATABASE_URL and "127.0.0.1" not in settings.DATABASE_URL:
+# Check if DB_SSL is explicitly set, or auto-detect based on host/environment
+use_ssl = settings.DB_SSL
+if use_ssl is None:
+    is_local = (
+        "localhost" in settings.DATABASE_URL
+        or "127.0.0.1" in settings.DATABASE_URL
+        or "@db" in settings.DATABASE_URL
+        or settings.APP_ENV in ("development", "local", "test")
+    )
+    use_ssl = not is_local
+
+if use_ssl:
     ctx = ssl.create_default_context()
     ctx.check_hostname = False
     ctx.verify_mode = ssl.CERT_NONE

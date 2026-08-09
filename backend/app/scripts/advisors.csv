@@ -1,0 +1,8 @@
+email,hashed_password,role,student_id,department,first_name,last_name,is_active
+udsanee@webmail.npru.ac.th,udsanee,advisor,,วิศวกรรมซอฟต์แวร์,ผศ.ดร.อุษณีย์,ภักดีตระกูลวงศ์,true
+wuttha@webmail.npru.ac.th,wuttha,advisor,,วิศวกรรมซอฟต์แวร์,ผศ.ดร.วรเชษฐ์,อุทธา,true
+tko@webmail.npru.ac.th,tko,advisor,,วิศวกรรมซอฟต์แวร์,ผศ.สมเกียรติ,ช่อเหมือน,true
+naruapon@webmail.npru.ac.th,naruapon,advisor,,วิศวกรรมซอฟต์แวร์,ผศ.นฤพล,สุวรรณวิจิตร,true
+s.suksawat@webmail.npru.ac.th,s.suksawat,advisor,,วิศวกรรมซอฟต์แวร์,สุขสวัสดิ์,แซ่ลิ่ม,true
+sutarat@webmail.npru.ac.th,sutarat,advisor,,วิศวกรรมซอฟต์แวร์,สุธารัตน์,ชาวนาฟาง,true
+rujiraveekongdee@webmail.npru.ac.th,rujiraveekongdee,advisor,,วิศวกรรมซอฟต์แวร์,รุจิรวี,คงดี,true

@@ -25,29 +25,27 @@ export async function SiteHeader(
                     <LanguageSwitch />
                     {authenticated ? <LogoutButton /> : <ButtonLink href="/login" variant="secondary">{t.login}</ButtonLink>}
                     <ButtonLink href="/dashboard/student/submit">{t.submitResearch}</ButtonLink>
-                    {usesHomeDesign ? (
-                        <details className="mobile-nav">
-                            <summary aria-label="เปิดเมนูหลัก">
-                                <span aria-hidden="true">☰</span>
-                            </summary>
-                            <nav className="mobile-nav-menu" aria-label="เมนูหลักบนมือถือ">
-                                <Link href="/research">{t.searchWorks}</Link>
-                                <Link href="/#categories">{t.exploreCategories}</Link>
-                                <Link href="/#about">{t.aboutSystem}</Link>
-                                <LanguageSwitch />
-                                {authenticated ? (
-                                    <LogoutButton />
-                                ) : (
-                                    <ButtonLink href="/login" variant="secondary">
-                                        {t.login}
-                                    </ButtonLink>
-                                )}
-                                <ButtonLink href="/dashboard/student/submit">
-                                    {t.submitResearch}
+                    <details className="mobile-nav">
+                        <summary aria-label="เปิดเมนูหลัก">
+                            <span aria-hidden="true">☰</span>
+                        </summary>
+                        <nav className="mobile-nav-menu" aria-label="เมนูหลักบนมือถือ">
+                            <Link href="/research">{t.searchWorks}</Link>
+                            <Link href="/#categories">{t.exploreCategories}</Link>
+                            <Link href="/#about">{t.aboutSystem}</Link>
+                            <LanguageSwitch />
+                            {authenticated ? (
+                                <LogoutButton />
+                            ) : (
+                                <ButtonLink href="/login" variant="secondary">
+                                    {t.login}
                                 </ButtonLink>
-                            </nav>
-                        </details>
-                    ) : null}
+                            )}
+                            <ButtonLink href="/dashboard/student/submit">
+                                {t.submitResearch}
+                            </ButtonLink>
+                        </nav>
+                    </details>
                 </div>
             </div>
         </header>
@@ -131,8 +129,8 @@ export async function DashboardShell({ children, active = "01" }: { children: Re
                 <Brand />
                 <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
                     {authenticated && userName && (
-                        <span className="user-profile-badge" style={{ fontSize: "14px", color: "var(--mulberry)", fontWeight: "500" }}>
-                            👤 {userName} ({role.toUpperCase()})
+                        <span className="user-profile-badge">
+                            👤 <span className="user-profile-name">{userName} ({role.toUpperCase()})</span>
                         </span>
                     )}
                     <Link className="icon-btn" href="/research" aria-label="ค้นหา">⌕</Link>

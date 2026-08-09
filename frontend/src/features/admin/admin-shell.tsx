@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   BarChart3,
   BookOpen,
@@ -12,6 +13,7 @@ import {
   FileText,
   LayoutDashboard,
   Menu,
+  X,
   Search,
   Shapes,
   UserRound,
@@ -103,9 +105,23 @@ function AdminBrand() {
 
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const currentItem = groups
     .flatMap((group) => group.items)
     .find((item) => isActive(pathname, item.href));
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setMobileMenuOpen(false);
+    };
+    document.addEventListener("keydown", closeOnEscape);
+    document.body.classList.add("admin-menu-open");
+    return () => {
+      document.removeEventListener("keydown", closeOnEscape);
+      document.body.classList.remove("admin-menu-open");
+    };
+  }, [mobileMenuOpen]);
 
   return (
     <div className="admin-app">
@@ -132,14 +148,43 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             <input name="q" type="search" placeholder="ค้นหาคลังข้อมูล [ / ]" />
           </form>
           <Link href="/admin/profile" className="admin-avatar" aria-label="บัญชีผู้ดูแลระบบ" style={{ display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none", color: "inherit" }}><UserRound size={18} /></Link>
-          <details className="admin-mobile-menu">
-            <summary aria-label="เปิดเมนูผู้ดูแลระบบ"><Menu size={22} /></summary>
-            <div>
-              <AdminBrand />
-              <AdminNavigation pathname={pathname} />
-            </div>
-          </details>
+          <button
+            className="admin-mobile-menu-trigger"
+            type="button"
+            aria-expanded={mobileMenuOpen}
+            aria-controls="admin-mobile-navigation"
+            aria-label={mobileMenuOpen ? "ปิดเมนูผู้ดูแลระบบ" : "เปิดเมนูผู้ดูแลระบบ"}
+            onClick={() => setMobileMenuOpen((open) => !open)}
+          >
+            {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </header>
+        {mobileMenuOpen && (
+          <>
+            <button className="admin-mobile-backdrop" type="button" aria-label="ปิดเมนูผู้ดูแลระบบ" onClick={() => setMobileMenuOpen(false)} />
+            <aside
+              className="admin-mobile-menu admin-mobile-menu--admin"
+              id="admin-mobile-navigation"
+              aria-label="เมนูผู้ดูแลระบบบนมือถือ"
+              onClick={(event) => {
+                if ((event.target as HTMLElement).closest("a")) setMobileMenuOpen(false);
+              }}
+            >
+              <header className="admin-mobile-menu-header">
+                <AdminBrand />
+                <button className="admin-mobile-menu-close" type="button" aria-label="ปิดเมนูผู้ดูแลระบบ" onClick={() => setMobileMenuOpen(false)}><X size={22} /></button>
+              </header>
+              <div className="admin-mobile-menu-body">
+                <AdminNavigation pathname={pathname} />
+              </div>
+              <footer className="admin-mobile-menu-footer">
+                <Link href="/admin/profile"><UserRound size={18} />โปรไฟล์ผู้ดูแลระบบ</Link>
+                <Link href="/"><ExternalLink size={18} />เว็บไซต์หลัก</Link>
+                <LogoutButton />
+              </footer>
+            </aside>
+          </>
+        )}
         {children}
       </div>
     </div>

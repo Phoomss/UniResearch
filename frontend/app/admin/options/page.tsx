@@ -246,7 +246,7 @@ export default function AdminOptionsPage() {
         </div>
 
         {hasUnsavedChanges && (
-          <div style={{
+          <div className="admin-options-unsaved" style={{
             display: "flex", 
             alignItems: "center", 
             gap: "12px", 
@@ -266,7 +266,7 @@ export default function AdminOptionsPage() {
         )}
       </div>
 
-      <div className="dashboard-grid category-workspace" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px" }}>
+      <div className="dashboard-grid category-workspace admin-options-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "32px" }}>
         
         {/* ภาควิชา / หลักสูตร Panel */}
         <section className="panel" style={{ background: "var(--paper-low)", padding: "28px", borderRadius: "16px", border: "1px solid #cdc3d040", boxShadow: "var(--shadow)" }}>
@@ -308,6 +308,7 @@ export default function AdminOptionsPage() {
             {deptSearch && (
               <button 
                 onClick={() => setDeptSearch("")} 
+                aria-label="ล้างการค้นหาภาควิชา"
                 style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--muted)" }}
               >
                 <X size={16} />
@@ -316,14 +317,14 @@ export default function AdminOptionsPage() {
           </div>
 
           {/* Add input */}
-          <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+          <div className="admin-options-add-row" style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
             <Input
               value={newDept}
               onChange={(e) => setNewDept(e.target.value)}
               placeholder="เพิ่มภาควิชาใหม่ เช่น วิศวกรรมคอมพิวเตอร์"
               onKeyDown={(e) => e.key === "Enter" && handleAddDept()}
             />
-            <Button onClick={handleAddDept} type="button" style={{ padding: "8px 16px" }}>
+            <Button onClick={handleAddDept} type="button" aria-label="เพิ่มภาควิชา" style={{ padding: "8px 16px" }}>
               <Plus size={18} />
             </Button>
           </div>
@@ -342,7 +343,7 @@ export default function AdminOptionsPage() {
                 const isNew = !initialDepartments.includes(name);
                 
                 return (
-                  <div 
+                  <div className="admin-options-row"
                     key={`${name}-${index}`} 
                     style={{ 
                       display: "flex", 
@@ -378,12 +379,14 @@ export default function AdminOptionsPage() {
                         />
                         <button
                           onClick={() => handleSaveEditDept(index)}
+                          aria-label={`บันทึกการแก้ไข ${name}`}
                           style={{ padding: "6px", color: "var(--success)", background: "rgba(33, 122, 82, 0.1)", borderRadius: "6px", border: "none", cursor: "pointer" }}
                         >
                           <Check size={16} />
                         </button>
                         <button
                           onClick={() => setEditingDeptIndex(null)}
+                          aria-label={`ยกเลิกการแก้ไข ${name}`}
                           style={{ padding: "6px", color: "var(--muted)", background: "rgba(0, 0, 0, 0.05)", borderRadius: "6px", border: "none", cursor: "pointer" }}
                         >
                           <X size={16} />
@@ -391,7 +394,7 @@ export default function AdminOptionsPage() {
                       </div>
                     ) : (
                       <>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <div className="admin-options-row-label" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                           <span style={{ fontSize: "16px" }}>{name}</span>
                           {isNew && (
                             <span style={{ fontSize: "10px", background: "var(--apricot)", color: "#8a3a00", padding: "2px 6px", borderRadius: "12px", fontWeight: "bold" }}>
@@ -399,11 +402,12 @@ export default function AdminOptionsPage() {
                             </span>
                           )}
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <div className="admin-options-row-actions" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                           {/* Reordering */}
                           <button
                             disabled={index === 0}
                             onClick={() => handleMoveDept(index, "up")}
+                            aria-label={`เลื่อน ${name} ขึ้น`}
                             style={{ 
                               padding: "4px", 
                               color: index === 0 ? "#ccc" : "var(--muted)", 
@@ -418,6 +422,7 @@ export default function AdminOptionsPage() {
                           <button
                             disabled={index === departments.length - 1}
                             onClick={() => handleMoveDept(index, "down")}
+                            aria-label={`เลื่อน ${name} ลง`}
                             style={{ 
                               padding: "4px", 
                               color: index === departments.length - 1 ? "#ccc" : "var(--muted)", 
@@ -433,6 +438,7 @@ export default function AdminOptionsPage() {
                           {/* Edit */}
                           <button
                             onClick={() => handleStartEditDept(index, name)}
+                            aria-label={`แก้ไข ${name}`}
                             style={{ 
                               padding: "4px 6px", 
                               color: "var(--periwinkle)", 
@@ -448,6 +454,7 @@ export default function AdminOptionsPage() {
                           {/* Delete */}
                           <button
                             onClick={() => handleRemoveDept(index)}
+                            aria-label={`ลบ ${name}`}
                             style={{ 
                               padding: "4px 6px", 
                               color: "var(--error)", 
@@ -509,6 +516,7 @@ export default function AdminOptionsPage() {
             {typeSearch && (
               <button 
                 onClick={() => setTypeSearch("")} 
+                aria-label="ล้างการค้นหาประเภทผลงาน"
                 style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "var(--muted)" }}
               >
                 <X size={16} />
@@ -517,14 +525,14 @@ export default function AdminOptionsPage() {
           </div>
 
           {/* Add input */}
-          <div style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
+          <div className="admin-options-add-row" style={{ display: "flex", gap: "8px", marginBottom: "20px" }}>
             <Input
               value={newType}
               onChange={(e) => setNewType(e.target.value)}
               placeholder="เพิ่มประเภทผลงาน เช่น วิทยานิพนธ์"
               onKeyDown={(e) => e.key === "Enter" && handleAddType()}
             />
-            <Button onClick={handleAddType} type="button" style={{ padding: "8px 16px" }}>
+            <Button onClick={handleAddType} type="button" aria-label="เพิ่มประเภทผลงาน" style={{ padding: "8px 16px" }}>
               <Plus size={18} />
             </Button>
           </div>
@@ -543,7 +551,7 @@ export default function AdminOptionsPage() {
                 const isNew = !initialWorkTypes.includes(name);
                 
                 return (
-                  <div 
+                  <div className="admin-options-row"
                     key={`${name}-${index}`} 
                     style={{ 
                       display: "flex", 
@@ -579,12 +587,14 @@ export default function AdminOptionsPage() {
                         />
                         <button
                           onClick={() => handleSaveEditType(index)}
+                          aria-label={`บันทึกการแก้ไข ${name}`}
                           style={{ padding: "6px", color: "var(--success)", background: "rgba(33, 122, 82, 0.1)", borderRadius: "6px", border: "none", cursor: "pointer" }}
                         >
                           <Check size={16} />
                         </button>
                         <button
                           onClick={() => setEditingTypeIndex(null)}
+                          aria-label={`ยกเลิกการแก้ไข ${name}`}
                           style={{ padding: "6px", color: "var(--muted)", background: "rgba(0, 0, 0, 0.05)", borderRadius: "6px", border: "none", cursor: "pointer" }}
                         >
                           <X size={16} />
@@ -592,7 +602,7 @@ export default function AdminOptionsPage() {
                       </div>
                     ) : (
                       <>
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <div className="admin-options-row-label" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                           <span style={{ fontSize: "16px" }}>{name}</span>
                           {isNew && (
                             <span style={{ fontSize: "10px", background: "var(--apricot)", color: "#8a3a00", padding: "2px 6px", borderRadius: "12px", fontWeight: "bold" }}>
@@ -600,11 +610,12 @@ export default function AdminOptionsPage() {
                             </span>
                           )}
                         </div>
-                        <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                        <div className="admin-options-row-actions" style={{ display: "flex", alignItems: "center", gap: "4px" }}>
                           {/* Reordering */}
                           <button
                             disabled={index === 0}
                             onClick={() => handleMoveType(index, "up")}
+                            aria-label={`เลื่อน ${name} ขึ้น`}
                             style={{ 
                               padding: "4px", 
                               color: index === 0 ? "#ccc" : "var(--muted)", 
@@ -619,6 +630,7 @@ export default function AdminOptionsPage() {
                           <button
                             disabled={index === workTypes.length - 1}
                             onClick={() => handleMoveType(index, "down")}
+                            aria-label={`เลื่อน ${name} ลง`}
                             style={{ 
                               padding: "4px", 
                               color: index === workTypes.length - 1 ? "#ccc" : "var(--muted)", 
@@ -634,6 +646,7 @@ export default function AdminOptionsPage() {
                           {/* Edit */}
                           <button
                             onClick={() => handleStartEditType(index, name)}
+                            aria-label={`แก้ไข ${name}`}
                             style={{ 
                               padding: "4px 6px", 
                               color: "var(--periwinkle)", 
@@ -649,6 +662,7 @@ export default function AdminOptionsPage() {
                           {/* Delete */}
                           <button
                             onClick={() => handleRemoveType(index)}
+                            aria-label={`ลบ ${name}`}
                             style={{ 
                               padding: "4px 6px", 
                               color: "var(--error)", 
@@ -672,7 +686,7 @@ export default function AdminOptionsPage() {
 
       </div>
 
-      <div style={{ marginTop: "32px", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+      <div className="admin-options-actions" style={{ marginTop: "32px", display: "flex", justifyContent: "flex-end", gap: "12px" }}>
         {hasUnsavedChanges && (
           <Button variant="secondary" onClick={handleDiscard} disabled={saving}>
             <RotateCcw size={18} style={{ marginRight: "6px" }} />

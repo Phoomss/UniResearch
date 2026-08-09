@@ -70,10 +70,10 @@ export function ProfileForm({ initialUser, departments }: ProfileFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: "600px", display: "flex", flexDirection: "column", gap: "20px" }}>
+    <form className="advisor-profile-form" onSubmit={handleSubmit} style={{ maxWidth: "600px", display: "flex", flexDirection: "column", gap: "20px" }}>
 
       {/* Name fields */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+      <div className="advisor-profile-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
         <div>
           <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#374151", marginBottom: "6px" }}>ชื่อจริง</label>
           <input 
@@ -143,7 +143,7 @@ export function ProfileForm({ initialUser, departments }: ProfileFormProps) {
       {/* Password changes */}
       <h3 style={{ fontSize: "15px", fontWeight: "600", color: "#111827", margin: "0" }}>เปลี่ยนรหัสผ่าน (ปล่อยว่างหากไม่ต้องการเปลี่ยน)</h3>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+      <div className="advisor-profile-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
         <div>
           <label style={{ display: "block", fontSize: "13px", fontWeight: "600", color: "#374151", marginBottom: "6px" }}>รหัสผ่านใหม่</label>
           <input 

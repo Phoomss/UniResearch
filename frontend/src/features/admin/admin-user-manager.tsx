@@ -4,7 +4,7 @@ import {
   Search, UserRound, UserPlus, Download, Edit2, Trash2, X,
   Users, ShieldAlert, GraduationCap, UserCheck, Building2
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/src/components/ui/Toast";
 import type { UserResponse } from "@/src/lib/api/types";
@@ -21,6 +21,15 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
   // Search & Filter state
   const [query, setQuery] = useState("");
   const [role, setRole] = useState("all");
+
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query, role]);
 
   // Modals state
   const [isAddOpen, setIsAddOpen] = useState(false);
@@ -56,10 +65,19 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
       const name = `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim().toLowerCase();
       const text = `${name} ${user.email ?? ""} ${user.student_id ?? ""} ${user.department ?? ""}`.toLowerCase();
       const matchesSearch = !query.trim() || text.includes(query.trim().toLowerCase());
-      const matchesRole = role === "all" || user.role === role;
+      const matchesRole = role === "all" || 
+        user.role === role || 
+        (role === "advisor" && (user.role === "advisor" || user.role === "reviewer")) ||
+        (role === "reviewer" && (user.role === "advisor" || user.role === "reviewer"));
       return matchesSearch && matchesRole;
     });
   }, [query, role, users]);
+
+  const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filtered.slice(startIndex, startIndex + pageSize);
+  }, [filtered, currentPage, pageSize]);
 
   // Export CSV Handler
   const handleExportCSV = () => {
@@ -273,7 +291,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
           {[
             ["all", "ทั้งหมด"],
             ["admin", "แอดมิน"],
-            ["reviewer", "ผู้ตรวจ"],
+            ["advisor", "อาจารย์ / ผู้ตรวจ"],
             ["student", "นักศึกษา"],
             ["guest", "ทั่วไป"],
           ].map(([value, label]) => (
@@ -301,7 +319,8 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
       </section>
 
       {/* Users Table Card */}
-      <section className="admin-table-card admin-users-card" style={{ borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.02)", overflow: "hidden", border: "1px solid rgba(205, 195, 208, 0.4)" }}>
+      <section className="admin-table-card admin-users-card" style={{ borderRadius: "16px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.02)", overflowX: "auto", border: "1px solid rgba(205, 195, 208, 0.4)" }}>
+        <div style={{ minWidth: "1020px" }}>
         <div
           className="admin-users-grid admin-table-head"
           style={{
@@ -324,7 +343,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
-          {filtered.map((user) => {
+          {paginatedUsers.map((user) => {
             const fullName = `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() || "ไม่ระบุชื่อจริง";
             return (
               <article
@@ -400,7 +419,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                 </div>
 
                 {/* 6. Action Tools */}
-                <div style={{ display: "flex", gap: "6px", justifyContent: "flex-end", alignItems: "center" }}>
+                <div className="admin-user-row-actions" style={{ display: "flex", gap: "6px", justifyContent: "flex-end", alignItems: "center" }}>
                   <button
                     type="button"
                     style={{
@@ -416,6 +435,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                       transition: "all 0.2s"
                     }}
                     onClick={() => setEditingUser(user)}
+                    aria-label={`แก้ไขข้อมูล ${fullName}`}
                     title="แก้ไขข้อมูลผู้ใช้"
                   >
                     <Edit2 size={14} />
@@ -435,6 +455,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                       transition: "all 0.2s"
                     }}
                     onClick={() => setDeletingUser(user)}
+                    aria-label={`ลบผู้ใช้ ${fullName}`}
                     title="ลบผู้ใช้งาน"
                   >
                     <Trash2 size={14} />
@@ -450,11 +471,55 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
             ไม่พบข้อมูลผู้ใช้งานที่ตรงตามเงื่อนไข
           </div>
         )}
+        </div>
       </section>
 
       {/* Pagination Footer */}
       <div className="admin-pagination" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", background: "#ffffff", padding: "16px 24px", borderRadius: "16px", border: "1px solid rgba(205, 195, 208, 0.4)" }}>
-        <span style={{ fontSize: "14px", color: "var(--muted)" }}>แสดง <strong>{filtered.length}</strong> จากผลลัพธ์ทั้งหมด <strong>{users.length}</strong> รายการ</span>
+        <span style={{ fontSize: "14px", color: "var(--muted)" }}>
+          แสดง <strong>{filtered.length ? (currentPage - 1) * pageSize + 1 : 0} - {Math.min(filtered.length, currentPage * pageSize)}</strong> จากทั้งหมด <strong>{filtered.length}</strong> รายการ
+        </span>
+        <div style={{ display: "flex", gap: "6px" }}>
+          <button 
+            type="button" 
+            disabled={currentPage === 1} 
+            onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+            style={{ width: "auto", minWidth: "75px", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(205, 195, 208, 0.4)", background: "#ffffff", cursor: currentPage === 1 ? "not-allowed" : "pointer", opacity: currentPage === 1 ? 0.5 : 1, fontSize: "13px", fontWeight: 500 }}
+          >
+            ก่อนหน้า
+          </button>
+          {Array.from({ length: totalPages }).map((_, idx) => {
+            const pageNum = idx + 1;
+            return (
+              <button
+                key={pageNum}
+                type="button"
+                onClick={() => setCurrentPage(pageNum)}
+                style={{
+                  width: "32px",
+                  height: "32px",
+                  borderRadius: "8px",
+                  border: pageNum === currentPage ? "none" : "1px solid rgba(205, 195, 208, 0.4)",
+                  background: pageNum === currentPage ? "var(--primary)" : "#ffffff",
+                  color: pageNum === currentPage ? "#ffffff" : "var(--muted)",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                  fontSize: "13px"
+                }}
+              >
+                {pageNum}
+              </button>
+            );
+          })}
+          <button 
+            type="button" 
+            disabled={currentPage === totalPages} 
+            onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+            style={{ width: "auto", minWidth: "75px", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(205, 195, 208, 0.4)", background: "#ffffff", cursor: currentPage === totalPages ? "not-allowed" : "pointer", opacity: currentPage === totalPages ? 0.5 : 1, fontSize: "13px", fontWeight: 500 }}
+          >
+            ถัดไป
+          </button>
+        </div>
       </div>
 
       {/* Add User Modal */}
@@ -468,6 +533,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
               </div>
               <button
                 type="button"
+                aria-label="ปิดหน้าต่างเพิ่มผู้ใช้"
                 style={{ background: "rgba(28, 26, 41, 0.05)", border: "none", cursor: "pointer", padding: "6px", borderRadius: "50%", display: "flex" }}
                 onClick={() => setIsAddOpen(false)}
               >
@@ -485,7 +551,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                 <input className="input" type="password" name="password" required placeholder="ตั้งรหัสผ่านอย่างน้อย 6 ตัวอักษร" style={{ width: "100%", padding: "10px 14px", borderRadius: "10px", fontSize: "14px" }} />
               </div>
               
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div className="admin-modal-field-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <div className="field">
                   <label style={{ fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "4px", display: "block" }}>ชื่อจริง</label>
                   <input className="input" type="text" name="first_name" placeholder="สมชาย" style={{ width: "100%", padding: "10px 14px", borderRadius: "10px", fontSize: "14px" }} />
@@ -496,7 +562,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div className="admin-modal-field-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <div className="field">
                   <label style={{ fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "4px", display: "block" }}>บทบาท (Role)</label>
                   <select className="select" name="role" style={{ width: "100%", padding: "10px 14px", borderRadius: "10px", fontSize: "14px" }}>
@@ -523,7 +589,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                 </select>
               </div>
 
-              <div style={{ display: "flex", gap: "10px", marginTop: "20px", justifyContent: "flex-end" }}>
+              <div className="admin-modal-actions" style={{ display: "flex", gap: "10px", marginTop: "20px", justifyContent: "flex-end" }}>
                 <button className="btn btn-secondary" type="button" onClick={() => setIsAddOpen(false)} disabled={pending} style={{ borderRadius: "10px", padding: "10px 20px" }}>
                   ยกเลิก
                 </button>
@@ -547,6 +613,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
               </div>
               <button
                 type="button"
+                aria-label="ปิดหน้าต่างแก้ไขผู้ใช้"
                 style={{ background: "rgba(28, 26, 41, 0.05)", border: "none", cursor: "pointer", padding: "6px", borderRadius: "50%", display: "flex" }}
                 onClick={() => setEditingUser(null)}
               >
@@ -564,7 +631,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                 <input className="input" type="password" name="password" placeholder="ป้อนรหัสผ่านใหม่หากต้องการรีเซ็ต" style={{ width: "100%", padding: "10px 14px", borderRadius: "10px", fontSize: "14px" }} />
               </div>
               
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div className="admin-modal-field-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <div className="field">
                   <label style={{ fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "4px", display: "block" }}>ชื่อจริง</label>
                   <input className="input" type="text" name="first_name" defaultValue={editingUser.first_name || ""} style={{ width: "100%", padding: "10px 14px", borderRadius: "10px", fontSize: "14px" }} />
@@ -575,7 +642,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                 </div>
               </div>
 
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div className="admin-modal-field-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <div className="field">
                   <label style={{ fontSize: "13px", fontWeight: 600, color: "#374151", marginBottom: "4px", display: "block" }}>บทบาท / สิทธิ์</label>
                   <select className="select" name="role" defaultValue={editingUser.role} style={{ width: "100%", padding: "10px 14px", borderRadius: "10px", fontSize: "14px" }}>
@@ -610,7 +677,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
                 </select>
               </div>
 
-              <div style={{ display: "flex", gap: "10px", marginTop: "20px", justifyContent: "flex-end" }}>
+              <div className="admin-modal-actions" style={{ display: "flex", gap: "10px", marginTop: "20px", justifyContent: "flex-end" }}>
                 <button className="btn btn-secondary" type="button" onClick={() => setEditingUser(null)} disabled={pending} style={{ borderRadius: "10px", padding: "10px 20px" }}>
                   ยกเลิก
                 </button>

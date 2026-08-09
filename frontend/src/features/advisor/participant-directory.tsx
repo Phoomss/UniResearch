@@ -1,12 +1,16 @@
 "use client";
 
 import { Search, UserRound, UsersRound } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import type { ResearchParticipant } from "@/src/lib/api/types";
 
 export function ParticipantDirectory({ authors, advisors }: { authors: ResearchParticipant[]; advisors: ResearchParticipant[] }) {
   const [query, setQuery] = useState("");
   const [role, setRole] = useState<"all" | "student" | "advisor">("all");
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 10;
+
   const people = useMemo(() => {
     const keyword = query.trim().toLocaleLowerCase("th");
     return [...advisors, ...authors].filter((person) => {
@@ -15,6 +19,16 @@ export function ParticipantDirectory({ authors, advisors }: { authors: ResearchP
       return matchesRole && (!keyword || searchable.includes(keyword));
     });
   }, [advisors, authors, query, role]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [query, role]);
+
+  const totalPages = Math.ceil(people.length / pageSize) || 1;
+  const paginatedPeople = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return people.slice(startIndex, startIndex + pageSize);
+  }, [people, currentPage, pageSize]);
 
   return (
     <>
@@ -28,7 +42,7 @@ export function ParticipantDirectory({ authors, advisors }: { authors: ResearchP
 
       <section className="admin-table-card">
         <div className="advisor-participant-table admin-table-head"><span>ชื่อและบัญชี</span><span>ประเภท</span><span>รหัสผู้ใช้</span><span>ภาควิชา</span></div>
-        {people.length ? people.map((person) => {
+        {paginatedPeople.length ? paginatedPeople.map((person) => {
           const name = `${person.first_name || ""} ${person.last_name || ""}`.trim() || "ไม่ระบุชื่อ";
           return (
             <article className="advisor-participant-table admin-table-row" key={`${person.role}-${person.id}`}>
@@ -39,7 +53,53 @@ export function ParticipantDirectory({ authors, advisors }: { authors: ResearchP
             </article>
           );
         }) : <div className="admin-empty-row">ไม่พบรายชื่อที่ตรงกับตัวกรอง</div>}
-        <footer className="admin-table-footer"><span>แสดง {people.length} จาก {authors.length + advisors.length} บัญชี</span></footer>
+        
+        <footer className="admin-table-footer" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px" }}>
+          <span>
+            แสดง <strong>{people.length ? (currentPage - 1) * pageSize + 1 : 0} - {Math.min(people.length, currentPage * pageSize)}</strong> จากทั้งหมด <strong>{people.length}</strong> รายการ
+          </span>
+          <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
+            <button 
+              type="button" 
+              disabled={currentPage === 1} 
+              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+              style={{ width: "auto", minWidth: "75px", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(205, 195, 208, 0.4)", background: "#ffffff", cursor: currentPage === 1 ? "not-allowed" : "pointer", opacity: currentPage === 1 ? 0.5 : 1, fontSize: "13px", fontWeight: 500 }}
+            >
+              ก่อนหน้า
+            </button>
+            {Array.from({ length: totalPages }).map((_, idx) => {
+              const pageNum = idx + 1;
+              return (
+                <button
+                  key={pageNum}
+                  type="button"
+                  onClick={() => setCurrentPage(pageNum)}
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "8px",
+                    border: pageNum === currentPage ? "none" : "1px solid rgba(205, 195, 208, 0.4)",
+                    background: pageNum === currentPage ? "var(--primary)" : "#ffffff",
+                    color: pageNum === currentPage ? "#ffffff" : "var(--muted)",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    fontSize: "13px"
+                  }}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+            <button 
+              type="button" 
+              disabled={currentPage === totalPages} 
+              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+              style={{ width: "auto", minWidth: "75px", padding: "6px 12px", borderRadius: "8px", border: "1px solid rgba(205, 195, 208, 0.4)", background: "#ffffff", cursor: currentPage === totalPages ? "not-allowed" : "pointer", opacity: currentPage === totalPages ? 0.5 : 1, fontSize: "13px", fontWeight: 500 }}
+            >
+              ถัดไป
+            </button>
+          </div>
+        </footer>
       </section>
     </>
   );
