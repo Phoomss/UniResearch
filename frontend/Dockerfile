@@ -3,10 +3,9 @@
 ###############################################################################
 
 # ── Base stage ───────────────────────────────────────────────────────────────
-FROM node:20-alpine AS base
+FROM node:22-alpine AS base
 
-# Enable corepack for pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN npm install -g pnpm
 
 WORKDIR /app
 
