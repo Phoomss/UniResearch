@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { Download, Calendar } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Download } from "lucide-react";
 import type { ResearchWorkResponse } from "@/src/lib/api/types";
 
 interface AdminAnalyticsDashboardProps {
@@ -29,10 +29,9 @@ export function AdminAnalyticsDashboard({
   const [filterRange, setFilterRange] = useState<FilterRange>("year");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [filteredResearch, setFilteredResearch] = useState<ResearchWorkResponse[]>(initialResearch);
+  // filteredResearch is derived via useMemo below
 
-  // Filter research based on selected range
-  useEffect(() => {
+  const filteredResearch = useMemo(() => {
     const now = new Date();
     let filtered = [...initialResearch];
 
@@ -70,7 +69,7 @@ export function AdminAnalyticsDashboard({
       }
     }
 
-    setFilteredResearch(filtered);
+    return filtered;
   }, [filterRange, startDate, endDate, initialResearch]);
 
   // Download CSV Report
@@ -194,7 +193,7 @@ export function AdminAnalyticsDashboard({
   }
 
   const maxKeywordCount = Math.max(...popularKeywords.map(k => k.count), 1);
-  const keywordList = popularKeywords.map((k, index) => {
+  const keywordList = popularKeywords.map((k) => {
     const width = Math.max(10, Math.round((k.count / maxKeywordCount) * 90));
     return [k.keyword, k.count.toString(), width] as [string, string, number];
   });

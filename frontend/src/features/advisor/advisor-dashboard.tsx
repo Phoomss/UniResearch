@@ -12,12 +12,8 @@ import {
   UsersRound,
   GraduationCap,
   Calendar,
-  Sparkles,
-  ArrowRight,
-  Filter,
   Bookmark,
   MessageSquare,
-  ExternalLink,
 } from "lucide-react";
 import type { ResearchWorkResponse, CategoryResponse, UserResponse } from "@/src/lib/api/types";
 
@@ -32,7 +28,6 @@ interface AdvisorDashboardProps {
 export function AdvisorDashboard({
   allResearch,
   pendingResearch,
-  myResearch,
   categories,
   user,
 }: AdvisorDashboardProps) {

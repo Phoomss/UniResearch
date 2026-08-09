@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     const types = body.work_types.map((x: string) => String(x).trim()).filter(Boolean);
 
     return toRouteResponse(await updateOptions(depts, types));
-  } catch (error: any) {
-    return Response.json({ error: { message: error.message } }, { status: 500 });
+  } catch (error: unknown) {
+    return Response.json({ error: { message: error instanceof Error ? error.message : "Internal server error" } }, { status: 500 });
   }
 }

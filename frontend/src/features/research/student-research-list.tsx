@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Status } from "@/src/components/ui";
 import { useToast } from "@/src/components/ui/Toast";
 import type { ResearchWorkResponse } from "@/src/lib/api/types";
-import { Edit2, Trash2, Eye, Search, Calendar, BookOpen, Clock, Tag } from "lucide-react";
+import { Edit2, Trash2, Eye, Search, Calendar, Clock, Tag } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 
 export function StudentResearchList({ initialItems }: { initialItems: ResearchWorkResponse[] }) {
@@ -14,12 +14,11 @@ export function StudentResearchList({ initialItems }: { initialItems: ResearchWo
   const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const { success, error } = useToast();
-  const [lang, setLang] = useState<"th" | "en">("th");
-
-  useEffect(() => {
+  const [lang] = useState<"th" | "en">(() => {
+    if (typeof document === "undefined") return "th";
     const match = document.cookie.match(/(^|;)\s*lang\s*=\s*([^;]+)/);
-    setLang(match && match[2] === "en" ? "en" : "th");
-  }, []);
+    return match && match[2] === "en" ? "en" : "th";
+  });
 
   async function handleDelete(id: number) {
     const confirmMsg = lang === "en"

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ClipboardList, Clock, AlertTriangle, CheckCircle2, ChevronRight, FileText, Calendar, Tag } from "lucide-react";
+import { ClipboardList, Clock, AlertTriangle, CheckCircle2, ChevronRight, FileText, Tag } from "lucide-react";
 import type { ResearchWorkResponse } from "@/src/lib/api/types";
 
 interface AdminReviewQueueDashboardProps {

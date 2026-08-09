@@ -1,8 +1,8 @@
 "use client";
 
 import { 
-  Filter, Search, UserRound, UserPlus, Download, Edit2, Trash2, X,
-  Users, ShieldAlert, GraduationCap, UserCheck, Check, Building2
+  Search, UserRound, UserPlus, Download, Edit2, Trash2, X,
+  Users, ShieldAlert, GraduationCap, UserCheck, Building2
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -87,7 +87,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
       link.click();
       document.body.removeChild(link);
       success("ส่งออกไฟล์ CSV เรียบร้อยแล้ว");
-    } catch (err) {
+    } catch {
       error("ไม่สามารถส่งออกไฟล์ CSV ได้");
     }
   };
@@ -117,7 +117,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
       
       setUsers((prev) => [...prev, body]);
       router.refresh();
-    } catch (err) {
+    } catch {
       error("เกิดข้อผิดพลาดในการติดต่อระบบ");
     } finally {
       setPending(false);
@@ -157,7 +157,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
 
       setUsers((prev) => prev.map((u) => (u.id === body.id ? body : u)));
       router.refresh();
-    } catch (err) {
+    } catch {
       error("เกิดข้อผิดพลาดในการติดต่อระบบ");
     } finally {
       setPending(false);
@@ -186,7 +186,7 @@ export function AdminUserManager({ initialUsers = [] }: AdminUserManagerProps) {
 
       setUsers((prev) => prev.filter((u) => u.id !== deletedId));
       router.refresh();
-    } catch (err) {
+    } catch {
       error("เกิดข้อผิดพลาดในการติดต่อระบบ");
     } finally {
       setPending(false);

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { UserRound, CheckCircle2, AlertCircle } from "lucide-react";
 import { useToast } from "@/src/components/ui/Toast";
 import type { UserResponse } from "@/src/lib/api/types";
 
@@ -33,7 +32,7 @@ export function ProfileForm({ initialUser, departments }: ProfileFormProps) {
     
     setIsSubmitting(true);
     
-    const updateData: any = {
+    const updateData: Record<string, unknown> = {
       first_name: firstName || null,
       last_name: lastName || null,
       email: email,
@@ -63,7 +62,7 @@ export function ProfileForm({ initialUser, departments }: ProfileFormProps) {
       } else {
         error(data.error?.message || "เกิดข้อผิดพลาดในการอัปเดตข้อมูล");
       }
-    } catch (err) {
+    } catch {
       error("ไม่สามารถเชื่อมต่อระบบเพื่ออัปเดตข้อมูลได้");
     } finally {
       setIsSubmitting(false);
