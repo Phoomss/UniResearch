@@ -23,9 +23,18 @@ class Settings(BaseSettings):
     def assemble_db_connection(cls, v: str) -> str:
         if isinstance(v, str):
             if v.startswith("postgres://"):
-                return v.replace("postgres://", "postgresql+asyncpg://", 1)
+                v = v.replace("postgres://", "postgresql+asyncpg://", 1)
             elif v.startswith("postgresql://") and not v.startswith("postgresql+asyncpg://"):
-                return v.replace("postgresql://", "postgresql+asyncpg://", 1)
+                v = v.replace("postgresql://", "postgresql+asyncpg://", 1)
+            
+            # Remove sslmode from query parameters to prevent asyncpg TypeError
+            from urllib.parse import urlparse, urlunparse, parse_qsl, urlencode
+            parsed = urlparse(v)
+            query = dict(parse_qsl(parsed.query))
+            if "sslmode" in query:
+                del query["sslmode"]
+            new_query = urlencode(query)
+            v = urlunparse(parsed._replace(query=new_query))
         return v
     
     class Config:
