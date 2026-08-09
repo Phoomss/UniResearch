@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌐 UniResearch Frontend
 
-## Getting Started
+ระบบหน้าบ้าน (Frontend) ของแพลตฟอร์ม **UniResearch** พัฒนาด้วย **Next.js 16** (App Router), **TypeScript**, **Tailwind CSS v4** และ **pnpm**
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## 🛠️ Tech Stack
+
+| เทคโนโลยี | วัตถุประสงค์ |
+| :--- | :--- |
+| [Next.js 16](https://nextjs.org/) | React Framework (App Router, Server Components) |
+| [TypeScript](https://www.typescriptlang.org/) | เพิ่มความปลอดภัยและความถูกต้องของชนิดข้อมูล |
+| [Tailwind CSS v4](https://tailwindcss.com/) | ระบบ CSS Utility-first |
+| [Framer Motion](https://www.framer.com/motion/) | Animation Library |
+| [Lucide React](https://lucide.dev/) | ชุดไอคอน |
+| [pnpm](https://pnpm.io/) | ตัวจัดการ Package |
+| [Playwright](https://playwright.dev/) | การทดสอบ End-to-end (E2E) |
+
+---
+
+## 📁 โครงสร้างโปรเจกต์ (Directory Structure)
+
+```text
+frontend/
+├── app/                  # หน้าเว็บของระบบ (App Router)
+│   ├── api/              # API Route Handlers (Proxy ไปยัง Backend)
+│   ├── login/            # หน้าเข้าสู่ระบบ
+│   ├── register/         # หน้าลงทะเบียน
+│   ├── dashboard/        # แผงควบคุมผู้ใช้
+│   ├── admin/            # หน้าจัดการระบบ (Admin)
+│   ├── advisor/          # หน้าอาจารย์ที่ปรึกษา
+│   ├── student/          # หน้านักศึกษา
+│   ├── research/         # หน้าแสดงผลงานวิจัย
+│   └── layout.tsx        # Layout หลักของแอปพลิเคชัน
+├── src/
+│   ├── features/         # ฟีเจอร์หลัก (Auth, Research, Review, Admin)
+│   ├── lib/              # ตัวช่วย API Client, Session, Error Handling
+│   └── components/       # UI Components ที่ใช้ซ้ำได้
+├── tests/                # Unit Tests
+├── e2e/                  # E2E Tests (Playwright)
+├── Dockerfile            # 🐳 Docker Container (multi-stage: dev + prod)
+├── package.json          # Dependencies
+├── tsconfig.json         # TypeScript Configuration
+└── next.config.ts        # Next.js Configuration (standalone output)
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🐳 วิธีการรันด้วย Docker (แนะนำ)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+ระบบ Docker Compose หลักอยู่ที่ **root ของโปรเจกต์** (`UniResearch/docker-compose.yml`):
 
-## Learn More
+```bash
+# จาก root directory ของโปรเจกต์
+make dev-build
 
-To learn more about Next.js, take a look at the following resources:
+# หรือรันด้วย Docker Compose โดยตรง
+docker compose up --build
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+คำสั่งที่มีประโยชน์:
+```bash
+make logs-frontend     # ดู log เฉพาะ frontend
+make shell-frontend    # เปิด shell ใน frontend container
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 💻 วิธีการรันแบบ Local (ไม่ใช้ Docker)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### ข้อกำหนดเบื้องต้น
+- Node.js 20+
+- pnpm 9+
+- Backend API กำลังทำงานอยู่ที่ `http://localhost:8000`
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### ขั้นตอนการติดตั้ง
+
+1. ติดตั้ง dependencies:
+   ```bash
+   pnpm install
+   ```
+
+2. สร้างไฟล์ตัวแปรสภาพแวดล้อม:
+   ```bash
+   echo 'BACKEND_API_URL=http://localhost:8000' > .env
+   ```
+
+3. รันในโหมดพัฒนา:
+   ```bash
+   pnpm dev
+   ```
+
+4. เปิดเบราว์เซอร์ไปที่ [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 🧪 การทดสอบระบบ (Testing)
+
+```bash
+# Unit Tests
+pnpm test
+
+# E2E Tests (ต้องรันระบบอยู่ก่อน)
+pnpm test:e2e
+```
+
+---
+
+## ⚙️ ตัวแปรสภาพแวดล้อม (Environment Variables)
+
+| ตัวแปร | ค่าเริ่มต้น | คำอธิบาย |
+| :--- | :--- | :--- |
+| `BACKEND_API_URL` | `http://127.0.0.1:8000` | URL ของ Backend API (Server-side) |
+| `NEXT_TELEMETRY_DISABLED` | `1` | ปิดการส่งข้อมูล Telemetry |

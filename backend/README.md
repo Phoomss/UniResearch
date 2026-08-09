@@ -40,8 +40,7 @@ backend/
 │   └── main.py       # จุดเริ่มต้น FastAPI Application
 ├── tests/            # ชุดทดสอบ API endpoints ทั้งหมด (pytest)
 ├── static/           # โฟลเดอร์เก็บไฟล์ (Covers/Documents)
-├── Dockerfile        # การสร้าง Docker Container
-├── docker-compose.yml# การรันระบบพร้อม PostgreSQL DB
+├── Dockerfile        # การสร้าง Docker Container (multi-stage: dev + prod)
 ├── requirements.txt  # Python Dependencies
 ├── .gitignore        # ไฟล์ยกเว้นการอัปโหลด Git
 └── README.md         # เอกสารแนะนำโปรเจกต์
@@ -51,15 +50,34 @@ backend/
 
 ## 🐳 วิธีการรันระบบด้วย Docker (แนะนำ)
 
-เพื่อการติดตั้งที่รวดเร็วและถูกต้อง แนะนำให้รันระบบผ่าน **Docker Compose** ซึ่งจะทำการเซ็ตอัปทั้ง FastAPI backend และ PostgreSQL database ให้อัตโนมัติ:
+ระบบ Docker Compose หลักอยู่ที่ **root ของโปรเจกต์** (`UniResearch/docker-compose.yml`) ซึ่งจะเซ็ตอัปทั้ง Backend, Frontend และ PostgreSQL ให้พร้อมใช้งาน:
 
-1. **รันระบบขึ้นมา**:
+1. **กลับไปที่ root directory ของโปรเจกต์:**
    ```bash
-   docker-compose up --build
+   cd ..  # หรือไปที่ UniResearch/
    ```
 
-2. **เปิดหน้า API Documentation (Swagger UI)**:
+2. **รันระบบทั้งหมดผ่าน Make:**
+   ```bash
+   make dev-build
+   ```
+   หรือรันด้วย Docker Compose โดยตรง:
+   ```bash
+   docker compose up --build
+   ```
+
+3. **เปิดหน้า API Documentation (Swagger UI):**
    เข้าไปที่: [http://localhost:8000/swagger](http://localhost:8000/swagger) เพื่อทดลองเรียกใช้งาน endpoint ต่างๆ
+
+4. **คำสั่ง Docker ที่มีประโยชน์ (จาก root directory):**
+   ```bash
+   make logs-backend      # ดู log เฉพาะ backend
+   make shell-backend     # เปิด bash ใน backend container
+   make migrate           # รัน Alembic migrations
+   make shell-db          # เปิด psql ใน database container
+   ```
+
+> **หมายเหตุ**: ไฟล์ `backend/docker-compose.yml` เดิมถูกแทนที่ด้วย `docker-compose.yml` ที่ root ของโปรเจกต์ สามารถลบไฟล์เดิมได้
 
 ---
 

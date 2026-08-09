@@ -16,6 +16,12 @@ graph TD
     Frontend <-->|REST API / JWT| Backend[FastAPI Backend Server]
     Backend <-->|SQLAlchemy AsyncPG| DB[(PostgreSQL Database)]
     Backend <-->|Local Storage| Disk[Static File storage /Covers & PDFs/]
+
+    subgraph Docker Compose
+        Frontend
+        Backend
+        DB
+    end
 ```
 
 - **Frontend**: แอปพลิเคชัน React ประสิทธิภาพสูง รองรับการแสดงผลทุกหน้าจอ พัฒนาด้วย **Next.js (App Router)** และ TypeScript
@@ -71,6 +77,10 @@ graph TD
 
 ```text
 UniResearch/
+├── docker-compose.yml        # 🐳 ไฟล์หลักสำหรับรันทั้งระบบผ่าน Docker Compose
+├── docker-compose.prod.yml   # 🐳 Override สำหรับ Production (multi-worker, standalone)
+├── .env.docker               # 🐳 ไฟล์ตัวแปรสภาพแวดล้อมตัวอย่างสำหรับ Docker
+├── Makefile                  # 🐳 คำสั่งลัดสำหรับจัดการ Docker (make dev, make logs ฯลฯ)
 ├── backend/                  # ส่วนงานระบบหลังบ้าน FastAPI
 │   ├── app/                  # โค้ดหลักของแอปพลิเคชัน
 │   │   ├── core/             # การตั้งค่าระบบ ความปลอดภัย และสิทธิ์ JWT
@@ -81,13 +91,13 @@ UniResearch/
 │   │   └── routers/          # เส้นทางของ endpoint API (Controllers)
 │   ├── tests/                # ส่วนควบคุม Unit & Integration Tests (pytest)
 │   ├── static/               # โฟลเดอร์เก็บไฟล์ PDF และหน้าปกที่อัปโหลดเข้าสู่ระบบ (git-ignored)
-│   ├── Dockerfile            # ตัวสร้าง Docker Container สำหรับ backend
-│   └── docker-compose.yml    # ไฟล์รันระบบประกอบด้วย FastAPI และ PostgreSQL Database
+│   └── Dockerfile            # ตัวสร้าง Docker Container สำหรับ backend (multi-stage)
 ├── frontend/                 # ส่วนงานระบบหน้าบ้าน Next.js
 │   ├── app/                  # หน้าเว็บของระบบ (App Router) และ API Routes ท้องถิ่น
 │   ├── src/                  # ส่วนประกอบของหน้าจอ (Components), Hooks, ตัวช่วย, และฟีเจอร์หลัก
 │   ├── tests/                # การทดสอบการทำงานส่วนประกอบหน้าจอ (Frontend Tests)
 │   ├── e2e/                  # การทดสอบจำลองเบราว์เซอร์ด้วย Playwright
+│   ├── Dockerfile            # ตัวสร้าง Docker Container สำหรับ frontend (multi-stage)
 │   ├── package.json          # ไฟล์แสดงการอ้างอิงไลบรารี
 │   └── tsconfig.json         # การตั้งค่าโปรเจกต์ TypeScript
 └── docs/                     # เอกสารรายละเอียดความต้องการระบบและไดอะแกรมที่เกี่ยวข้อง
@@ -96,6 +106,13 @@ UniResearch/
 ---
 
 ## 🚀 เริ่มต้นใช้งาน (Getting Started)
+
+### ข้อกำหนดเบื้องต้น (Prerequisites)
+
+- [Docker](https://www.docker.com/) (v20+) และ Docker Compose (v2+)
+- [Git](https://git-scm.com/)
+
+> สำหรับการรันแบบ Local (ไม่ใช้ Docker) ต้องติดตั้งเพิ่ม: Python 3.11+, Node.js 20+, pnpm, PostgreSQL 15+
 
 ### วิธีที่ A: เริ่มต้นด่วนด้วย Docker (แนะนำ)
 
@@ -107,15 +124,40 @@ UniResearch/
    cd UniResearch
    ```
 
-2. **เปิดคำสั่ง Docker Compose:**
+2. **คัดลอกไฟล์ตัวแปรสภาพแวดล้อม:**
    ```bash
-   docker-compose -f backend/docker-compose.yml up --build
+   cp .env.docker .env
+   # แก้ไขค่าตามต้องการ (เช่น SECRET_KEY, POSTGRES_PASSWORD)
    ```
 
-3. **เข้าใช้งานบริการต่างๆ:**
-   - **หน้าบ้าน (Frontend UI)**: [http://localhost:3000](http://localhost:3000)
-   - **หลังบ้าน (Backend API)**: [http://localhost:8000](http://localhost:8000)
-   - **เอกสารอธิบายการใช้งาน API (Swagger UI)**: [http://localhost:8000/docs](http://localhost:8000/docs)
+3. **เปิดคำสั่ง Docker Compose:**
+   ```bash
+   # ใช้ Make (แนะนำ)
+   make dev-build
+
+   # หรือใช้ Docker Compose โดยตรง
+   docker compose up --build
+   ```
+
+4. **เข้าใช้งานบริการต่างๆ:**
+   | บริการ | URL | หมายเหตุ |
+   | :--- | :--- | :--- |
+   | หน้าบ้าน (Frontend UI) | [http://localhost:3000](http://localhost:3000) | Next.js App Router |
+   | หลังบ้าน (Backend API) | [http://localhost:8000](http://localhost:8000) | FastAPI |
+   | เอกสาร API (Swagger UI) | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive API docs |
+   | ฐานข้อมูล PostgreSQL | `localhost:5433` | เชื่อมต่อผ่าน psql หรือ DB client |
+
+5. **คำสั่งลัดที่มีประโยชน์ (Make Commands):**
+   ```bash
+   make help              # แสดงรายการคำสั่งทั้งหมด
+   make logs              # ดู log ทุก service
+   make logs-backend      # ดู log เฉพาะ backend
+   make shell-backend     # เปิด shell ใน backend container
+   make shell-db          # เปิด psql ใน database container
+   make migrate           # รัน Alembic migrations
+   make down              # หยุดทุก service
+   make nuke              # ลบทุกอย่าง (containers, volumes, images)
+   ```
 
 ---
 
