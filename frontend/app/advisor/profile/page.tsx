@@ -28,7 +28,7 @@ export default async function AdvisorProfilePage() {
         <h1 style={{ fontSize: "32px", fontWeight: "700", color: "#111827", margin: "8px 0 0" }}>ข้อมูลส่วนตัว</h1>
       </header>
 
-      <section style={{ background: "white", padding: "32px", borderRadius: "16px", border: "1px solid rgba(0, 0, 0, 0.05)", boxShadow: "0 2px 10px rgba(0,0,0,0.01)" }}>
+      <section className="advisor-profile-card" style={{ background: "white", padding: "32px", borderRadius: "16px", border: "1px solid rgba(0, 0, 0, 0.05)", boxShadow: "0 2px 10px rgba(0,0,0,0.01)" }}>
         <ProfileForm initialUser={user} departments={departments} />
       </section>
     </main>

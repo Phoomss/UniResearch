@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
 import { apiRequest } from "@/src/lib/api/client";
 import { setSessionToken } from "@/src/lib/api/session";
+import {
+  DEVELOPMENT_SESSIONS,
+  resolveDevelopmentLogin,
+} from "@/src/lib/auth/development-session";
 import type { TokenResponse, UserResponse } from "@/src/lib/api/types";
-
-const DEVELOPMENT_ADMIN_USERNAME = "admin";
-const DEVELOPMENT_ADMIN_PASSWORD = "password";
-const DEVELOPMENT_ADMIN_SESSION = "frontend-development-admin";
 
 export async function POST(request: Request) {
   const input = (await request.json().catch(() => null)) as {
@@ -26,19 +26,16 @@ export async function POST(request: Request) {
     );
   }
 
-  const isDevelopmentAdmin =
-    process.env.NODE_ENV !== "production" &&
-    input.email === DEVELOPMENT_ADMIN_USERNAME &&
-    input.password === DEVELOPMENT_ADMIN_PASSWORD;
+  const developmentRole = resolveDevelopmentLogin(input.email, input.password);
 
-  if (isDevelopmentAdmin) {
-    await setSessionToken(DEVELOPMENT_ADMIN_SESSION);
+  if (developmentRole) {
+    await setSessionToken(DEVELOPMENT_SESSIONS[developmentRole]);
 
     return NextResponse.json({
       authenticated: true,
-      role: "admin",
+      role: developmentRole,
       mock: true,
-      redirect_to: "/admin",
+      redirect_to: developmentRole === "admin" ? "/admin" : "/advisor",
     });
   }
 

@@ -261,7 +261,7 @@ export function AdminAnalyticsDashboard({
       </header>
 
       {filterRange === "custom" && (
-        <div style={{ display: "flex", gap: "12px", alignItems: "center", background: "var(--paper-low)", padding: "12px 18px", borderRadius: "10px", width: "fit-content", border: "1px solid #cdc3d040", marginBottom: "20px" }}>
+        <div className="admin-custom-date-range" style={{ display: "flex", gap: "12px", alignItems: "center", background: "var(--paper-low)", padding: "12px 18px", borderRadius: "10px", width: "fit-content", border: "1px solid #cdc3d040", marginBottom: "20px" }}>
           <span style={{ fontSize: "14px", fontWeight: "600" }}>ช่วงเวลาเริ่มต้น:</span>
           <input 
             type="date" 
@@ -333,7 +333,7 @@ export function AdminAnalyticsDashboard({
                 <span key={t.monthName}>{t.monthName}</span>
               ))}
             </div>
-            <div style={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "16px", fontSize: "11px" }}>
+            <div className="admin-chart-legend" style={{ display: "flex", justifyContent: "center", gap: "16px", marginTop: "16px", fontSize: "11px" }}>
               <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                 <span style={{ width: "12px", height: "4px", background: "#48276a", borderRadius: "2px" }} />
                 ปีนี้ (ข้อมูลจริง)

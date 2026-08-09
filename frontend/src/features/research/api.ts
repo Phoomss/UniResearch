@@ -1,5 +1,6 @@
 import { apiRequest } from "@/src/lib/api/client";
 import { getSessionToken } from "@/src/lib/api/session";
+import { developmentAdvisorUser, isDevelopmentSession } from "@/src/lib/auth/development-session";
 import type { CategoryResponse, DashboardStats, DownloadHandshake, FavoriteRemovedResponse, FavoriteResponse, ResearchParticipantsResponse, ResearchWorkResponse, UserResponse } from "@/src/lib/api/types";
 
 
@@ -16,7 +17,11 @@ export async function getPendingResearch(){ return apiRequest<ResearchWorkRespon
 export async function getReviewHistory(){ return apiRequest<ResearchWorkResponse[]>("/research/history",{token:await getSessionToken()}); }
 export async function toggleFavorite(id:number){ return apiRequest<FavoriteResponse|FavoriteRemovedResponse>(`/favorites/${id}`,{method:"POST",token:await getSessionToken()}); }
 
-export async function getCurrentUser(){ return apiRequest<UserResponse>("/auth/" + "me",{token:await getSessionToken()}); }
+export async function getCurrentUser(){
+  const token = await getSessionToken();
+  if (isDevelopmentSession(token, "advisor")) return { ok: true as const, data: developmentAdvisorUser() };
+  return apiRequest<UserResponse>("/auth/" + "me",{token});
+}
 export async function updateCurrentUser(data: Record<string, unknown>){ return apiRequest<UserResponse>("/auth/" + "me",{method:"PUT",token:await getSessionToken(),headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}); }
 export async function startDownload(id:number){ return apiRequest<DownloadHandshake>(`/research/${id}/download`,{method:"POST",token:await getSessionToken()}); }
 

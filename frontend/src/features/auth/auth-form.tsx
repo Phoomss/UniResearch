@@ -107,6 +107,7 @@ export function LoginForm({
         nextFieldErrors.email = "กรุณากรอกอีเมลสถาบัน";
       } else if (
         identifier !== "admin" &&
+        identifier !== "advisor" &&
         emailElement.validity.typeMismatch
       ) {
         nextFieldErrors.email =
