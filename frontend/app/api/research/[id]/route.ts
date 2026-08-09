@@ -55,5 +55,5 @@ export async function DELETE(
   if (!Number.isInteger(id) || id < 1) {
     return Response.json({ error: "Invalid ID" }, { status: 400 });
   }
-  return toRouteResponse(await apiRequest<any>(`/research/${id}`, { method: "DELETE", token }));
+  return toRouteResponse(await apiRequest<unknown>(`/research/${id}`, { method: "DELETE", token }));
 }

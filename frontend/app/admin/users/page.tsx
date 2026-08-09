@@ -1,9 +1,7 @@
-import { Download, UserPlus } from "lucide-react";
 import { AdminUserManager } from "@/src/features/admin/admin-user-manager";
 import { apiRequest } from "@/src/lib/api/client";
 import { getSessionToken } from "@/src/lib/api/session";
 import type { UserResponse } from "@/src/lib/api/types";
-import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 

@@ -54,7 +54,7 @@ export function SavedResearchList({ items: initialItems }: { items: FavoriteResp
       
       success("ลบออกจากรายการโปรดเรียบร้อยแล้ว");
       setItems((prev) => prev.filter((item) => item.research_id !== researchId));
-    } catch (err) {
+    } catch {
       error("บริการไม่พร้อมใช้งานในขณะนี้");
     } finally {
       setPendingId(null);
