@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     APP_ENV: Optional[str] = None
+    DB_SSL: Optional[bool] = None
     DEV_ADMIN_EMAIL: Optional[str] = None
     DEV_ADMIN_PASSWORD: Optional[SecretStr] = None
     STATIC_DIR: Path = BACKEND_DIR / "static"
