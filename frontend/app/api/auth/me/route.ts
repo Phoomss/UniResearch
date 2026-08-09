@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { apiRequest } from "@/src/lib/api/client";
 import { getSessionToken } from "@/src/lib/api/session";
+import { developmentAdvisorUser, isDevelopmentSession } from "@/src/lib/auth/development-session";
 import type { UserResponse } from "@/src/lib/api/types";
 
 export async function PUT(request: Request) {
@@ -13,6 +14,10 @@ export async function PUT(request: Request) {
   }
 
   const body = await request.json().catch(() => ({}));
+  if (isDevelopmentSession(token, "advisor")) {
+    return NextResponse.json(developmentAdvisorUser(body));
+  }
+
   const result = await apiRequest<UserResponse>("/auth/me", {
     method: "PUT",
     token: token,
