@@ -3113,7 +3113,7 @@ textarea {
   transform: none;
 }
 
-.home-header .mobile-nav {
+.site-header .mobile-nav {
   display: none;
 }
 
@@ -3176,35 +3176,35 @@ textarea {
 }
 
 @media (max-width:900px) {
-  .home-header .site-header-inner {
+  .site-header .site-header-inner {
     padding: 0 16px;
     gap: 12px;
   }
 
-  .home-header .header-actions {
+  .site-header .header-actions {
     gap: 8px;
   }
 
-  .home-header .header-actions> :not(.mobile-nav) {
+  .site-header .header-actions> :not(.mobile-nav) {
     display: none;
   }
 
-  .home-header .btn {
+  .site-header .btn {
     min-height: 36px;
     padding: 8px 14px;
     font-size: 13px;
   }
 
-  .home-header .btn-primary {
+  .site-header .btn-primary {
     padding-inline: 16px;
   }
 
-  .home-header .mobile-nav {
+  .site-header .mobile-nav {
     display: block;
     position: relative;
   }
 
-  .home-header .mobile-nav summary {
+  .site-header .mobile-nav summary {
     display: grid;
     width: 40px;
     height: 40px;
@@ -3219,21 +3219,21 @@ textarea {
     list-style: none;
   }
 
-  .home-header .mobile-nav summary::-webkit-details-marker {
+  .site-header .mobile-nav summary::-webkit-details-marker {
     display: none;
   }
 
-  .home-header .mobile-nav summary:focus-visible {
+  .site-header .mobile-nav summary:focus-visible {
     outline: 2px solid var(--mulberry);
     outline-offset: 2px;
   }
 
-  .home-header .mobile-nav[open] summary {
+  .site-header .mobile-nav[open] summary {
     border-color: var(--mulberry);
     background: var(--paper-mid);
   }
 
-  .home-header .mobile-nav-menu {
+  .site-header .mobile-nav-menu {
     position: absolute;
     top: 48px;
     right: 0;
@@ -3247,7 +3247,7 @@ textarea {
     box-shadow: 0 16px 32px #312e3f24;
   }
 
-  .home-header .mobile-nav-menu>a {
+  .site-header .mobile-nav-menu>a {
     padding: 11px 12px;
     border-radius: 8px;
     color: var(--ink);
@@ -3255,21 +3255,36 @@ textarea {
     line-height: 1.35;
   }
 
-  .home-header .mobile-nav-menu>a:hover {
+  .site-header .mobile-nav-menu>a:hover {
     background: var(--paper-low);
     color: var(--mulberry);
   }
 
-  .home-header .mobile-nav-menu .lang-switch {
+  .site-header .mobile-nav-menu .lang-switch {
     display: inline-flex;
     justify-self: start;
     margin: 4px 0 8px;
   }
 
-  .home-header .mobile-nav-menu .btn {
+  .site-header .mobile-nav-menu .btn {
     width: 100%;
     min-height: 42px;
     font-size: 14px;
+  }
+}
+
+.user-profile-badge {
+  font-size: 14px;
+  color: var(--mulberry);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 620px) {
+  .user-profile-name {
+    display: none;
   }
 }
 .discovery-search {
