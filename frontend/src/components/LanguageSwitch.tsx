@@ -1,17 +1,17 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-
-function getInitialLang(): "th" | "en" {
-  if (typeof document === "undefined") return "th";
-  const match = document.cookie.match(/(^|;)\s*lang\s*=\s*([^;]+)/);
-  return match && match[2] === "en" ? "en" : "th";
-}
+import { useEffect, useState } from "react";
 
 export function LanguageSwitch() {
   const router = useRouter();
-  const [lang, setLang] = useState<"th" | "en">(getInitialLang);
+  const [lang, setLang] = useState<"th" | "en">("th");
+
+  useEffect(() => {
+    const match = document.cookie.match(/(^|;)\s*lang\s*=\s*([^;]+)/);
+    const initialLang = match && match[2] === "en" ? "en" : "th";
+    setLang(initialLang);
+  }, []);
 
   const switchLanguage = (newLang: "th" | "en") => {
     if (newLang === lang) return;

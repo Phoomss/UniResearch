@@ -217,6 +217,12 @@ export function SubmissionForm({
   const currentAuthor = participants.authors.find(
     (person) => person.is_current,
   );
+  const currentStudentIdPrefix = currentAuthor?.student_id ? currentAuthor.student_id.substring(0, 2) : "";
+  const filteredAuthors = participants.authors.filter((person) => {
+    if (!currentStudentIdPrefix) return true;
+    return person.student_id?.startsWith(currentStudentIdPrefix);
+  });
+
   const [authors, setAuthors] = useState(() => {
     if (research && research.authors && research.authors.length > 0) {
       return research.authors.map((a, index) => ({
@@ -653,7 +659,7 @@ export function SubmissionForm({
                       disabled={pending}
                     >
                       <option value="">ไม่ระบุ</option>
-                      {participants.authors.map((person) => (
+                      {filteredAuthors.map((person) => (
                         <option key={person.id} value={person.id}>
                           {participantLabel(person)}
                           {person.is_current ? " (บัญชีปัจจุบัน)" : ""}
@@ -680,7 +686,7 @@ export function SubmissionForm({
                 type="button"
                 variant="secondary"
                 disabled={
-                  pending || authors.length >= participants.authors.length
+                  pending || authors.length >= filteredAuthors.length
                 }
                 onClick={() =>
                   setAuthors((current) => [
@@ -691,7 +697,7 @@ export function SubmissionForm({
               >
                 เพิ่มผู้จัดทำ
               </Button>
-              {participants.authors.length === 0 && (
+              {filteredAuthors.length === 0 && (
                 <p className="field-hint">ไม่พบบัญชีนักศึกษาที่ใช้งานอยู่</p>
               )}
             </div>

@@ -61,6 +61,15 @@ async def _validate_relations(db: AsyncSession, category_id: int, author_ids: li
     if any(users[user_id].role != "advisor" for user_id in advisor_ids):
         raise HTTPException(status_code=422, detail="advisor_ids may contain active advisor users only")
 
+    # Validate that all authors have the same student ID year prefix (e.g. first 2 characters)
+    student_years = set()
+    for user_id in author_ids:
+        u = users.get(user_id)
+        if u and u.student_id:
+            student_years.add(u.student_id[:2])
+    if len(student_years) > 1:
+        raise HTTPException(status_code=422, detail="Authors must have the same student ID year prefix")
+
 def _signature_is_valid(content_type: str, content: bytes) -> bool:
     if content_type == "application/pdf": return content.startswith(b"%PDF-")
     if content_type == "image/png": return content.startswith(b"\x89PNG\r\n\x1a\n")

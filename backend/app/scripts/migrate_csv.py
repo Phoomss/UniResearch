@@ -49,8 +49,15 @@ async def migrate_csv_to_db():
                         )
                         session.add(student)
                         student_count += 1
+                    else:
+                        existing.student_id = row["student_id"].strip()
+                        existing.department = row["department"].strip()
+                        existing.first_name = row["first_name"].strip()
+                        existing.last_name = row["last_name"].strip()
+                        existing.is_active = row["is_active"].strip().lower() == "true"
+                        session.add(existing)
                 
-                print(f"Adding {student_count} new students...")
+                print(f"Processed students migration...")
         else:
             print(f"Error: {STUDENTS_CSV} not found!")
 
@@ -83,8 +90,14 @@ async def migrate_csv_to_db():
                         )
                         session.add(advisor)
                         advisor_count += 1
+                    else:
+                        existing.department = row["department"].strip()
+                        existing.first_name = row["first_name"].strip()
+                        existing.last_name = row["last_name"].strip()
+                        existing.is_active = row["is_active"].strip().lower() == "true"
+                        session.add(existing)
                 
-                print(f"Adding {advisor_count} new advisors...")
+                print(f"Processed advisors migration...")
         else:
             print(f"Error: {ADVISORS_CSV} not found!")
 
