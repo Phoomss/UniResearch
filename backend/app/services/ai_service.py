@@ -15,6 +15,26 @@ class AIService:
     def _ensure_available(self):
         if not ai_settings.AI_ENABLED or not self._model:
             raise HTTPException(status_code=503, detail="ระบบ AI ยังไม่พร้อมใช้งาน กรุณาตั้งค่า GEMINI_API_KEY")
+
+    async def get_embedding(self, text: str) -> list:
+        self._ensure_available()
+        try:
+            # We call the async genai embed content API or run_in_executor
+            # Note: google.generativeai supports genai.embed_content
+            import asyncio
+            result = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: genai.embed_content(
+                    model="models/embedding-001",
+                    content=text,
+                    task_type="retrieval_document"
+                )
+            )
+            return result['embedding']
+        except Exception as e:
+            # Fallback to a zero-vector if embedding fails to prevent crashing the flow
+            return [0.0] * 768
+
             
     def _parse_json(self, text: str):
         # Extract JSON from markdown blocks if any

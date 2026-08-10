@@ -54,7 +54,9 @@ def mask_email(email: str) -> str:
     return f"{visible}***{separator}{domain}" if separator else "***"
 
 
-def require_allowed_environment(value: str | None) -> str:
+from typing import Optional
+
+def require_allowed_environment(value: Optional[str]) -> str:
     normalized = (value or "").strip().lower()
     if normalized not in ALLOWED_ENVIRONMENTS:
         raise ProvisioningError(

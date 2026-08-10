@@ -118,6 +118,16 @@ async def create_research(db: AsyncSession, current_user: User, title_th: str, t
         research = ResearchWork(title_th=title_th.strip(), title_en=title_en.strip(), category_id=category_id,
             abstract=abstract, department=department, work_type=work_type, academic_year=academic_year, keywords=keywords,
             cover_image_path=cover_path, file_path=doc_path, submitted_by_id=current_user.id)
+        
+        # Calculate text embedding vector using AI service
+        try:
+            from app.services.ai_service import ai_service
+            embedding_text = f"{research.title_th or ''} {research.title_en or ''} {research.abstract or ''} {research.keywords or ''}".strip()
+            if embedding_text:
+                research.embedding = await ai_service.get_embedding(embedding_text)
+        except Exception:
+            pass
+
         db.add(research)
         await db.flush()
         db.add_all([ResearchAuthor(research_id=research.id, user_id=user_id, role_in_work="primary" if index == 0 else "co-author") for index, user_id in enumerate(authors)])
@@ -365,6 +375,15 @@ async def update_research(db: AsyncSession, research_id: int, current_user: User
         research.academic_year = academic_year
         research.keywords = keywords
         research.status = "pending" # Reset status to pending when updated
+
+        # Calculate updated text embedding vector using AI service
+        try:
+            from app.services.ai_service import ai_service
+            embedding_text = f"{research.title_th or ''} {research.title_en or ''} {research.abstract or ''} {research.keywords or ''}".strip()
+            if embedding_text:
+                research.embedding = await ai_service.get_embedding(embedding_text)
+        except Exception:
+            pass
         
         from sqlalchemy import delete
         await db.execute(delete(ResearchAuthor).where(ResearchAuthor.research_id == research.id))

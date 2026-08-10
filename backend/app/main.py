@@ -16,6 +16,12 @@ from sqlalchemy.future import select
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
+        await conn.execute(Base.metadata.bind.execute("CREATE EXTENSION IF NOT EXISTS vector") if hasattr(Base.metadata, 'bind') and Base.metadata.bind else "SELECT 1")
+        # Try raw SQL to ensure extension exists
+        try:
+            await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
+        except Exception:
+            pass
         await conn.run_sync(Base.metadata.create_all)
         
     async with AsyncSessionLocal() as db:

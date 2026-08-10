@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
+
 
 class GenerateAbstractRequest(BaseModel):
     title_th: str = Field(..., description="ชื่อผลงานภาษาไทย")
@@ -44,3 +45,16 @@ class CheckWritingResponse(BaseModel):
 
 class AIErrorResponse(BaseModel):
     detail: str
+
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+class ChatRequest(BaseModel):
+    message: str
+    history: List[ChatMessage]
+
+class ChatResponse(BaseModel):
+    response: str
+    relevant_works: List[Dict[str, Any]] = []
+

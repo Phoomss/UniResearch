@@ -22,12 +22,15 @@ export const metadata: Metadata = {
   description: "คลังรวบรวมและเผยแพร่ผลงานวิจัยระดับอุดมศึกษา",
 };
 
+import { ChatbotFloat } from "@/src/components/ChatbotFloat";
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="th" className={`${kanit.variable} ${plusJakartaSans.variable}`}>
       <body>
         <ToastProvider>
           {children}
+          <ChatbotFloat />
         </ToastProvider>
       </body>
     </html>
