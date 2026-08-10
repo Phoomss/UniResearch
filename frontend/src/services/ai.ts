@@ -54,17 +54,17 @@ async function callAI<T>(action: string, data: Record<string, unknown>): Promise
 }
 
 export async function generateAbstract(params: GenerateAbstractParams): Promise<{ abstract: string; language: string }> {
-  return callAI("generate-abstract", params as Record<string, unknown>);
+  return callAI("generate-abstract", params as unknown as Record<string, unknown>);
 }
 
 export async function suggestTitles(params: SuggestTitlesParams): Promise<{ suggestions: string[] }> {
-  return callAI("suggest-titles", params as Record<string, unknown>);
+  return callAI("suggest-titles", params as unknown as Record<string, unknown>);
 }
 
 export async function suggestKeywords(params: SuggestKeywordsParams): Promise<{ keywords: string[] }> {
-  return callAI("suggest-keywords", params as Record<string, unknown>);
+  return callAI("suggest-keywords", params as unknown as Record<string, unknown>);
 }
 
 export async function checkWriting(params: CheckWritingParams): Promise<CheckWritingResult> {
-  return callAI("check-writing", params as Record<string, unknown>);
+  return callAI("check-writing", params as unknown as Record<string, unknown>);
 }

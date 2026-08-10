@@ -4,6 +4,7 @@ import { AdminReviewDecision } from "@/src/features/admin/admin-review-decision"
 import { getCategories, getResearch } from "@/src/features/research/api";
 import { adaptResearch } from "@/src/features/research/adapters";
 import { hasSession } from "@/src/lib/api/session";
+import { AIReviewAssistant } from "@/src/features/ai/review-assistant";
 
 export default async function AdminReviewWorkspace({ params }: { params: Promise<{ id: string }> }) {
   const id = Number((await params).id);
@@ -150,6 +151,7 @@ export default async function AdminReviewWorkspace({ params }: { params: Promise
               </div>
             )}
           </section>
+          <AIReviewAssistant researchId={item.id} />
         </div>
 
         <aside className="admin-review-sidebar">

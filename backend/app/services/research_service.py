@@ -555,3 +555,110 @@ async def get_personalized_recommendations(db: AsyncSession, current_user: Optio
     scored_works.sort(key=lambda x: x[1], reverse=True)
     return [item[0] for item in scored_works[:5]]
 
+
+async def get_ai_pre_review_analysis(db: AsyncSession, research_id: int):
+    from app.services.ai_service import ai_service
+    work = (await db.execute(
+        select(ResearchWork).where(ResearchWork.id == research_id).options(selectinload(ResearchWork.category))
+    )).scalars().first()
+    if not work:
+        raise HTTPException(status_code=404, detail="ไม่พบงานวิจัยที่ระบุ")
+        
+    category_name = work.category.category_name if work.category else "ทั่วไป"
+    return await ai_service.pre_review_analysis(
+        title_th=work.title_th,
+        title_en=work.title_en,
+        abstract=work.abstract or "",
+        keywords=work.keywords or "",
+        category=category_name,
+        department=work.department or ""
+    )
+
+
+async def get_ai_plagiarism_check(db: AsyncSession, research_id: int):
+    from app.services.ai_service import ai_service
+    work = (await db.execute(
+        select(ResearchWork).where(ResearchWork.id == research_id)
+    )).scalars().first()
+    if not work:
+        raise HTTPException(status_code=404, detail="ไม่พบงานวิจัยที่ระบุ")
+        
+    # Get other approved works
+    other_query = select(ResearchWork).where(ResearchWork.id != research_id, ResearchWork.status == "approved")
+    other_results = (await db.execute(other_query)).scalars().all()
+    
+    other_works = [
+        {
+            "id": w.id,
+            "title_th": w.title_th,
+            "title_en": w.title_en,
+            "abstract": w.abstract or ""
+        }
+        for w in other_results
+    ]
+    
+    return await ai_service.plagiarism_check(
+        title_th=work.title_th,
+        title_en=work.title_en,
+        abstract=work.abstract or "",
+        other_works=other_works
+    )
+
+
+async def get_ai_reviewer_match(db: AsyncSession, research_id: int):
+    from app.services.ai_service import ai_service
+    work = (await db.execute(
+        select(ResearchWork).where(ResearchWork.id == research_id).options(selectinload(ResearchWork.category))
+    )).scalars().first()
+    if not work:
+        raise HTTPException(status_code=404, detail="ไม่พบงานวิจัยที่ระบุ")
+        
+    # Get all advisors
+    advisor_query = select(User).where(User.role == "advisor", User.is_active.is_(True))
+    advisor_results = (await db.execute(advisor_query)).scalars().all()
+    
+    advisors = [
+        {
+            "id": u.id,
+            "name": f"{u.first_name or ''} {u.last_name or ''}".strip() or u.email,
+            "department": u.department or ""
+        }
+        for u in advisor_results
+    ]
+    
+    category_name = work.category.category_name if work.category else "ทั่วไป"
+    return await ai_service.reviewer_match(
+        title_th=work.title_th,
+        title_en=work.title_en,
+        abstract=work.abstract or "",
+        keywords=work.keywords or "",
+        category=category_name,
+        advisors=advisors
+    )
+
+
+async def get_ai_review_summary(db: AsyncSession, research_id: int):
+    from app.services.ai_service import ai_service
+    work = (await db.execute(
+        select(ResearchWork).where(ResearchWork.id == research_id).options(selectinload(ResearchWork.reviews))
+    )).scalars().first()
+    if not work:
+        raise HTTPException(status_code=404, detail="ไม่พบงานวิจัยที่ระบุ")
+        
+    if not work.reviews:
+        return {
+            "executive_summary": "ยังไม่มีการส่งข้อเสนอแนะหรือประเมินผลงานนี้ในระบบ",
+            "key_issues_raised": [],
+            "improvement_sentiment": "Neutral"
+        }
+        
+    reviews = [
+        {
+            "status_result": r.status_result,
+            "comment_text": r.comment_text
+        }
+        for r in work.reviews
+    ]
+    
+    return await ai_service.review_summary(reviews)
+

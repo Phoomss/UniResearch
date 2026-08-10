@@ -173,6 +173,38 @@ async def review_research(
 ):
     return await research_service.review_research(db, current_user, research_id, review_in)
 
+@router.post("/{research_id}/ai-pre-review")
+async def ai_pre_review(
+    research_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["advisor", "admin"]))
+):
+    return await research_service.get_ai_pre_review_analysis(db, research_id)
+
+@router.post("/{research_id}/ai-plagiarism")
+async def ai_plagiarism(
+    research_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["advisor", "admin"]))
+):
+    return await research_service.get_ai_plagiarism_check(db, research_id)
+
+@router.post("/{research_id}/ai-reviewer-match")
+async def ai_reviewer_match(
+    research_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["advisor", "admin"]))
+):
+    return await research_service.get_ai_reviewer_match(db, research_id)
+
+@router.post("/{research_id}/ai-review-summary")
+async def ai_review_summary(
+    research_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["advisor", "admin"]))
+):
+    return await research_service.get_ai_review_summary(db, research_id)
+
 @router.put("/{research_id}", response_model=ResearchWorkResponse)
 async def update_research(
     research_id: int,
