@@ -9,7 +9,7 @@ from app.models.category import Category
 from app.models.options import Department, WorkType
 from app.models.research import ResearchWork, ResearchAuthor, ResearchAdvisor, FileRevision, ReviewComment
 from app.models.interactions import Favorite, DownloadViewLog, SearchLog
-from app.routers import auth, research, stats, category, interactions, home, options, users
+from app.routers import auth, research, stats, category, interactions, home, options, users, ai
 from sqlalchemy.future import select
 
 @asynccontextmanager
@@ -165,6 +165,7 @@ app.include_router(interactions.router)
 app.include_router(stats.router)
 app.include_router(home.router)
 app.include_router(users.router)
+app.include_router(ai.router)
 
 @app.get("/")
 def read_root():
