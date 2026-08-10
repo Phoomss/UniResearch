@@ -9,9 +9,11 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from app.models.options import Department, WorkType
 
-DATABASE_URL = "postgresql+asyncpg://postgres:postgrespassword@localhost:5433/uniresearch"
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://postgres:postgrespassword@localhost:5433/uniresearch")
 engine = create_async_engine(DATABASE_URL, echo=True)
 AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+from sqlalchemy.future import select
 
 async def seed():
     async with AsyncSessionLocal() as db:
@@ -27,7 +29,9 @@ async def seed():
             "วิทยาศาสตร์ข้อมูลและการวิเคราะห์"
         ]
         for name in defaults_depts:
-            db.add(Department(name=name))
+            result = await db.execute(select(Department).where(Department.name == name))
+            if not result.scalars().first():
+                db.add(Department(name=name))
         
         # Seed work types
         defaults_types = [
@@ -41,7 +45,9 @@ async def seed():
             "นวัตกรรม/สิ่งประดิษฐ์"
         ]
         for name in defaults_types:
-            db.add(WorkType(name=name))
+            result = await db.execute(select(WorkType).where(WorkType.name == name))
+            if not result.scalars().first():
+                db.add(WorkType(name=name))
             
         await db.commit()
     print("Seed options successfully!")
