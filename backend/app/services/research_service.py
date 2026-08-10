@@ -122,6 +122,23 @@ async def create_research(db: AsyncSession, current_user: User, title_th: str, t
         await db.flush()
         db.add_all([ResearchAuthor(research_id=research.id, user_id=user_id, role_in_work="primary" if index == 0 else "co-author") for index, user_id in enumerate(authors)])
         db.add_all([ResearchAdvisor(research_id=research.id, user_id=user_id) for user_id in advisors])
+        await db.flush()
+        
+        # Trigger notifications for advisors
+        from app.services.notification_service import notification_service
+        author_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+        for advisor_id in advisors:
+            try:
+                await notification_service.create_notification(
+                    db=db,
+                    user_id=advisor_id,
+                    title="มีงานวิจัยใหม่รอการตรวจสอบจากคุณ",
+                    message=f"นักศึกษา {author_name} ได้ยื่นเสนอผลงานวิจัยเรื่อง '{research.title_th or research.title_en}' และระบุคุณเป็นอาจารย์ที่ปรึกษา/ผู้ตรวจประเมิน",
+                    type="review"
+                )
+            except Exception:
+                pass
+                
         await db.commit()
         query = select(ResearchWork).where(ResearchWork.id == research.id).options(
             selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
@@ -250,10 +267,55 @@ async def download_research(db: AsyncSession, current_user: User, research_id: i
     research.download_count += 1; db.add(DownloadViewLog(research_id=research.id, user_id=current_user.id, action_type="download")); await db.commit(); return {"file_url": f"/{research.file_path}"}
 
 async def review_research(db: AsyncSession, current_user: User, research_id: int, review_in: ReviewCommentCreate) -> ReviewComment:
-    research = (await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))).scalars().first()
+    from app.services.notification_service import notification_service
+    
+    query = select(ResearchWork).where(ResearchWork.id == research_id).options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user)
+    )
+    research = (await db.execute(query)).scalars().first()
     if not research: raise HTTPException(status_code=404, detail="Not found")
+    
     review = ReviewComment(research_id=research.id, reviewer_id=current_user.id, comment_text=review_in.comment_text, status_result=review_in.status_result)
-    research.status = review_in.status_result; db.add(review); await db.commit(); await db.refresh(review); return review
+    research.status = review_in.status_result; db.add(review)
+    await db.flush()
+    
+    # Notify all co-authors & submitter
+    notify_recipients = {research.submitted_by_id}
+    for auth_rel in research.authors:
+        notify_recipients.add(auth_rel.user_id)
+        
+    status_th = {
+        "approved": "อนุมัติแล้ว",
+        "rejected": "ปฏิเสธแล้ว",
+        "revision_needed": "ต้องแก้ไขผลงาน",
+        "needs_revision": "ต้องแก้ไขผลงาน",
+        "pending": "รอการตรวจสอบ"
+    }.get(review_in.status_result, review_in.status_result)
+
+    type_map = {
+        "approved": "success",
+        "rejected": "alert",
+        "revision_needed": "warning",
+        "needs_revision": "warning"
+    }.get(review_in.status_result, "info")
+
+    for uid in notify_recipients:
+        try:
+            await notification_service.create_notification(
+                db=db,
+                user_id=uid,
+                title=f"สถานะผลงานได้รับการเปลี่ยนเป็น: {status_th}",
+                message=f"ผลงานเรื่อง '{research.title_th or research.title_en}' ได้รับผลการตรวจสอบและปรับสถานะเป็น {status_th}. ความเห็นเพิ่มเติม: {review_in.comment_text}",
+                type=type_map
+            )
+        except Exception:
+            pass # Keep transactions clean
+            
+    await db.commit()
+    await db.refresh(review)
+    return review
+
 
 async def update_research(db: AsyncSession, research_id: int, current_user: User, title_th: str, title_en: str, category_id: int,
     abstract: Optional[str], department: Optional[str], work_type: Optional[str], academic_year: Optional[int],
