@@ -13,13 +13,14 @@ from app.models.notification import Notification
 from app.routers import auth, research, stats, category, interactions, home, options, users, ai, notification
 from sqlalchemy.future import select
 
+from sqlalchemy import text
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
-        await conn.execute(Base.metadata.bind.execute("CREATE EXTENSION IF NOT EXISTS vector") if hasattr(Base.metadata, 'bind') and Base.metadata.bind else "SELECT 1")
         # Try raw SQL to ensure extension exists
         try:
-            await conn.execute("CREATE EXTENSION IF NOT EXISTS vector")
+            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
         except Exception:
             pass
         await conn.run_sync(Base.metadata.create_all)
