@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.models.user import User
-from app.schemas.research import ResearchParticipantsResponse, ResearchWorkResponse, ReviewCommentCreate, ReviewCommentResponse
+from app.schemas.research import ResearchParticipantsResponse, ResearchWorkResponse, ReviewCommentCreate, ReviewCommentResponse, SearchSuggestionsResponse
 from app.routers.deps import get_current_active_user, require_role, oauth2_scheme
 from app.services import research_service
 
@@ -61,6 +61,27 @@ async def search_research(
         except Exception:
             pass
     return await research_service.search_research(db, q, category_id, current_user)
+
+@router.get("/search/suggestions", response_model=SearchSuggestionsResponse)
+async def get_search_suggestions(
+    q: Optional[str] = None,
+    db: AsyncSession = Depends(get_db)
+):
+    return await research_service.get_search_suggestions(db, q)
+
+@router.get("/recommendations/personalized", response_model=List[ResearchWorkResponse])
+async def get_personalized_recommendations(
+    db: AsyncSession = Depends(get_db),
+    token: Optional[str] = Depends(optional_oauth2_scheme)
+):
+    current_user = None
+    if token:
+        try:
+            from app.routers.deps import get_current_user
+            current_user = await get_current_user(token, db)
+        except Exception:
+            pass
+    return await research_service.get_personalized_recommendations(db, current_user)
 
 @router.get("/my", response_model=List[ResearchWorkResponse])
 async def get_my_research(
@@ -127,6 +148,13 @@ async def get_research_detail(
     db: AsyncSession = Depends(get_db)
 ):
     return await research_service.get_research_detail(db, research_id)
+
+@router.get("/{research_id}/recommendations", response_model=List[ResearchWorkResponse])
+async def get_related_recommendations(
+    research_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    return await research_service.get_related_recommendations(db, research_id)
 
 @router.post("/{research_id}/download")
 async def download_research(
