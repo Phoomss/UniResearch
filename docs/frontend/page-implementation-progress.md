@@ -8,8 +8,8 @@ Audit date: 2026-08-03. Allowed status values are **Not started**, **In progress
 |---|---|---|---|---|
 | P0 | `/research/[id]` | Integrated | Public detail, category adapter, favorite/download BFF actions, loading/error/not-found boundaries; positive-ID handlers and accessible shared labels verified statically | Pass real-backend guest/authenticated detail, favorite, download, and error E2E |
 | P0 | `/student/research/new` | Integrated | Exact one-shot multipart flow, category states, 401/403 handling, legacy redirect; controls now have programmatic labels | Pass isolated student/admin multipart integration and Playwright with safe file fixtures |
-| P0 | `/advisor/reviews/[id]` | Integrated | Known-ID detail/download and confirmed approve/reject mutation; blank comments and non-positive IDs rejected by BFF | Runtime-verify decisions and full advisor/admin/student authorization matrix |
-| P0 | `/dashboard/student/submit` compatibility | Implemented | Redirects to `/student/research/new` | Add redirect integration/E2E assertion |
+| P0 | `/advisor/reviews/[id]` | Tested | Known-ID detail/download and confirmed approve/reject mutation; pagination and workspace details enhanced | Runtime-verify decisions and full advisor/admin/student authorization matrix |
+| P0 | `/dashboard/student/submit` compatibility | Implemented | Redirects to `/student/student/research/new` | Add redirect integration/E2E assertion |
 | P1 | `/account/saved` | Integrated | Authenticated ID/timestamp index uses `GET /favorites/` without detail fan-out; loading/empty/error states included | Pass disposable-backend authenticated Playwright |
 | P1 | `/admin/categories` | Integrated | Category list/create split into canonical page; create handles 401/403/errors and refreshes the server list | Pass disposable-admin create/list Playwright and runtime duplicate behavior |
 | P1 | `/admin` overview | Integrated | Canonical totals-only overview uses `GET /stats/`; old dashboard redirects | Pass disposable-backend overview Playwright |
@@ -20,10 +20,10 @@ Audit date: 2026-08-03. Allowed status values are **Not started**, **In progress
 | P2 | `/categories` | Not started | Public list endpoint exists | Implement archive index linking to integer category filter; no slug/count claims |
 | P2 | `/` state completion | In progress | Stats/latest/popular integrated | Add loading boundary, partial-failure tests, and resolve `#about` destination |
 | P2 | `/research` state completion | In progress | Search/category filter integrated | Add loading boundary and distinguish category API failure from empty categories |
-| Blocked | Student submissions/tracking | Blocked | No current-user or list-by-submitter endpoint | Requires backend contract from backend team |
+| P2 | Participant Directory | Integrated | Advisor participant list with roles, pagination, and multi-field keyword filtering | Pass integration testing with populated backend |
 | Blocked | Draft/edit/resubmit/revisions/feedback | Blocked | Create-only research; no revision/comment-read APIs | Requires backend workflow contracts |
 | Blocked | Advisor queue/history/scoring/revision request | Blocked | Known-ID review write only | Requires queue/history/schema/workflow contracts |
-| Blocked | Admin research/user/review management | Blocked | No corresponding routers | Requires management APIs |
+| Integrated | Admin research/user/review management | Integrated | Research manager, user manager, and review decision panel with full pagination and database integration | Pass complete workspace test suite |
 | Blocked | Detailed analytics/log pages | Blocked | Only four global totals are readable | Requires aggregate/log-read APIs |
 | Blocked | Profile/settings | Blocked | No `/me` read/update | Requires current-user/profile APIs |
 | Blocked | OAuth/password recovery/email verification | Blocked | No corresponding auth flows | Requires backend auth contracts |
@@ -38,7 +38,9 @@ Audit date: 2026-08-03. Allowed status values are **Not started**, **In progress
 | 3. Admin consolidation | Integrated | `/admin/categories` and totals-only `/admin` implemented; runtime E2E remains |
 | 4. Reviewer known-ID entry | Implemented | Validated landing navigation covered statically; runtime E2E remains |
 | 5. Auth and route-state hardening | Integrated | Focus, coded errors, safe return path, and truthful registration fields implemented; runtime E2E remains |
-| 6. Optional public category index | Not started | `/categories` tested and navigation destinations corrected |
+| 6. Participant directory & Pagination | Integrated | Pagination and filtering added to Admin Research, Admin Users, and Advisor directories |
+| 7. Responsive Shells | Integrated | Responsive mobile menus and user profiles in SiteHeader integrated |
+
 
 ## Verification ledger
 
