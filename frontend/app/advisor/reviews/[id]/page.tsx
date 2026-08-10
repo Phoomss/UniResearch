@@ -6,6 +6,7 @@ import { adaptResearch } from "@/src/features/research/adapters";
 import { getCategories, getResearch } from "@/src/features/research/api";
 import { ReviewForm } from "@/src/features/review/review-form";
 import { AbstractRenderer } from "@/src/features/research/abstract-renderer";
+import { AIReviewAssistant } from "@/src/features/ai/review-assistant";
 
 export default async function ReviewWorkspace({ params }: { params: Promise<{ id: string }> }) {
   const raw = (await params).id;
@@ -38,6 +39,7 @@ export default async function ReviewWorkspace({ params }: { params: Promise<{ id
                 </div>
               </section>
               <section className="admin-manuscript"><header><div><h3>ไฟล์ต้นฉบับ</h3><p>{item.hasDocument ? `เอกสารผลงาน ${item.ref}` : "ผลงานนี้ไม่มีไฟล์เอกสาร"}</p></div><ResearchActions researchId={item.id} hasDocument={item.hasDocument} authenticated /></header><div className="admin-document-preview"><FileText size={42} /><i /><i /><i /><span>{item.hasDocument ? "ใช้ปุ่มดาวน์โหลดเพื่อตรวจเอกสารฉบับเต็ม" : "ไม่มีไฟล์สำหรับตรวจสอบ"}</span></div></section>
+              <AIReviewAssistant researchId={item.id} />
             </div>
             <aside className="admin-review-sidebar">
               <ReviewForm researchId={item.id} />

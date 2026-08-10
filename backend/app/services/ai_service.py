@@ -132,4 +132,151 @@ You must respond ONLY with a valid JSON object matching this schema:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to check writing: {str(e)}")
 
+    async def pre_review_analysis(self, title_th: str, title_en: str, abstract: str, keywords: str, category: str, department: str):
+        self._ensure_available()
+        prompt = f"""You are an expert peer reviewer for academic research papers. Analyze the following research paper details:
+Title (TH): {title_th}
+Title (EN): {title_en}
+Abstract: {abstract}
+Keywords: {keywords}
+Category: {category}
+Department: {department}
+
+Provide a detailed peer-review analysis in Thai. Evaluate the paper's structure, methodology, academic tone, and potential areas of improvement.
+You must respond ONLY with a valid JSON object matching this schema:
+{{
+  "structure_score": 85,
+  "methodology_score": 80,
+  "language_score": 90,
+  "strengths": ["list of strengths"],
+  "weaknesses": ["list of weaknesses/gaps"],
+  "methodology_feedback": "detailed feedback on methodology",
+  "suggestions": ["list of concrete recommendations for improvement"],
+  "overall_evaluation": "brief overall summary"
+}}"""
+        try:
+            response = await self._model.generate_content_async(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=ai_settings.AI_TEMPERATURE,
+                    max_output_tokens=ai_settings.AI_MAX_TOKENS,
+                )
+            )
+            return self._parse_json(response.text)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to analyze research: {str(e)}")
+
+    async def plagiarism_check(self, title_th: str, title_en: str, abstract: str, other_works: list):
+        self._ensure_available()
+        other_works_str = "\n".join([
+            f"ID: {w['id']}\nTitle: {w['title_en']} ({w['title_th']})\nAbstract: {w['abstract'][:250]}..."
+            for w in other_works[:12]
+        ])
+        
+        prompt = f"""You are an expert academic integrity officer. Check if the following research work has any potential plagiarism or heavy similarity with other papers in the system:
+---
+Target Work:
+Title (TH): {title_th}
+Title (EN): {title_en}
+Abstract: {abstract}
+---
+Other Works in System:
+{other_works_str}
+
+Evaluate the similarity. Give a similarity score (0 to 100) and pinpoint overlapping concepts or duplicate phrasing.
+You must respond ONLY with a valid JSON object matching this schema:
+{{
+  "overall_similarity_score": 15,
+  "matches": [
+    {{
+      "research_id": 1,
+      "title": "Title of similar work",
+      "similarity_score": 45,
+      "reasons": ["concept overlap in ...", "similar methodology"]
+    }}
+  ],
+  "verdict": "Clear, Safe, High Similarity, or Suspected Plagiarism"
+}}"""
+        try:
+            response = await self._model.generate_content_async(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=ai_settings.AI_TEMPERATURE,
+                    max_output_tokens=ai_settings.AI_MAX_TOKENS,
+                )
+            )
+            return self._parse_json(response.text)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to check plagiarism: {str(e)}")
+
+    async def reviewer_match(self, title_th: str, title_en: str, abstract: str, keywords: str, category: str, advisors: list):
+        self._ensure_available()
+        advisors_str = "\n".join([
+            f"ID: {adv['id']}\nName: {adv['name']}\nDepartment: {adv['department']}"
+            for adv in advisors
+        ])
+        
+        prompt = f"""You are an academic administrator. Suggest the best matching advisors for the following research paper:
+Title (TH): {title_th}
+Title (EN): {title_en}
+Abstract: {abstract}
+Keywords: {keywords}
+Category: {category}
+
+Available Advisors:
+{advisors_str}
+
+Rate each advisor's match score (0-100) and explain the reason (e.g. expertise/department fit).
+You must respond ONLY with a valid JSON object matching this schema:
+{{
+  "matches": [
+    {{
+      "advisor_id": 1,
+      "name": "Name of advisor",
+      "score": 95,
+      "reason": "Expert in department X and research alignment with category Y"
+    }}
+  ]
+}}"""
+        try:
+            response = await self._model.generate_content_async(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=ai_settings.AI_TEMPERATURE,
+                    max_output_tokens=ai_settings.AI_MAX_TOKENS,
+                )
+            )
+            return self._parse_json(response.text)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to match reviewer: {str(e)}")
+
+    async def review_summary(self, reviews: list):
+        self._ensure_available()
+        reviews_str = "\n".join([
+            f"- Status: {r['status_result']}\n  Comment: {r['comment_text']}"
+            for r in reviews
+        ])
+        
+        prompt = f"""You are an academic coordinator. Summarize the following historical review comments for a research paper:
+{reviews_str}
+
+Consolidate the comments, highlight key changes required, and summarize the general sentiment/progress. Return the response in Thai.
+You must respond ONLY with a valid JSON object matching this schema:
+{{
+  "executive_summary": "Overall summary of the review process",
+  "key_issues_raised": ["List of main issues raised across all rounds"],
+  "improvement_sentiment": "Positive, Neutral, or Negative progress"
+}}"""
+        try:
+            response = await self._model.generate_content_async(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=ai_settings.AI_TEMPERATURE,
+                    max_output_tokens=ai_settings.AI_MAX_TOKENS,
+                )
+            )
+            return self._parse_json(response.text)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to summarize reviews: {str(e)}")
+
 ai_service = AIService()
