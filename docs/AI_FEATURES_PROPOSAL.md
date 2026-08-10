@@ -187,35 +187,39 @@ Frontend (แก้ไข):
 
 ---
 
-## 5. 💬 AI Chatbot / Research Q&A
+## 5. 💬 AI Chatbot / Research Q&A (RAG)
 
-**ตำแหน่ง:** Floating chat widget — แสดงทุกหน้า
+**ตำแหน่ง:** Floating chat widget — แสดงทุกหน้า (Global Layout)
 
 ### ฟีเจอร์ย่อย
 
-| Feature | คำอธิบาย |
-|---|---|
-| 💬 Research Q&A (RAG) | ถามคำถามเกี่ยวกับงานวิจัยในระบบ → AI ตอบพร้อมอ้างอิง |
-| 📚 Literature Review Helper | AI สรุป/เปรียบเทียบงานวิจัยหลายชิ้น |
-| 🧭 System Guide | ช่วยแนะนำการใช้งานระบบ (ขั้นตอนส่งงาน, วิธี review) |
-| 📄 PDF Summarizer | อัปโหลด PDF → AI สรุปให้ |
+| Feature | คำอธิบาย | สถานะ |
+|---|---|---|
+| 💬 Research Q&A (RAG) | ถามคำถามเกี่ยวกับงานวิจัยในระบบ → AI ตอบพร้อมอ้างอิงและลิงก์รายละเอียด | **Implemented (เสร็จสิ้น)** |
+| 🧠 Semantic Search (pgvector) | ค้นหาบทความใกล้เคียงด้วยการเปรียบเทียบระยะห่าง Cosine Distance | **Implemented (เสร็จสิ้น)** |
+| 📚 Citation & Link References | แสดงปุ่มและลิงก์รายละเอียดของงานวิจัยที่อ้างอิงในการตอบ | **Implemented (เสร็จสิ้น)** |
 
-> **RAG (Retrieval-Augmented Generation):** ใช้ pgvector ค้นหางานวิจัยที่เกี่ยวข้องก่อน แล้วส่ง context ให้ LLM ตอบ → ได้คำตอบที่แม่นยำและมีแหล่งอ้างอิง
+> **RAG (Retrieval-Augmented Generation):** ใช้ `pgvector` และโมเดล `embedding-001` ค้นหาข้อมูลวิจัยที่สอดคล้องกับหัวข้อที่ถาม แล้วส่งเป็นบริบท (Context) ร่วมกับประวัติการสนทนาให้ Gemini LLM ช่วยสรุปคำตอบให้ผู้ใช้งานได้ทันที
 
 ### ไฟล์ที่เกี่ยวข้อง
 
 ```
 Backend (ใหม่):
-  app/routers/chatbot.py               → chatbot endpoints
-  app/services/chatbot_service.py      → RAG-based chatbot
-  app/models/chat_history.py           → chat conversations table
+  app/services/rag_service.py          → RAG Chatbot Service (ประมวลผล Context ร่วมกับประวัติสนทนา)
+
+Backend (แก้ไข):
+  app/routers/ai.py                    → เพิ่ม POST `/ai/chat` สำหรับถามตอบ RAG
+  app/models/research.py               → เพิ่มคอลัมน์ embedding = Column(Vector(768))
+  app/services/research_service.py     → บันทึกและอัปเดตเวกเตอร์ embedding อัตโนมัติเมื่อสร้าง/แก้ไขงานวิจัย
+  app/main.py                          → เพิ่มการโหลด CREATE EXTENSION IF NOT EXISTS vector
 
 Frontend (ใหม่):
-  src/features/ai/chatbot.tsx          → floating chat widget
-  app/api/ai/chat/route.ts             → BFF proxy
+  src/components/ChatbotFloat.tsx      → Floating chat widget แสดงผลแชท ประวัติ และ Reference
 
 Frontend (แก้ไข):
-  app/layout.tsx                       → เพิ่ม chatbot widget
+  app/layout.tsx                       → เรียกใช้ ChatbotFloat ใน Root Layout
+  src/services/ai.ts                   → เพิ่ม askChatbot query function
+  app/api/ai/route.ts                  → ปรับแต่ง BFF Proxy ให้รอบรับการ Chat โดยผู้ใช้ทั่วไป (Guest)
 ```
 
 ---
