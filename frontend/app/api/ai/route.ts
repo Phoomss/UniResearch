@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
     "suggest-titles": "/ai/suggest-titles",  
     "suggest-keywords": "/ai/suggest-keywords",
     "check-writing": "/ai/check-writing",
+    "dashboard-insights": "/ai/dashboard-insights",
   };
   
   const endpoint = endpointMap[action];

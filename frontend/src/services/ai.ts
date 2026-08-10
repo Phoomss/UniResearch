@@ -68,3 +68,23 @@ export async function suggestKeywords(params: SuggestKeywordsParams): Promise<{ 
 export async function checkWriting(params: CheckWritingParams): Promise<CheckWritingResult> {
   return callAI("check-writing", params as unknown as Record<string, unknown>);
 }
+
+export interface AIDashboardInsights {
+  overview_analysis: string;
+  trending_topics: Array<{
+    topic: string;
+    momentum: "High" | "Medium" | "Low";
+    reason: string;
+  }>;
+  reviewer_workload_analysis: string;
+  strategic_recommendations: string[];
+}
+
+export async function getDashboardInsights(params: {
+  stats: Record<string, unknown>;
+  categories: Array<{ id: number; category_name: string }>;
+  research_list: Array<Record<string, unknown>>;
+}): Promise<AIDashboardInsights> {
+  return callAI("dashboard-insights", params as unknown as Record<string, unknown>);
+}
+

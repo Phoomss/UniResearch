@@ -51,3 +51,23 @@ async def check_writing(request: CheckWritingRequest, current_user: User = Depen
         improved_text=result.get("improved_text", ""),
         score=result.get("score", 0)
     )
+
+from typing import Dict, Any, List
+from app.routers.deps import require_role
+
+@router.post("/dashboard-insights")
+async def get_dashboard_insights(
+    request: Dict[str, Any],
+    current_user: User = Depends(require_role(["admin", "advisor"]))
+):
+    stats = request.get("stats", {})
+    categories = request.get("categories", [])
+    research_list = request.get("research_list", [])
+    
+    insights = await ai_service.generate_dashboard_insights(
+        stats=stats,
+        categories=categories,
+        research_list=research_list
+    )
+    return insights
+
