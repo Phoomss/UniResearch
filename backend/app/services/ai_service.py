@@ -279,4 +279,72 @@ You must respond ONLY with a valid JSON object matching this schema:
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to summarize reviews: {str(e)}")
 
+    async def generate_dashboard_insights(self, stats: dict, categories: list, research_list: list):
+        self._ensure_available()
+        
+        # Summarize research list to feed into Gemini prompt without overloading tokens
+        summary_research = []
+        for rw in research_list[:25]: # limit to top 25 latest/relevant items
+            summary_research.append({
+                "title": rw.get("title_en") or rw.get("title_th"),
+                "category": rw.get("category_name") or "Other",
+                "academic_year": rw.get("academic_year"),
+                "status": rw.get("status"),
+                "views": rw.get("view_count", 0),
+                "downloads": rw.get("download_count", 0),
+                "keywords": rw.get("keywords") or ""
+            })
+            
+        stats_str = json.dumps(stats, ensure_ascii=False)
+        categories_str = json.dumps(categories, ensure_ascii=False)
+        research_str = json.dumps(summary_research, ensure_ascii=False)
+        
+        prompt = f"""You are a senior academic research director and dashboard data analyst. Analyze the following university research database stats and list of latest submissions:
+---
+Overall Stats:
+{stats_str}
+
+Categories Available:
+{categories_str}
+
+Sample of Research Submissions (Top/Latest):
+{research_str}
+---
+
+Perform a professional data analytics evaluation and return a JSON object in Thai containing:
+1. "overview_analysis": A high-level professional narrative (2-3 sentences) explaining the current state of research submissions, student participation, and usage trends.
+2. "trending_topics": A list of 3 key research domains or keywords that are trending or show strong momentum, with a brief explanation of why.
+3. "strategic_recommendations": 3 specific actionable recommendations for the university admin to improve research output, enhance review efficiency, or boost collaboration.
+4. "reviewer_workload_analysis": Analysis of the reviewer process, advising patterns, and status (e.g., pending vs approved ratios).
+
+Ensure the entire output is structured ONLY as a valid JSON object matching this schema:
+{{
+  "overview_analysis": "บทวิเคราะห์ภาพรวม...",
+  "trending_topics": [
+    {{
+      "topic": "ชื่อหัวข้อ/คีย์เวิร์ด",
+      "momentum": "High/Medium/Low",
+      "reason": "เหตุผลวิเคราะห์..."
+    }}
+  ],
+  "reviewer_workload_analysis": "บทวิเคราะห์ผู้ตรวจ...",
+  "strategic_recommendations": [
+    "ข้อแนะนำที่ 1...",
+    "ข้อแนะนำที่ 2...",
+    "ข้อแนะนำที่ 3..."
+  ]
+}}"""
+        try:
+            response = await self._model.generate_content_async(
+                prompt,
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.2, # low temperature for precise analytics
+                    max_output_tokens=ai_settings.AI_MAX_TOKENS,
+                )
+            )
+            return self._parse_json(response.text)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=f"Failed to generate dashboard insights: {str(e)}")
+
 ai_service = AIService()
+
