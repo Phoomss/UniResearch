@@ -1,3 +1,5 @@
+import { apiJson } from "@/src/lib/api/client";
+
 export interface GenerateAbstractParams {
   title_th: string;
   title_en: string;
@@ -35,6 +37,7 @@ export interface CheckWritingResult {
   score: number;
 }
 
+// ใช้ fetch ยิงหา Next.js Proxy Route บน Port 3000 เสมอ เพื่อไม่ให้เรียกตรงไปหลังบ้านและหลีกเลี่ยง CORS
 async function callAI<T>(action: string, data: Record<string, unknown>): Promise<T> {
   const response = await fetch("/api/ai", {
     method: "POST",

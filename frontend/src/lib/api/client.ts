@@ -1,7 +1,7 @@
 import { networkError, normalizeApiError } from "./errors";
 import type { ApiResult } from "./types";
 
-export const BACKEND_API_URL = (process.env.BACKEND_API_URL ?? process.env.BACKEND_URL ?? "http://127.0.0.1:8000").replace(/\/$/,"");
+export const BACKEND_API_URL = (process.env.BACKEND_API_URL ?? process.env.BACKEND_URL ?? "http://localhost:8000/").replace(/\/$/,"");
 
 interface ApiOptions extends Omit<RequestInit,"body"> { token?:string|null; body?:BodyInit|null; }
 
