@@ -81,3 +81,15 @@ class ResearchWorkResponse(ResearchWorkBase):
     class Config:
         from_attributes = True
 
+
+class SearchSuggestionTitle(BaseModel):
+    id: int
+    title_th: str
+    title_en: str
+
+
+class SearchSuggestionsResponse(BaseModel):
+    keywords: List[str]
+    titles: List[SearchSuggestionTitle]
+
+

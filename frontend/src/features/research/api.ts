@@ -43,5 +43,16 @@ export async function updateOptions(departments: string[], workTypes: string[]) 
   });
 }
 
+export async function getPersonalizedRecommendations() {
+  return apiRequest<ResearchWorkResponse[]>("/research/recommendations/personalized", {
+    token: await getSessionToken(),
+  });
+}
+
+export function getRelatedRecommendations(id: number) {
+  return apiRequest<ResearchWorkResponse[]>(`/research/${id}/recommendations`);
+}
+
+
 
 

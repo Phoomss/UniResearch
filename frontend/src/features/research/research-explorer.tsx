@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useState, useEffect, useRef, type FormEvent } from "react";
 import { FileSearch, Grid2X2, List, Search } from "lucide-react";
+import Link from "next/link";
 
 import { FolioCard } from "@/src/components/research";
 import { Button, Input, StatePanel } from "@/src/components/ui";
 import type { ResearchViewModel } from "@/src/features/research/adapters";
+import { getSearchSuggestions } from "@/src/features/research/api-client";
 
 import type { CategoryResponse } from "@/src/lib/api/types";
 
@@ -25,6 +27,39 @@ export function ResearchExplorer({
   errorMessage,
 }: ResearchExplorerProps) {
   const [searchTerm, setSearchTerm] = useState(initialQuery);
+  const [suggestions, setSuggestions] = useState<{ keywords: string[]; titles: Array<{ id: number; title_th: string; title_en: string }> }>({ keywords: [], titles: [] });
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(async () => {
+      if (searchTerm.trim().length >= 1) {
+        const res = await getSearchSuggestions(searchTerm);
+        if (res.ok) {
+          setSuggestions(res.data);
+          setShowSuggestions(true);
+        }
+      } else {
+        const res = await getSearchSuggestions();
+        if (res.ok) {
+          setSuggestions(res.data);
+        }
+      }
+    }, 250);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
     if (initialCategoryId) {
       const match = categories.find((c) => String(c.id) === initialCategoryId);
@@ -140,15 +175,103 @@ export function ResearchExplorer({
             <label className="research-filter-label" htmlFor="research-keyword">
               Keyword
             </label>
-            <div className="research-keyword-field">
+            <div className="research-keyword-field" ref={containerRef} style={{ position: "relative" }}>
               <Search aria-hidden="true" size={17} />
               <Input
                 id="research-keyword"
                 name="q"
                 value={searchTerm}
                 onChange={(event) => setSearchTerm(event.target.value)}
+                onFocus={() => setShowSuggestions(true)}
                 placeholder="ค้นหาชื่อหรือคำสำคัญ"
+                autoComplete="off"
               />
+
+              {showSuggestions && (suggestions.keywords.length > 0 || suggestions.titles.length > 0) && (
+                <div style={{
+                  position: "absolute",
+                  top: "100%",
+                  left: 0,
+                  right: 0,
+                  background: "var(--paper-lowest)",
+                  border: "1px solid var(--paper-border)",
+                  borderRadius: "8px",
+                  boxShadow: "0 10px 25px -5px rgba(0,0,0,0.1), 0 8px 10px -6px rgba(0,0,0,0.1)",
+                  zIndex: 50,
+                  marginTop: "4px",
+                  maxHeight: "350px",
+                  overflowY: "auto",
+                  padding: "8px"
+                }}>
+                  {suggestions.keywords.length > 0 && (
+                    <div style={{ marginBottom: "12px" }}>
+                      <span style={{ fontSize: "11px", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--muted)", display: "block", padding: "4px 8px 2px 8px" }}>
+                        คำที่นิยมค้นหา / แนะนำ
+                      </span>
+                      {suggestions.keywords.map((kw) => (
+                        <button
+                          key={kw}
+                          type="button"
+                          onClick={() => {
+                            setSearchTerm(kw);
+                            setShowSuggestions(false);
+                          }}
+                          style={{
+                            display: "block",
+                            width: "100%",
+                            textAlign: "left",
+                            padding: "6px 8px",
+                            fontSize: "14px",
+                            borderRadius: "4px",
+                            background: "transparent",
+                            border: "none",
+                            color: "inherit",
+                            cursor: "pointer",
+                            transition: "background 0.2s"
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = "var(--paper-low)")}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                        >
+                          🔍 {kw}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {suggestions.titles.length > 0 && (
+                    <div>
+                      <span style={{ fontSize: "11px", fontWeight: "bold", textTransform: "uppercase", letterSpacing: "0.05em", color: "var(--muted)", display: "block", padding: "4px 8px 2px 8px" }}>
+                        ผลงานวิจัยแนะนำ
+                      </span>
+                      {suggestions.titles.map((title) => (
+                        <Link
+                          key={title.id}
+                          href={`/research/${title.id}`}
+                          style={{
+                            display: "block",
+                            padding: "8px",
+                            fontSize: "13px",
+                            borderRadius: "4px",
+                            textDecoration: "none",
+                            color: "inherit",
+                            cursor: "pointer",
+                            transition: "background 0.2s"
+                          }}
+                          onMouseEnter={(e) => (e.currentTarget.style.background = "var(--paper-low)")}
+                          onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                        >
+                          <div style={{ fontWeight: "600", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            📄 {title.title_th}
+                          </div>
+                          <div style={{ fontSize: "11px", color: "var(--muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                            {title.title_en}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </section>
 
