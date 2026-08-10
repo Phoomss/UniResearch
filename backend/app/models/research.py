@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Text
 from sqlalchemy.orm import relationship
 from datetime import datetime
 from app.db.database import Base
+from pgvector.sqlalchemy import Vector
 
 class ResearchWork(Base):
     __tablename__ = "research_works"
@@ -24,6 +25,8 @@ class ResearchWork(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     submitted_by_id = Column(Integer, ForeignKey("users.id"))
+    embedding = Column(Vector(768), nullable=True)
+
     
     category = relationship("Category")
     submitter = relationship("User", foreign_keys=[submitted_by_id])

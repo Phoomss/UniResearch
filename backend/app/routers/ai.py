@@ -71,3 +71,64 @@ async def get_dashboard_insights(
     )
     return insights
 
+from app.schemas.ai import ChatRequest, ChatResponse
+from app.services.rag_service import rag_chatbot_service
+from app.services.research_service import search_research
+from app.db.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+
+@router.post("/chat", response_model=ChatResponse)
+async def chat_rag(
+    request: ChatRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    from sqlalchemy.future import select
+    from sqlalchemy.orm import selectinload
+    from app.models.research import ResearchWork
+    from app.services.ai_service import ai_service
+    
+    relevant_works = []
+    try:
+        # Get vector embedding of query text
+        query_vector = await ai_service.get_embedding(request.message)
+        
+        # Calculate cosine distance using pgvector operator
+        # filter only approved works
+        stmt = (
+            select(ResearchWork)
+            .where(ResearchWork.status == "approved")
+            .order_by(ResearchWork.embedding.cosine_distance(query_vector))
+            .limit(5)
+            .options(selectinload(ResearchWork.category))
+        )
+        res = await db.execute(stmt)
+        relevant_works = list(res.scalars().all())
+    except Exception:
+        # Fallback to standard text search if vector search fails (e.g. extension not loaded yet or DB starting up)
+        relevant_works = await search_research(db, q=request.message, category_id=None, current_user=None)
+    
+    # Process with RAG Chatbot Service
+    history_dicts = [{"role": msg.role, "content": msg.content} for msg in request.history]
+    ai_response = await rag_chatbot_service.chat_with_context(
+        message=request.message,
+        chat_history=history_dicts,
+        relevant_works=relevant_works
+    )
+    
+    # Format metadata of relevant works for front-end citations
+    works_metadata = []
+    for w in relevant_works[:3]:
+        works_metadata.append({
+            "id": w.id,
+            "title_th": w.title_th,
+            "title_en": w.title_en,
+            "category": w.category.category_name if w.category else "Other",
+            "published_at": w.published_at.isoformat() if w.published_at else None
+        })
+        
+    return ChatResponse(
+        response=ai_response,
+        relevant_works=works_metadata
+    )
+
+

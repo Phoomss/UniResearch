@@ -88,3 +88,27 @@ export async function getDashboardInsights(params: {
   return callAI("dashboard-insights", params as unknown as Record<string, unknown>);
 }
 
+export interface ChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface ChatResponse {
+  response: string;
+  relevant_works: Array<{
+    id: number;
+    title_th: string;
+    title_en: string;
+    category: string;
+    published_at: string | null;
+  }>;
+}
+
+export async function askChatbot(params: {
+  message: string;
+  history: ChatMessage[];
+}): Promise<ChatResponse> {
+  return callAI("chat", params as unknown as Record<string, unknown>);
+}
+
+

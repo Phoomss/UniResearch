@@ -5,12 +5,12 @@ import { toRouteResponse } from "@/src/lib/api/route-response";
 
 export async function POST(request: NextRequest) {
   const token = await getSessionToken();
-  if (!token) {
-    return NextResponse.json({ error: { message: "กรุณาเข้าสู่ระบบ", status: 401 } }, { status: 401 });
-  }
-  
   const body = await request.json();
   const { action, ...data } = body;
+  
+  if (!token && action !== "chat") {
+    return NextResponse.json({ error: { message: "กรุณาเข้าสู่ระบบ", status: 401 } }, { status: 401 });
+  }
   
   // Route to different AI endpoints based on action
   const endpointMap: Record<string, string> = {
@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
     "suggest-keywords": "/ai/suggest-keywords",
     "check-writing": "/ai/check-writing",
     "dashboard-insights": "/ai/dashboard-insights",
+    "chat": "/ai/chat",
   };
   
   const endpoint = endpointMap[action];
