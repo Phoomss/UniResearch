@@ -70,64 +70,54 @@ graph TD
 
 ## 2. ☸️ การจัดระเบียบคอนเทนเนอร์ด้วย Kubernetes (K8s)
 
-รายละเอียด YAML ไฟล์สำหรับการรันระบบแอปพลิเคชันหลักภายใต้ Namespace `uniresearch` อยู่ในโฟลเดอร์ [`infrastructure/k8s/`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s)
+รายละเอียด YAML ไฟล์สำหรับการรันระบบแอปพลิเคชันหลักภายใต้ Namespace `uniresearch` อยู่ในโฟลเดอร์ [`infrastructure/k8s/01-app/`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app)
 
-- [`00-namespce.yml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/00-namespce.yml): สร้าง namespace ชื่อ `uniresearch` เพื่อแยกทรัพยากร
-- [`03-postgres-deployment.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/03-postgres-deployment.yaml):
+- [`00-namespace.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/00-namespace.yaml): สร้าง namespace ชื่อ `uniresearch` เพื่อแยกทรัพยากร
+- [`01-postgres.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/01-postgres.yaml):
   - สร้าง PersistentVolumeClaim (`postgres-pvc`) ขนาด 10Gi สำหรับเก็บข้อมูล PostgreSQL
   - สร้าง Service และ Deployment รัน PostgreSQL 15-alpine แบบ Stateful
-- [`02-backend-deployment.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/02-backend-deployment.yaml):
+- [`02-backend.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/02-backend.yaml):
   - สร้าง PVC (`backend-static-pvc`) ขนาด 5Gi สำหรับเก็บไฟล์อัปโหลด เช่น PDFs และรูปภาพหน้าปก
   - รัน FastAPI Backend จำนวน 2 Replicas เพื่อการกระจายภาระงาน (Load Balancing)
   - ทำการอัปเกรด DB Schema อัตโนมัติในตอนเริ่มต้นด้วยคำสั่ง `alembic upgrade head`
-- [`01-frontend-deployment.yml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-frontend-deployment.yml):
+- [`03-frontend.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/03-frontend.yaml):
   - รัน Next.js Frontend App จำนวน 2 Replicas
   - เชื่อมต่อกับ Backend ภายในผ่าน `http://backend:8000`
-- [`04-ingress.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/04-ingress.yaml):
+- [`04-ingress.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/04-ingress.yaml):
   - กำหนด Ingress Controller (Nginx Class) เพื่อจัดส่งทราฟฟิกภายนอกเข้ามาที่ Cluster
   - แมปโดเมน `uniresearch.local` โดยเส้นทางหลัก `/` จะถูกส่งต่อไปยัง Frontend และ `/api` จะถูกส่งต่อไปยัง Backend
-
-### วิธีการรันบน Cluster
-```bash
-kubectl apply -f infrastructure/k8s/00-namespce.yml
-kubectl apply -f infrastructure/k8s/03-postgres-deployment.yaml
-kubectl apply -f infrastructure/k8s/02-backend-deployment.yaml
-kubectl apply -f infrastructure/k8s/01-frontend-deployment.yml
-kubectl apply -f infrastructure/k8s/04-ingress.yaml
-```
 
 ---
 
 ## 3. 📊 ระบบการติดตามและประเมินประสิทธิภาพ (Monitoring)
 
-ประกอบด้วย Prometheus และ Grafana สำหรับตรวจสอบความพร้อมใช้งาน สถิติ และเมตริกการทำงานของ Backend REST API
+ประกอบด้วย Prometheus และ Grafana สำหรับตรวจสอบความพร้อมใช้งาน สถิติ และเมตริกการทำงานของ Backend REST API และ Kubernetes Resources อยู่ในโฟลเดอร์ [`infrastructure/k8s/02-monitoring/`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/02-monitoring)
 
-### 🛡️ Prometheus
-ไฟล์อยู่ใน [`infrastructure/promethus/`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/promethus):
-- [`prometheus-pvc.yml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/promethus/prometheus-pvc.yml): ร้องขอพื้นที่จัดเก็บข้อมูลขนาด 10Gi
-- [`prometheus-config.yml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/promethus/prometheus-config.yml): จัดเก็บค่าคอนฟิกเพื่อระบุตำแหน่งการดึงเมตริก (Scrape Target) จากเซิร์ฟเวอร์ `backend:8000`
-- [`prometheus-service.yml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/promethus/prometheus-service.yml): เปิดพอร์ตเข้าใช้งานผ่าน NodePort `30090`
-- [`prometheus.yml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/promethus/prometheus.yml): Deployment คอนเทนเนอร์ Prometheus
+- [`00-namespace.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/02-monitoring/00-namespace.yaml): สร้าง namespace ชื่อ `monitoring` แยกเฉพาะสำหรับระบบติดตาม
+- [`01-rbac.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/02-monitoring/01-rbac.yaml): กำหนดสิทธิ์แบบ ClusterRole และ ClusterRoleBinding ร่วมกับ ServiceAccount เพื่อให้ Prometheus สามารถเข้าดึงข้อมูล Metrics จาก Kubernetes API Server, Nodes, Endpoints และ Pods ได้
+- [`02-prometheus.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/02-monitoring/02-prometheus.yaml):
+  - สร้าง ConfigMap (`prometheus-config`) เพื่อเก็บการตั้งค่าการ Scrape Metrics
+  - สร้าง PVC (`prometheus-pvc`) ขนาด 20Gi สำหรับเก็บข้อมูล Time-series Database
+  - Deployment คอนเทนเนอร์ Prometheus (เวอร์ชัน `v3.5.0`) และผูกกับ ServiceAccount
+  - เปิดพอร์ตเข้าใช้งานผ่าน NodePort `30900`
+- [`03-grafana.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/02-monitoring/03-grafana.yaml):
+  - สร้าง PVC (`grafana-pvc`) ขนาด 10Gi สำหรับเก็บข้อมูล Dashboard และการตั้งค่าของ Grafana
+  - Deployment คอนเทนเนอร์ Grafana (เวอร์ชัน `12.1.1`) โดยตั้งค่าสิทธิ์ผู้ดูแลระบบเริ่มต้น (`admin` / `admin123`)
+  - เปิดพอร์ตเข้าใช้งานผ่าน NodePort `30300`
 
-### 📈 Grafana
-ไฟล์อยู่ใน [`infrastructure/grafana/`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/grafana):
-- [`grafana-pvc.yml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/grafana/grafana-pvc.yml): ร้องขอพื้นที่เก็บข้อมูลสำหรับหน้า Dashboard ขนาด 5Gi
-- [`grafana-service.yml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/grafana/grafana-service.yml): เปิดเข้าใช้บริการผ่าน NodePort `30300`
-- [`grafana.yml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/grafana/grafana.yml): Deployment คอนเทนเนอร์ Grafana (พร้อมตั้งรหัสผ่าน Admin เริ่มต้นเป็น `admin`)
+---
 
-### วิธีการรันระบบการติดตาม
+## 🚀 วิธีการรันระบบทั้งหมดรวดเดียว
+
+คุณสามารถสั่งรันทั้งแอปพลิเคชันหลักและระบบ Monitoring ทั้งหมดได้ผ่านสคริปต์ [deploy.sh](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/deploy.sh) ที่สร้างขึ้นมาเพื่อความสะดวกในการจัดการบน Production:
+
 ```bash
-# ติดตั้ง Prometheus
-kubectl apply -f infrastructure/promethus/prometheus-pvc.yml
-kubectl apply -f infrastructure/promethus/prometheus-config.yml
-kubectl apply -f infrastructure/promethus/prometheus-service.yml
-kubectl apply -f infrastructure/promethus/prometheus.yml
-
-# ติดตั้ง Grafana
-kubectl apply -f infrastructure/grafana/grafana-pvc.yml
-kubectl apply -f infrastructure/grafana/grafana-service.yml
-kubectl apply -f infrastructure/grafana/grafana.yml
+cd infrastructure
+./deploy.sh
 ```
-หลังจากติดตั้งแล้ว สามารถเปิดหน้าเบราว์เซอร์ไปที่:
-- **Prometheus UI**: `http://<node-ip>:30090`
-- **Grafana Dashboard**: `http://<node-ip>:30300` (เข้าสู่ระบบด้วยผู้ใช้ `admin` / รหัสผ่าน `admin`)
+
+หลังจากติดตั้งแล้ว สามารถเข้าตรวจสอบได้ดังนี้:
+- **แอปพลิเคชัน**: เข้าถึงผ่าน Ingress โดเมน `uniresearch.local`
+- **Prometheus UI**: `http://<node-ip>:30900`
+- **Grafana Dashboard**: `http://<node-ip>:30300` (เข้าสู่ระบบด้วยผู้ใช้ `admin` / รหัสผ่าน `admin123`)
+
