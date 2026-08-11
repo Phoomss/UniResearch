@@ -21,6 +21,7 @@ export function ParticipantDirectory({ authors, advisors }: { authors: ResearchP
   }, [advisors, authors, query, role]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [query, role]);
 

@@ -10,6 +10,7 @@ export function LanguageSwitch() {
   useEffect(() => {
     const match = document.cookie.match(/(^|;)\s*lang\s*=\s*([^;]+)/);
     const initialLang = match && match[2] === "en" ? "en" : "th";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLang(initialLang);
   }, []);
 
