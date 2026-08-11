@@ -39,6 +39,7 @@ export function AdminResearchManager({ records, reviewBasePath = "/admin/reviews
   }, [category, items, query, status, year]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCurrentPage(1);
   }, [query, status, category, year]);
 

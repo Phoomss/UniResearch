@@ -210,6 +210,22 @@ UniResearch/
    ```
 5. เปิดเบราว์เซอร์ไปที่ลิงก์ [http://localhost:3000](http://localhost:3000)
 
+### ฐานข้อมูลและการนำเข้าข้อมูล (Database & Data Migration)
+
+ระบบรองรับการนำเข้าข้อมูลบัญชีรายชื่อของนักศึกษาและอาจารย์ที่ปรึกษาจากไฟล์ CSV (`student.csv` และ `advisors.csv`) เข้าสู่ระบบฐานข้อมูลโดยอัตโนมัติ
+
+**วิธีการรันการนำเข้าข้อมูล (Migration):**
+- **รันผ่าน Docker Compose (แนะนำ):**
+  ```bash
+  docker compose exec backend python app/scripts/migrate_csv.py
+  ```
+- **รันบน Local Environment:**
+  ```bash
+  cd backend
+  source venv/bin/activate
+  python app/scripts/migrate_csv.py
+  ```
+
 ---
 
 ## 🧪 การทดสอบระบบ (Testing)
@@ -238,3 +254,4 @@ pnpm test
 - [เอกสารการออกแบบองค์ประกอบหน้าบ้าน](file:///Users/mac/Desktop/workspace/UniResearch/frontend/DESIGN.md)
 - [โครงสร้างฐานข้อมูลและโค้ด DBML](file:///Users/mac/Desktop/workspace/UniResearch/docs/UniResearch_Database_Schema.md)
 - [แผนภาพ UML ฉบับเต็ม (Use Case, Class, ER, State, Activity, Sequence, Component)](file:///Users/mac/Desktop/workspace/UniResearch/docs/UniResearch_UML_Diagrams.md)
+- [คู่มือการจัดการโครงสร้างพื้นฐานและการติดตั้ง (Terraform, Kubernetes, Prometheus, Grafana)](file:///Users/mac/Desktop/workspace/UniResearch/docs/INFRASTRUCTURE.md)
