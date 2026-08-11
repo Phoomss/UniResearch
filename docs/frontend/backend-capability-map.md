@@ -6,7 +6,7 @@ Audit date: 2026-08-03. Support labels mean **Supported**, **Partially supported
 
 - FastAPI keeps the default OpenAPI URL, `/openapi.json`, while disabling only `docs_url`; `/docs` redirects to `/swagger`, whose UI reads `app.openapi_url` ([`backend/app/main.py:20-50`](../../backend/app/main.py)).
 - The documented local command is `uvicorn app.main:app --reload` ([`backend/README.md:86`](../../backend/README.md)). A safe launch was attempted from a temporary working directory with a disposable SQLite URL and bytecode disabled (to prevent `research_service.py` from creating upload folders under `backend/`). It could not start because the installed Python has no `uvicorn`; the same environment also lacks `pytest_asyncio` and `httpx`. Docker could not be used because its daemon is inaccessible. Consequently, live OpenAPI and backend tests are **not runtime-verified in this audit**.
-- [`backend-openapi.json`](backend-openapi.json) explicitly identifies itself as a **source-derived snapshot**, not a runtime capture. Its paths agree with the included routers, but it is not live-runtime evidence.
+- [`backend-openapi.json`](../backend/backend-openapi.json) explicitly identifies itself as a **source-derived snapshot**, not a runtime capture. Its paths agree with the included routers, but it is not live-runtime evidence.
 - The test suite uses disposable in-memory SQLite and overrides `get_db` ([`backend/tests/conftest.py:17-42`](../../backend/tests/conftest.py)). No development/production database mutation was attempted.
 
 ## Endpoint contract inventory
