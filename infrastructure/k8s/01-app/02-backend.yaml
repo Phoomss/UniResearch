@@ -1,32 +1,10 @@
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: backend-static-pvc
-  namespace: uniresearch
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend
-  namespace: uniresearch
-spec:
-  ports:
-    - port: 8000
-      targetPort: 8000
-  selector:
-    app: backend
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend
+  name: backend-deployment
   namespace: uniresearch
+  labels:
+    app: backend
 spec:
   replicas: 2
   selector:
@@ -39,21 +17,122 @@ spec:
     spec:
       containers:
         - name: backend
-          image: uniresearch-backend:latest
-          command: ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"]
-          env:
-            - name: DATABASE_URL
-              value: postgresql+asyncpg://postgres:postgrespassword@postgres:5432/uniresearch
-            - name: SECRET_KEY
-              value: supersecretkey-change-this-in-production
-            - name: APP_ENV
-              value: production
+          image: phoom005/task-manager-backend:latest
+          imagePullPolicy: Always
+          command: ["sh", "-c", "alembic upgrade head 2>/dev/null || echo 'Alembic migration skipped' && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4"]
           ports:
             - containerPort: 8000
+          env:
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: PORT
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DATABASE_PORT
+            - name: DATABASE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: username
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: password
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: database
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DATABASE_URL
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "250m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"
           volumeMounts:
-            - name: static-storage
+            - name: backend-static
               mountPath: /app/static
       volumes:
-        - name: static-storage
+        - name: backend-static
           persistentVolumeClaim:
             claimName: backend-static-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: uniresearch
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: uniresearch
+data:
+  PORT: "8000"
+  DATABASE_HOST: "postgres-service"
+  DATABASE_PORT: "5432"
+  DATABASE_URL: "postgresql://postgres:postgres@postgres-service:5432/uniresearch?schema=public"
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: backend-static-pvc
+  namespace: uniresearch
+spec:
+  storageClassName: ""
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: backend-static-pv
+spec:
+  storageClassName: ""
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /data/backend-static
