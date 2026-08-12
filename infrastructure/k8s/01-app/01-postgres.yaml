@@ -13,7 +13,7 @@ stringData:
 apiVersion: v1
 kind: PersistentVolume
 metadata:
-  name: postgres-pv
+  name: postgres-db-pv
 spec:
   storageClassName: manual
   capacity:
