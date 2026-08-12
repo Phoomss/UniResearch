@@ -22,12 +22,14 @@ kubectl apply -f k8s/01-app/01-postgres.yaml
 kubectl apply -f k8s/01-app/02-backend.yaml
 kubectl apply -f k8s/01-app/03-frontend.yaml
 kubectl apply -f k8s/01-app/04-ingress.yaml
+kubectl apply -f k8s/01-app/05-hpa.yaml
 
 # 3. Deploy Monitoring Stack
 echo -e "\n${YELLOW}[3/3] Deploying Monitoring Stack (monitoring)...${NC}"
 kubectl apply -f k8s/02-monitoring/01-rbac.yaml
 kubectl apply -f k8s/02-monitoring/02-prometheus.yaml
 kubectl apply -f k8s/02-monitoring/03-grafana.yaml
+kubectl apply -f k8s/02-monitoring/04-loki.yaml
 
 echo -e "\n${GREEN}=== Deployment applied successfully! ===${NC}"
 
