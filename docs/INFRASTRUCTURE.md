@@ -23,7 +23,7 @@ graph TD
         end
     end
     
-    subgraph Storage Volumes (EBS)
+    subgraph "Storage Volumes (EBS)"
         DB -->|Mount /var/lib/...| DB_Vol[(Postgres PV)]
         BE -->|Mount /app/static| Static_Vol[(Static Assets PV)]
         Prom -->|Store TSDB| Prom_Vol[(Prometheus PV)]
