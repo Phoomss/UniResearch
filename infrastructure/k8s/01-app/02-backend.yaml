@@ -9,6 +9,12 @@ metadata:
 spec:
   replicas: 2
 
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+
   selector:
     matchLabels:
       app: backend
@@ -21,6 +27,7 @@ spec:
     spec:
       containers:
         - name: backend
+
           image: phoom005/uniresearch-backend:latest
           imagePullPolicy: Always
 
@@ -28,8 +35,10 @@ spec:
             - sh
             - -c
             - |
-              alembic upgrade head || echo "Alembic migration skipped"
-              exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
+              exec uvicorn app.main:app \
+                --host 0.0.0.0 \
+                --port 8000 \
+                --workers 1
 
           ports:
             - containerPort: 8000
@@ -77,17 +86,11 @@ spec:
                   name: backend-config
                   key: DATABASE_URL
 
-            - name: DB_SSL
-              valueFrom:
-                configMapKeyRef:
-                  name: backend-config
-                  key: DB_SSL
-
           livenessProbe:
             httpGet:
               path: /health
               port: 8000
-            initialDelaySeconds: 40
+            initialDelaySeconds: 30
             periodSeconds: 20
             timeoutSeconds: 5
             failureThreshold: 3
@@ -103,11 +106,12 @@ spec:
 
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
+              cpu: "200m"
+              memory: "256Mi"
+
             limits:
               cpu: "500m"
-              memory: "384Mi"
+              memory: "512Mi"
 
           volumeMounts:
             - name: backend-static
@@ -117,77 +121,3 @@ spec:
         - name: backend-static
           persistentVolumeClaim:
             claimName: backend-static-pvc
-
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend-service
-  namespace: uniresearch
-
-spec:
-  selector:
-    app: backend
-
-  ports:
-    - protocol: TCP
-      port: 8000
-      targetPort: 8000
-
-  type: ClusterIP
-
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: backend-config
-  namespace: uniresearch
-
-data:
-  PORT: "8000"
-  DATABASE_HOST: "postgres-service"
-  DATABASE_PORT: "5432"
-  DB_SSL: "false"
-
-  DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres-service:5432/uniresearch?ssl=disable"
-
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: backend-static-pvc
-  namespace: uniresearch
-
-spec:
-  storageClassName: manual-backend
-  accessModes:
-    - ReadWriteOnce
-
-  volumeMode: Filesystem
-
-  resources:
-    requests:
-      storage: 5Gi
-
----
-apiVersion: v1
-kind: PersistentVolume
-metadata:
-  name: backend-static-pv
-
-spec:
-  storageClassName: manual-backend
-
-  capacity:
-    storage: 5Gi
-
-  accessModes:
-    - ReadWriteOnce
-
-  volumeMode: Filesystem
-
-  persistentVolumeReclaimPolicy: Retain
-
-  hostPath:
-    path: /data/backend-static
-    type: DirectoryOrCreate
