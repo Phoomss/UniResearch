@@ -4,6 +4,10 @@ resource "aws_security_group" "k8s" {
 
   vpc_id = aws_vpc.main.id
 
+  tags = merge(local.common_tags, {
+    Name = "uniresearch-security-group"
+  })
+
   ingress {
     description = "SSH access"
     from_port   = 22
