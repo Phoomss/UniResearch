@@ -9,9 +9,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 from app.models.options import Department, WorkType
 
-DATABASE_URL = "postgresql+asyncpg://postgres:postgrespassword@localhost:5433/uniresearch"
-engine = create_async_engine(DATABASE_URL, echo=True)
-AsyncSessionLocal = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+from app.db.database import AsyncSessionLocal
 
 async def seed():
     async with AsyncSessionLocal() as db:
