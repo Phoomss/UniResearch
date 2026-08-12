@@ -34,7 +34,9 @@ kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f 
 helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
   --namespace monitoring \
   --set grafana.enabled=true \
-  --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false
+  --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \
+  --set grafana.sidecar.dashboards.env.PORT=8081 \
+  --set grafana.sidecar.datasources.env.PORT=8082
 
 # 4. Install Loki & Promtail (loki-stack)
 echo -e "\n${YELLOW}[4/4] Deploying Loki and Promtail via loki-stack...${NC}"
