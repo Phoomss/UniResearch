@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: phoom005/task-manager-backend:latest
+          image: phoom005/uniresearch-backend:latest
           imagePullPolicy: Always
           command: ["sh", "-c", "alembic upgrade head 2>/dev/null || echo 'Alembic migration skipped' && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4"]
           ports:

@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: phoom005/:latest
+          image: phoom005/uniresearch-frontend:latest
           imagePullPolicy: Always
           ports:
           - containerPort: 3000
