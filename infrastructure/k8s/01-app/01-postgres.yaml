@@ -49,16 +49,25 @@ metadata:
   namespace: uniresearch
   labels:
     app: postgres
+
 spec:
   replicas: 1
+
   selector:
     matchLabels:
       app: postgres
+
   template:
     metadata:
       labels:
         app: postgres
+
     spec:
+
+      # PostgreSQL ต้องอยู่ Worker เดียว
+      nodeSelector:
+        kubernetes.io/hostname: worker-1
+
       containers:
         - name: postgres
           image: postgres:15
@@ -95,8 +104,10 @@ spec:
                 - pg_isready
                 - -U
                 - postgres
+                - -d
+                - uniresearch
             initialDelaySeconds: 30
-            periodSeconds: 10
+            periodSeconds: 15
             timeoutSeconds: 5
             failureThreshold: 6
 
@@ -106,18 +117,20 @@ spec:
                 - pg_isready
                 - -U
                 - postgres
-            initialDelaySeconds: 30
+                - -d
+                - uniresearch
+            initialDelaySeconds: 15
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 6
+            failureThreshold: 3
 
           resources:
             requests:
               memory: "256Mi"
-              cpu: "500m"
+              cpu: "250m"
             limits:
               memory: "512Mi"
-              cpu: "1"
+              cpu: "750m"
 
       volumes:
         - name: postgres-data
@@ -130,10 +143,13 @@ kind: Service
 metadata:
   name: postgres-service
   namespace: uniresearch
+
 spec:
   type: ClusterIP
+
   selector:
     app: postgres
+
   ports:
     - protocol: TCP
       port: 5432
