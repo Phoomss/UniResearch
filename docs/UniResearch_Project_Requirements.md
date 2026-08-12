@@ -241,25 +241,26 @@ UniResearch/
 │   │   ├── models/                 # SQLAlchemy Models (user, research, category, interactions, options)
 │   │   ├── schemas/                # Pydantic Schemas (Request/Response validation)
 │   │   ├── services/               # Business Logic Layer
-│   │   ├── routers/                # API Endpoints (auth, users, research, reviews, categories, favorites, stats, options)
+│   │   ├── routers/                # API Endpoints (auth, users, research, reviews, categories, stats, options)
+│   │   ├── scripts/                # สคริปต์นำเข้าข้อมูล CSV และสร้างบัญชี Admin
 │   │   └── main.py                 # FastAPI App Entry Point
 │   ├── tests/                      # pytest Unit & Integration Tests
 │   ├── static/                     # ไฟล์ PDF และหน้าปกที่อัปโหลด (git-ignored)
-│   ├── Dockerfile
-│   └── docker-compose.yml          # FastAPI + PostgreSQL + Next.js
+│   └── Dockerfile
 ├── frontend/                       # ระบบหน้าบ้าน Next.js
 │   ├── app/                        # App Router Pages
-│   │   ├── auth/                   # login, register
-│   │   ├── research/               # ค้นหา, รายละเอียดผลงาน [id]
-│   │   ├── dashboard/              # student, reviewer, admin, submit
-│   │   ├── profile/                # โปรไฟล์ผู้ใช้
-│   │   └── favorites/              # รายการโปรด
+│   │   ├── admin/                  # เมนูและหน้าจัดการสำหรับบทบาท Admin
+│   │   ├── advisor/                # หน้าอนุมัติและประเมินผลงานสำหรับบทบาท Advisor
+│   │   ├── student/                # หน้าส่งและจัดการผลงานสำหรับบทบาท Student
+│   │   ├── research/               # หน้าสืบค้นและแสดงรายละเอียดผลงานวิจัยสาธารณะ
+│   │   ├── account/                # หน้าจัดการบัญชีผู้ใช้งาน
+│   │   ├── login/                  # หน้าเข้าสู่ระบบ
+│   │   └── register/               # หน้าสมัครสมาชิก
 │   ├── src/
-│   │   ├── components/             # UI, Layout, Research, Dashboard, Auth
-│   │   ├── hooks/                  # useAuth, useResearch, useSearch
-│   │   ├── lib/                    # API Client (Axios), Auth Utils
-│   │   ├── types/                  # TypeScript Type Definitions
-│   │   └── features/               # Feature-based Logic (auth, research, admin)
+│   │   ├── components/             # UI Components (Layout, buttons, cards, tables, etc.)
+│   │   ├── features/               # ส่วนจัดการตรรกะและองค์ประกอบเฉพาะฟังก์ชัน (admin, advisor, auth, research, review)
+│   │   ├── services/               # ส่วนเรียกใช้งาน API Backend (auth, research, category, stats)
+│   │   └── lib/                    # ตัวเชื่อมต่อ API (Axios instance)
 │   ├── e2e/                        # Playwright E2E Tests
 │   └── package.json
 └── docs/                           # เอกสารความต้องการระบบ, UML Diagrams, RBAC Matrix

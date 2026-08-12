@@ -22,8 +22,9 @@ Implemented patterns include primary/secondary/ghost buttons, input/select/texta
 - `/` homepage
 - `/login`, `/register`
 - `/research`, `/research/[id]`
-- `/dashboard/student`, `/dashboard/student/submit`
-- `/dashboard/reviewer`
-- `/dashboard/admin`
+- `/admin` dashboard
+- `/advisor` dashboard
+- `/student` dashboard
+- `/account` settings
 
 All content is a local design fixture for Phase 2. There are no mock endpoints, raw fetch calls, tokens, sessions, or backend integration. Unsupported Google login and password recovery are visibly disabled rather than represented as working features.
