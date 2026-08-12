@@ -28,7 +28,7 @@ spec:
             - sh
             - -c
             - |
-              alembic upgrade head 2>/dev/null || echo 'Alembic migration skipped'
+              alembic upgrade head || echo "Alembic migration skipped"
               exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 1
 
           ports:
@@ -81,7 +81,7 @@ spec:
             httpGet:
               path: /health
               port: 8000
-            initialDelaySeconds: 30
+            initialDelaySeconds: 40
             periodSeconds: 20
             timeoutSeconds: 5
             failureThreshold: 3
@@ -90,18 +90,18 @@ spec:
             httpGet:
               path: /health
               port: 8000
-            initialDelaySeconds: 15
+            initialDelaySeconds: 20
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
 
           resources:
             requests:
-              cpu: "200m"
-              memory: "256Mi"
+              cpu: "100m"
+              memory: "128Mi"
             limits:
               cpu: "500m"
-              memory: "512Mi"
+              memory: "384Mi"
 
           volumeMounts:
             - name: backend-static
@@ -141,7 +141,8 @@ data:
   PORT: "8000"
   DATABASE_HOST: "postgres-service"
   DATABASE_PORT: "5432"
-  DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres-service:5432/uniresearch"
+
+  DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres-service:5432/uniresearch?ssl=disable"
 
 ---
 apiVersion: v1
@@ -154,6 +155,7 @@ spec:
   storageClassName: manual-backend
   accessModes:
     - ReadWriteOnce
+
   volumeMode: Filesystem
 
   resources:
@@ -168,15 +170,16 @@ metadata:
 
 spec:
   storageClassName: manual-backend
+
   capacity:
     storage: 5Gi
 
   accessModes:
     - ReadWriteOnce
 
-  persistentVolumeReclaimPolicy: Retain
-
   volumeMode: Filesystem
+
+  persistentVolumeReclaimPolicy: Retain
 
   hostPath:
     path: /data/backend-static
