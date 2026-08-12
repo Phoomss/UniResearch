@@ -19,57 +19,74 @@ spec:
         - name: backend
           image: phoom005/uniresearch-backend:latest
           imagePullPolicy: Always
-          command: ["sh", "-c", "alembic upgrade head 2>/dev/null || echo 'Alembic migration skipped' && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4"]
+
+          command:
+            - sh
+            - -c
+            - |
+              alembic upgrade head 2>/dev/null || echo 'Alembic migration skipped'
+              uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+
           ports:
             - containerPort: 8000
+
           env:
             - name: PORT
               valueFrom:
                 configMapKeyRef:
                   name: backend-config
                   key: PORT
+
             - name: DATABASE_HOST
               valueFrom:
                 configMapKeyRef:
                   name: backend-config
                   key: DATABASE_HOST
+
             - name: DATABASE_PORT
               valueFrom:
                 configMapKeyRef:
                   name: backend-config
                   key: DATABASE_PORT
+
             - name: DATABASE_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: username
+
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: password
+
             - name: DATABASE_NAME
               valueFrom:
                 secretKeyRef:
                   name: postgres-secret
                   key: database
+
             - name: DATABASE_URL
               valueFrom:
                 configMapKeyRef:
                   name: backend-config
                   key: DATABASE_URL
+
           livenessProbe:
             httpGet:
               path: /health
               port: 8000
             initialDelaySeconds: 30
             periodSeconds: 20
+
           readinessProbe:
             httpGet:
               path: /health
               port: 8000
             initialDelaySeconds: 10
             periodSeconds: 10
+
           resources:
             requests:
               memory: "128Mi"
@@ -77,13 +94,16 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "500m"
+
           volumeMounts:
             - name: backend-static
               mountPath: /app/static
+
       volumes:
         - name: backend-static
           persistentVolumeClaim:
             claimName: backend-static-pvc
+
 ---
 apiVersion: v1
 kind: Service
@@ -98,6 +118,7 @@ spec:
       port: 8000
       targetPort: 8000
   type: ClusterIP
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -108,7 +129,8 @@ data:
   PORT: "8000"
   DATABASE_HOST: "postgres-service"
   DATABASE_PORT: "5432"
-  DATABASE_URL: "postgresql://postgres:postgres@postgres-service:5432/uniresearch?schema=public"
+  DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres-service:5432/uniresearch"
+
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -123,6 +145,7 @@ spec:
   resources:
     requests:
       storage: 5Gi
+
 ---
 apiVersion: v1
 kind: PersistentVolume
@@ -136,3 +159,4 @@ spec:
     - ReadWriteOnce
   hostPath:
     path: /data/backend-static
+    type: DirectoryOrCreate
