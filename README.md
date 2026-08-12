@@ -144,7 +144,7 @@ UniResearch/
    | :--- | :--- | :--- |
    | หน้าบ้าน (Frontend UI) | [http://localhost:3000](http://localhost:3000) | Next.js App Router |
    | หลังบ้าน (Backend API) | [http://localhost:8000](http://localhost:8000) | FastAPI |
-   | เอกสาร API (Swagger UI) | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive API docs |
+   | เอกสาร API (Swagger UI) | [http://localhost:8000/swagger](http://localhost:8000/swagger) | Interactive API docs (หรือผ่าน [http://localhost:8000/docs](http://localhost:8000/docs) ซึ่งจะ Redirect ไปยัง `/swagger`) |
    | ฐานข้อมูล PostgreSQL | `localhost:5433` | เชื่อมต่อผ่าน psql หรือ DB client |
 
 5. **คำสั่งลัดที่มีประโยชน์ (Make Commands):**
