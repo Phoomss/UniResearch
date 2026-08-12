@@ -10,7 +10,7 @@
 graph TD
     Client([ผู้ใช้งานภายนอก]) -->|HTTP/HTTPS Port 80/443| Ingress[Kubernetes Ingress / Nginx]
     
-    subgraph Kubernetes Cluster (AWS EC2 Nodes)
+    subgraph "Kubernetes Cluster (AWS EC2 Nodes)"
         direction TB
         Ingress -->|Route /| FE[Frontend Pods - Next.js]
         Ingress -->|Route /api| BE[Backend Pods - FastAPI]
