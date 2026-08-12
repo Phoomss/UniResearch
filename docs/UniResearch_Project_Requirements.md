@@ -177,7 +177,7 @@ graph TD
     end
 
     subgraph Frontend Layer
-        NextJS["Next.js 15+ (App Router)<br/>TypeScript / React 19"]
+        NextJS["Next.js 16+ (App Router)<br/>TypeScript / React 19"]
         NextJS --- Pages["📄 Pages<br/>(SSR + Client Components)"]
         NextJS --- Components["🧩 Components<br/>(UI / Layout / Feature)"]
         NextJS --- Hooks["🔗 Hooks<br/>(useAuth / useResearch)"]
@@ -207,7 +207,7 @@ graph TD
 
 | หมวดหมู่ | เทคโนโลยี | เวอร์ชัน | วัตถุประสงค์ในการใช้งาน |
 | :--- | :--- | :---: | :--- |
-| **Frontend** | Next.js (App Router) | 15+ | เฟรมเวิร์ก React สำหรับ SSR และ Client Components |
+| **Frontend** | Next.js (App Router) | 16+ | เฟรมเวิร์ก React สำหรับ SSR และ Client Components |
 | | React | 19 | ไลบรารีสร้าง User Interface |
 | | TypeScript | 5.x | เพิ่มความปลอดภัยและถูกต้องของชนิดข้อมูล |
 | | Zustand | — | State Management แบบเบาและยืดหยุ่น |
