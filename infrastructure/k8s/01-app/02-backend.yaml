@@ -77,6 +77,12 @@ spec:
                   name: backend-config
                   key: DATABASE_URL
 
+            - name: DB_SSL
+              valueFrom:
+                configMapKeyRef:
+                  name: backend-config
+                  key: DB_SSL
+
           livenessProbe:
             httpGet:
               path: /health
@@ -141,6 +147,7 @@ data:
   PORT: "8000"
   DATABASE_HOST: "postgres-service"
   DATABASE_PORT: "5432"
+  DB_SSL: "false"
 
   DATABASE_URL: "postgresql+asyncpg://postgres:postgres@postgres-service:5432/uniresearch?ssl=disable"
 
