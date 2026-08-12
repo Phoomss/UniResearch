@@ -154,11 +154,48 @@ def main():
     ]
 
     category_ids = []
-    print("Creating categories...")
+
+    print("Creating / loading categories...")
+
+    # ดึง categories ที่มีอยู่ก่อน
+    existing_categories, _ = make_request(
+        "/categories/",
+        "GET",
+        headers={"Authorization": f"Bearer {admin_token}"}
+    )
+
+    existing_map = {
+        cat["category_name"]: cat["id"]
+        for cat in existing_categories
+    }
+
     for cat in categories:
-        res, _ = make_request("/categories/", "POST", headers={"Authorization": f"Bearer {admin_token}"}, body=cat)
-        print(f"Created category: {res['category_name']} (ID: {res['id']})")
-        category_ids.append(res["id"])
+        category_name = cat["category_name"]
+
+        if category_name in existing_map:
+            category_id = existing_map[category_name]
+            print(
+                f"Category already exists: "
+                f"{category_name} (ID: {category_id})"
+            )
+        else:
+            res, _ = make_request(
+                "/categories/",
+                "POST",
+                headers={
+                    "Authorization": f"Bearer {admin_token}"
+                },
+                body=cat
+            )
+
+            category_id = res["id"]
+
+            print(
+                f"Created category: "
+                f"{res['category_name']} (ID: {category_id})"
+            )
+
+        category_ids.append(category_id)
 
     # Dummy file bytes
     dummy_cover = b"\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15c4\x00\x00\x00\nIDATx\x9cc`\x00\x00\x00\x02\x00\x01H\xaf\xa4q\x00\x00\x00\x00IEND\xaeB`\x82"
