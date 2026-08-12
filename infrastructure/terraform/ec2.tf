@@ -39,7 +39,7 @@ resource "aws_instance" "control_plane" {
 # worker
 resource "aws_instance" "worker" {
 
-  count = 3
+  count = 2
 
   ami = data.aws_ami.ubuntu.id
 
