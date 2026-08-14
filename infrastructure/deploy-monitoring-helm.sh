@@ -27,26 +27,22 @@ helm repo add prometheus-community https://prometheus-community.github.io/helm-c
 helm repo add grafana https://grafana.github.io/helm-charts
 helm repo update
 
+# Get script directory to resolve paths correctly
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # 3. Install Prometheus & Grafana (kube-prometheus-stack)
 echo -e "\n${YELLOW}[3/4] Deploying Prometheus and Grafana via kube-prometheus-stack...${NC}"
 kubectl create namespace monitoring --dry-run=client -o yaml | kubectl apply -f -
 
 helm upgrade --install kube-prometheus-stack prometheus-community/kube-prometheus-stack \
   --namespace monitoring \
-  --set grafana.enabled=true \
-  --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \
-  --set grafana.sidecar.dashboards.env.PORT=8081 \
-  --set grafana.sidecar.datasources.env.PORT=8082 \
-  --set grafana.service.type=NodePort \
-  --set grafana.service.nodePort=30300
+  -f "${SCRIPT_DIR}/helm-values/kube-prometheus-stack-values.yaml"
 
 # 4. Install Loki & Promtail (loki-stack)
 echo -e "\n${YELLOW}[4/4] Deploying Loki and Promtail via loki-stack...${NC}"
 helm upgrade --install loki-stack grafana/loki-stack \
   --namespace monitoring \
-  --set loki.persistence.enabled=true \
-  --set loki.persistence.size=20Gi \
-  --set promtail.enabled=true
+  -f "${SCRIPT_DIR}/helm-values/loki-stack-values.yaml"
 
 echo -e "\n${GREEN}=== Monitoring Stack deployed successfully with Helm! ===${NC}"
 
