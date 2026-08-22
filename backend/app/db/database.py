@@ -12,6 +12,8 @@ if use_ssl is None:
         "localhost" in settings.DATABASE_URL
         or "127.0.0.1" in settings.DATABASE_URL
         or "@db" in settings.DATABASE_URL
+        or "ssl=disable" in settings.DATABASE_URL
+        or "sslmode=disable" in settings.DATABASE_URL
         or settings.APP_ENV in ("development", "local", "test")
     )
     use_ssl = not is_local

@@ -112,7 +112,16 @@ async def get_pending_research(
     from sqlalchemy import select
     from sqlalchemy.orm import selectinload
     from app.models.research import ResearchWork, ResearchAuthor, ResearchAdvisor, ReviewComment
-    query = select(ResearchWork).where(ResearchWork.status == "pending").options(
+    
+    query = select(ResearchWork).where(ResearchWork.status == "pending")
+    if current_user.role != "admin":
+        query = query.where(
+            ResearchWork.id.in_(
+                select(ResearchAdvisor.research_id).where(ResearchAdvisor.user_id == current_user.id)
+            )
+        )
+        
+    query = query.options(
         selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
         selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
         selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)

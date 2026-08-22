@@ -233,3 +233,236 @@ async def test_update_and_delete_research(client: AsyncClient, db_session, test_
     assert get_resp.status_code == 404
 
 
+@pytest.mark.asyncio
+async def test_registration_overrides_role_to_student(client: AsyncClient):
+    response = await client.post("/auth/register", json={
+        "email": "malicious_admin@test.com",
+        "password": "password123",
+        "role": "admin",
+        "first_name": "Malicious",
+        "last_name": "Admin"
+    })
+    assert response.status_code == 200
+    assert response.json()["role"] == "student"
+
+
+@pytest.mark.asyncio
+async def test_advisor_review_authorization_and_validation(client: AsyncClient, db_session, test_user, advisor_user):
+    # Register another advisor
+    from app.models.user import User
+    from app.core.security import get_password_hash
+    other_advisor = User(
+        email="advisor2@test.com",
+        hashed_password=get_password_hash("password123"),
+        role="advisor",
+        is_active=True
+    )
+    db_session.add(other_advisor)
+    await db_session.commit()
+    await db_session.refresh(other_advisor)
+
+    # Login student to submit research
+    student_token = (await client.post("/auth/login", data={"username": "student@test.com", "password": "password123"})).json()["access_token"]
+    student_headers = {"Authorization": f"Bearer {student_token}"}
+
+    from app.models.category import Category
+    category = Category(category_name="Security")
+    db_session.add(category)
+    await db_session.commit()
+    await db_session.refresh(category)
+
+    # Submit research with advisor_user as advisor
+    res_resp = await client.post("/research/", headers=student_headers, data={
+        "title_th": "ความปลอดภัยข้อมูล",
+        "title_en": "Data Security",
+        "category_id": category.id,
+        "author_ids": json.dumps([test_user.id]),
+        "advisor_ids": json.dumps([advisor_user.id])
+    })
+    research_id = res_resp.json()["id"]
+
+    # Login other advisor
+    other_adv_token = (await client.post("/auth/login", data={"username": "advisor2@test.com", "password": "password123"})).json()["access_token"]
+    other_adv_headers = {"Authorization": f"Bearer {other_adv_token}"}
+
+    # Other advisor tries to review - must be 403
+    bad_rev = await client.post(f"/research/{research_id}/review", json={
+        "comment_text": "Bypassed review",
+        "status_result": "approved"
+    }, headers=other_adv_headers)
+    assert bad_rev.status_code == 403
+
+    # Main advisor tries to review - must succeed
+    adv_token = (await client.post("/auth/login", data={"username": "advisor@test.com", "password": "password123"})).json()["access_token"]
+    adv_headers = {"Authorization": f"Bearer {adv_token}"}
+
+    # Reviewing status non-pending later, but first review works
+    good_rev = await client.post(f"/research/{research_id}/review", json={
+        "comment_text": "Approved work",
+        "status_result": "approved"
+    }, headers=adv_headers)
+    assert good_rev.status_code == 200
+    assert good_rev.json()["status_result"] == "approved"
+
+    # Try to review again now that status is approved (non-pending) - must be 400
+    dup_rev = await client.post(f"/research/{research_id}/review", json={
+        "comment_text": "Review again",
+        "status_result": "approved"
+    }, headers=adv_headers)
+    assert dup_rev.status_code == 400
+
+
+@pytest.mark.asyncio
+async def test_review_updates_published_at(client: AsyncClient, db_session, test_user, advisor_user):
+    student_token = (await client.post("/auth/login", data={"username": "student@test.com", "password": "password123"})).json()["access_token"]
+    student_headers = {"Authorization": f"Bearer {student_token}"}
+
+    from app.models.category import Category
+    category = Category(category_name="Workflow")
+    db_session.add(category)
+    await db_session.commit()
+    await db_session.refresh(category)
+
+    res_resp = await client.post("/research/", headers=student_headers, data={
+        "title_th": "กระบวนการทำงาน",
+        "title_en": "Workflow",
+        "category_id": category.id,
+        "author_ids": json.dumps([test_user.id]),
+        "advisor_ids": json.dumps([advisor_user.id])
+    })
+    research_id = res_resp.json()["id"]
+
+    adv_token = (await client.post("/auth/login", data={"username": "advisor@test.com", "password": "password123"})).json()["access_token"]
+    adv_headers = {"Authorization": f"Bearer {adv_token}"}
+
+    # Review and approve
+    rev_resp = await client.post(f"/research/{research_id}/review", json={
+        "comment_text": "Approved",
+        "status_result": "approved"
+    }, headers=adv_headers)
+    assert rev_resp.status_code == 200
+
+    # Verify published_at is set
+    research = (await db_session.execute(select(ResearchWork).where(ResearchWork.id == research_id))).scalars().first()
+    assert research.published_at is not None
+
+
+@pytest.mark.asyncio
+async def test_revision_archives_file_revision(client: AsyncClient, db_session, test_user, advisor_user, isolated_uploads):
+    student_token = (await client.post("/auth/login", data={"username": "student@test.com", "password": "password123"})).json()["access_token"]
+    student_headers = {"Authorization": f"Bearer {student_token}"}
+
+    from app.models.category import Category
+    category = Category(category_name="Revision")
+    db_session.add(category)
+    await db_session.commit()
+    await db_session.refresh(category)
+
+    # Create research with initial document
+    res_resp = await client.post("/research/", headers=student_headers, data={
+        "title_th": "ระบบเวอร์ชันเอกสาร",
+        "title_en": "Document Revision",
+        "category_id": category.id,
+        "author_ids": json.dumps([test_user.id]),
+        "advisor_ids": json.dumps([advisor_user.id])
+    }, files={"document": ("v1.pdf", b"%PDF-1.4 Initial Version", "application/pdf")})
+    research_id = res_resp.json()["id"]
+    initial_file_path = res_resp.json()["file_path"]
+
+    # Mark as needs_revision by advisor
+    adv_token = (await client.post("/auth/login", data={"username": "advisor@test.com", "password": "password123"})).json()["access_token"]
+    adv_headers = {"Authorization": f"Bearer {adv_token}"}
+    await client.post(f"/research/{research_id}/review", json={
+        "comment_text": "Please fix formatting",
+        "status_result": "needs_revision"
+    }, headers=adv_headers)
+
+    # Submit updated research document (v2)
+    update_resp = await client.put(f"/research/{research_id}", headers=student_headers, data={
+        "title_th": "ระบบเวอร์ชันเอกสาร",
+        "title_en": "Document Revision",
+        "category_id": category.id,
+        "author_ids": json.dumps([test_user.id]),
+        "advisor_ids": json.dumps([advisor_user.id])
+    }, files={"document": ("v2.pdf", b"%PDF-1.4 Revised Version", "application/pdf")})
+    assert update_resp.status_code == 200
+
+    # Ensure the old file was NOT deleted and is stored in FileRevision
+    from app.models.research import FileRevision
+    revisions_result = await db_session.execute(select(FileRevision).where(FileRevision.research_id == research_id))
+    revisions = revisions_result.scalars().all()
+    assert len(revisions) == 1
+    assert revisions[0].file_path == initial_file_path
+    assert revisions[0].version_no == 1
+
+    # Verify both physical files exist in isolated uploads
+    initial_full_path = isolated_uploads / Path(initial_file_path).relative_to("static")
+    new_full_path = isolated_uploads / Path(update_resp.json()["file_path"]).relative_to("static")
+    assert initial_full_path.exists()
+    assert new_full_path.exists()
+
+
+@pytest.mark.asyncio
+async def test_advisor_pending_queue_filtered(client: AsyncClient, db_session, test_user, advisor_user, admin_user):
+    # Register advisor 2
+    from app.models.user import User
+    from app.core.security import get_password_hash
+    advisor2 = User(
+        email="advisor_other@test.com",
+        hashed_password=get_password_hash("password123"),
+        role="advisor",
+        is_active=True
+    )
+    db_session.add(advisor2)
+    await db_session.commit()
+    await db_session.refresh(advisor2)
+
+    student_token = (await client.post("/auth/login", data={"username": "student@test.com", "password": "password123"})).json()["access_token"]
+    student_headers = {"Authorization": f"Bearer {student_token}"}
+
+    from app.models.category import Category
+    category = Category(category_name="Queue")
+    db_session.add(category)
+    await db_session.commit()
+    await db_session.refresh(category)
+
+    # Work 1 for Advisor 1 (advisor_user)
+    await client.post("/research/", headers=student_headers, data={
+        "title_th": "งานของที่ปรึกษาคนแรก",
+        "title_en": "Work For First Advisor",
+        "category_id": category.id,
+        "author_ids": json.dumps([test_user.id]),
+        "advisor_ids": json.dumps([advisor_user.id])
+    })
+
+    # Work 2 for Advisor 2 (advisor2)
+    await client.post("/research/", headers=student_headers, data={
+        "title_th": "งานของที่ปรึกษาคนที่สอง",
+        "title_en": "Work For Second Advisor",
+        "category_id": category.id,
+        "author_ids": json.dumps([test_user.id]),
+        "advisor_ids": json.dumps([advisor2.id])
+    })
+
+    # Login Advisor 1
+    adv1_token = (await client.post("/auth/login", data={"username": "advisor@test.com", "password": "password123"})).json()["access_token"]
+    adv1_headers = {"Authorization": f"Bearer {adv1_token}"}
+
+    # Get pending queue for Advisor 1
+    pending_adv1 = await client.get("/research/pending", headers=adv1_headers)
+    assert pending_adv1.status_code == 200
+    adv1_list = pending_adv1.json()
+    assert len(adv1_list) == 1
+    assert adv1_list[0]["title_en"] == "Work For First Advisor"
+
+    # Login Admin
+    admin_token = (await client.post("/auth/login", data={"username": "admin@test.com", "password": "password123"})).json()["access_token"]
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
+
+    # Admin should see both in pending
+    pending_admin = await client.get("/research/pending", headers=admin_headers)
+    assert pending_admin.status_code == 200
+    admin_list = pending_admin.json()
+    assert len(admin_list) >= 2
+
+

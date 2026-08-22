@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import List, Optional
 from uuid import uuid4
+from datetime import datetime
 
 from fastapi import HTTPException, UploadFile
 from sqlalchemy import or_
@@ -275,7 +276,6 @@ async def download_research(db: AsyncSession, current_user: User, research_id: i
     research = (await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))).scalars().first()
     if not research or not research.file_path: raise HTTPException(status_code=404, detail="File not found")
     research.download_count += 1; db.add(DownloadViewLog(research_id=research.id, user_id=current_user.id, action_type="download")); await db.commit(); return {"file_url": f"/{research.file_path}"}
-
 async def review_research(db: AsyncSession, current_user: User, research_id: int, review_in: ReviewCommentCreate) -> ReviewComment:
     from app.services.notification_service import notification_service
     
@@ -284,10 +284,33 @@ async def review_research(db: AsyncSession, current_user: User, research_id: int
         selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user)
     )
     research = (await db.execute(query)).scalars().first()
-    if not research: raise HTTPException(status_code=404, detail="Not found")
-    
-    review = ReviewComment(research_id=research.id, reviewer_id=current_user.id, comment_text=review_in.comment_text, status_result=review_in.status_result)
-    research.status = review_in.status_result; db.add(review)
+    if not research:
+        raise HTTPException(status_code=404, detail="Not found")
+        
+    if research.status != "pending":
+        raise HTTPException(status_code=400, detail="Can only review research works with pending status")
+        
+    if current_user.role != "admin":
+        advisor_check = await db.execute(
+            select(ResearchAdvisor).where(
+                ResearchAdvisor.research_id == research_id,
+                ResearchAdvisor.user_id == current_user.id
+            )
+        )
+        if not advisor_check.scalars().first():
+            raise HTTPException(status_code=403, detail="Not authorized to review this research (you are not an advisor for this work)")
+            
+    review = ReviewComment(
+        research_id=research.id,
+        reviewer_id=current_user.id,
+        comment_text=review_in.comment_text,
+        status_result=review_in.status_result
+    )
+    research.status = review_in.status_result
+    if review_in.status_result == "approved":
+        research.published_at = datetime.utcnow()
+        
+    db.add(review)
     await db.flush()
     
     # Notify all co-authors & submitter
@@ -326,7 +349,6 @@ async def review_research(db: AsyncSession, current_user: User, research_id: int
     await db.refresh(review)
     return review
 
-
 async def update_research(db: AsyncSession, research_id: int, current_user: User, title_th: str, title_en: str, category_id: int,
     abstract: Optional[str], department: Optional[str], work_type: Optional[str], academic_year: Optional[int],
     keywords: Optional[str], author_ids: str, advisor_ids: str, cover_image: Optional[UploadFile],
@@ -360,11 +382,28 @@ async def update_research(db: AsyncSession, research_id: int, current_user: User
         if document:
             disk_path, doc_path = await _store_upload(document, UPLOAD_DOCS_DIR, DOCUMENT_TYPES, settings.MAX_DOCUMENT_BYTES, "document")
             stored.append(disk_path)
-            if research.file_path:
-                old_path = settings.STATIC_DIR / research.file_path.replace("static/", "", 1)
-                try:
-                    if old_path.exists(): old_path.unlink()
-                except Exception: pass
+            
+            if research.status == "needs_revision" and research.file_path:
+                from sqlalchemy import func
+                from app.models.research import FileRevision
+                max_ver_query = select(func.max(FileRevision.version_no)).where(FileRevision.research_id == research.id)
+                max_ver_result = await db.execute(max_ver_query)
+                max_ver = max_ver_result.scalar() or 0
+                
+                revision = FileRevision(
+                    research_id=research.id,
+                    file_path=research.file_path,
+                    version_no=max_ver + 1,
+                    uploaded_by=current_user.id,
+                    uploaded_at=datetime.utcnow()
+                )
+                db.add(revision)
+            else:
+                if research.file_path:
+                    old_path = settings.STATIC_DIR / research.file_path.replace("static/", "", 1)
+                    try:
+                        if old_path.exists(): old_path.unlink()
+                    except Exception: pass
             research.file_path = doc_path
         research.title_th = title_th.strip()
         research.title_en = title_en.strip()

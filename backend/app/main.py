@@ -47,6 +47,10 @@ app = FastAPI(title=settings.PROJECT_NAME, docs_url=None, lifespan=lifespan)
 async def redirect_db_docs():
     return RedirectResponse(url="/swagger")
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
 @app.get("/swagger", include_in_schema=False)
 async def custom_swagger_ui():
     html_content = f"""

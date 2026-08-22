@@ -88,13 +88,25 @@ UniResearch/
 │   │   ├── models/           # โครงสร้างตารางฐานข้อมูล (SQLAlchemy Models)
 │   │   ├── schemas/          # ตัวตรวจสอบข้อมูลรับส่ง (Pydantic Schemas)
 │   │   ├── services/         # ส่วนประมวลผลตรรกะทางธุรกิจและการเขียนอ่านฐานข้อมูล
-│   │   └── routers/          # เส้นทางของ endpoint API (Controllers)
+│   │   ├── routers/          # เส้นทางของ endpoint API (Controllers)
+│   │   └── scripts/          # สคริปต์นำเข้าข้อมูล CSV และสร้างบัญชี Admin
 │   ├── tests/                # ส่วนควบคุม Unit & Integration Tests (pytest)
 │   ├── static/               # โฟลเดอร์เก็บไฟล์ PDF และหน้าปกที่อัปโหลดเข้าสู่ระบบ (git-ignored)
 │   └── Dockerfile            # ตัวสร้าง Docker Container สำหรับ backend (multi-stage)
 ├── frontend/                 # ส่วนงานระบบหน้าบ้าน Next.js
-│   ├── app/                  # หน้าเว็บของระบบ (App Router) และ API Routes ท้องถิ่น
-│   ├── src/                  # ส่วนประกอบของหน้าจอ (Components), Hooks, ตัวช่วย, และฟีเจอร์หลัก
+│   ├── app/                  # หน้าเว็บของระบบ (App Router)
+│   │   ├── admin/            # เมนูและหน้าจัดการสำหรับบทบาท Admin
+│   │   ├── advisor/          # หน้าอนุมัติและประเมินผลงานสำหรับบทบาท Advisor
+│   │   ├── student/          # หน้าส่งและจัดการผลงานสำหรับบทบาท Student
+│   │   ├── research/         # หน้าสืบค้นและแสดงรายละเอียดผลงานวิจัยสาธารณะ
+│   │   ├── account/          # หน้าจัดการบัญชีผู้ใช้งาน
+│   │   ├── login/            # หน้าเข้าสู่ระบบ
+│   │   └── register/         # หน้าสมัครสมาชิก
+│   ├── src/                  # ตรรกะและฟังก์ชันส่วนหน้าบ้าน
+│   │   ├── components/       # ส่วนประกอบ UI พื้นฐานและ Layout
+│   │   ├── features/         # จัดการฟังก์ชันตามบทบาทผู้ใช้งาน (admin, advisor, auth, research, review)
+│   │   ├── services/         # ฟังก์ชันการเรียก API ฝั่ง Backend (auth, research, category, stats)
+│   │   └── lib/              # ตัวเชื่อมต่อ API (Axios instance)
 │   ├── tests/                # การทดสอบการทำงานส่วนประกอบหน้าจอ (Frontend Tests)
 │   ├── e2e/                  # การทดสอบจำลองเบราว์เซอร์ด้วย Playwright
 │   ├── Dockerfile            # ตัวสร้าง Docker Container สำหรับ frontend (multi-stage)
@@ -144,7 +156,7 @@ UniResearch/
    | :--- | :--- | :--- |
    | หน้าบ้าน (Frontend UI) | [http://localhost:3000](http://localhost:3000) | Next.js App Router |
    | หลังบ้าน (Backend API) | [http://localhost:8000](http://localhost:8000) | FastAPI |
-   | เอกสาร API (Swagger UI) | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive API docs |
+   | เอกสาร API (Swagger UI) | [http://localhost:8000/swagger](http://localhost:8000/swagger) | Interactive API docs (หรือผ่าน [http://localhost:8000/docs](http://localhost:8000/docs) ซึ่งจะ Redirect ไปยัง `/swagger`) |
    | ฐานข้อมูล PostgreSQL | `localhost:5433` | เชื่อมต่อผ่าน psql หรือ DB client |
 
 5. **คำสั่งลัดที่มีประโยชน์ (Make Commands):**

@@ -10,7 +10,7 @@
 graph TD
     Client([ผู้ใช้งานภายนอก]) -->|HTTP/HTTPS Port 80/443| Ingress[Kubernetes Ingress / Nginx]
     
-    subgraph Kubernetes Cluster (AWS EC2 Nodes)
+    subgraph "Kubernetes Cluster (AWS EC2 Nodes)"
         direction TB
         Ingress -->|Route /| FE[Frontend Pods - Next.js]
         Ingress -->|Route /api| BE[Backend Pods - FastAPI]
@@ -23,7 +23,7 @@ graph TD
         end
     end
     
-    subgraph Storage Volumes (EBS)
+    subgraph "Storage Volumes (EBS)"
         DB -->|Mount /var/lib/...| DB_Vol[(Postgres PV)]
         BE -->|Mount /app/static| Static_Vol[(Static Assets PV)]
         Prom -->|Store TSDB| Prom_Vol[(Prometheus PV)]
@@ -49,7 +49,7 @@ graph TD
   - อนุญาตการเชื่อมต่อทุกพอร์ตภายใน Security Group เดียวกัน (Self)
 - [`ec2.tf`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/terraform/ec2.tf): สร้างเครื่อง EC2 instance (Ubuntu 24.04 LTS, `c7i-flex.large`, พื้นที่เก็บข้อมูล gp3 ขนาด 50GB):
   - **Control Plane**: จำนวน 1 เครื่อง (`control-plane`)
-  - **Worker Node**: จำนวน 3 เครื่อง (`worker-1`, `worker-2`, `worker-3`)
+  - **Worker Node**: จำนวน 2 เครื่อง (`worker-1`, `worker-2`)
 - [`variables.tf`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/terraform/variables.tf) และ [`outputs.tf`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/terraform/outputs.tf): กำหนดตัวแปรและข้อมูลผลลัพธ์ (เช่น Control Plane Public IP และ Worker IPs)
 
 ### วิธีการใช้งาน
@@ -86,12 +86,18 @@ graph TD
 - [`04-ingress.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/04-ingress.yaml):
   - กำหนด Ingress Controller (Nginx Class) เพื่อจัดส่งทราฟฟิกภายนอกเข้ามาที่ Cluster
   - แมปโดเมน `uniresearch.local` โดยเส้นทางหลัก `/` จะถูกส่งต่อไปยัง Frontend และ `/api` จะถูกส่งต่อไปยัง Backend
+- [`05-hpa.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/05-hpa.yaml):
+  - กำหนด Horizontal Pod Autoscaler (HPA) สำหรับควบคุมการขยายตัวอัตโนมัติ (Autoscaling)
+  - **backend-hpa**: ขนาด 2 ถึง 10 Pods (เริ่มทำงานเมื่อ CPU > 70% หรือ Memory > 80%)
+  - **frontend-hpa**: ขนาด 2 ถึง 5 Pods (เริ่มทำงานเมื่อ CPU > 75% หรือ Memory > 80%)
+- [`06-metrics.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/06-metrics.yaml): ติดตั้ง Kubernetes Metrics Server เพื่อทำหน้าที่รายงานการใช้ทรัพยากร CPU และ Memory สำหรับการทำงานของ HPA
+- [`07-nginx_ingress_controller.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/07-nginx_ingress_controller.yaml): ติดตั้ง Nginx Ingress Controller เพื่อคอยดักจับและส่งทราฟฟิกภายนอกไปยัง Ingress Resource
 
 ---
 
 ## 3. 📊 ระบบการติดตามและประเมินประสิทธิภาพ (Monitoring)
 
-ประกอบด้วย Prometheus และ Grafana สำหรับตรวจสอบความพร้อมใช้งาน สถิติ และเมตริกการทำงานของ Backend REST API และ Kubernetes Resources อยู่ในโฟลเดอร์ [`infrastructure/k8s/02-monitoring/`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/02-monitoring)
+ประกอบด้วย Prometheus, Grafana, และ Loki สำหรับตรวจสอบความพร้อมใช้งาน สถิติ เมตริกการทำงาน และล็อกของ Backend REST API และ Kubernetes Resources อยู่ในโฟลเดอร์ [`infrastructure/k8s/02-monitoring/`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/02-monitoring)
 
 - [`00-namespace.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/02-monitoring/00-namespace.yaml): สร้าง namespace ชื่อ `monitoring` แยกเฉพาะสำหรับระบบติดตาม
 - [`01-rbac.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/02-monitoring/01-rbac.yaml): กำหนดสิทธิ์แบบ ClusterRole และ ClusterRoleBinding ร่วมกับ ServiceAccount เพื่อให้ Prometheus สามารถเข้าดึงข้อมูล Metrics จาก Kubernetes API Server, Nodes, Endpoints และ Pods ได้
@@ -104,6 +110,11 @@ graph TD
   - สร้าง PVC (`grafana-pvc`) ขนาด 10Gi สำหรับเก็บข้อมูล Dashboard และการตั้งค่าของ Grafana
   - Deployment คอนเทนเนอร์ Grafana (เวอร์ชัน `12.1.1`) โดยตั้งค่าสิทธิ์ผู้ดูแลระบบเริ่มต้น (`admin` / `admin123`)
   - เปิดพอร์ตเข้าใช้งานผ่าน NodePort `30300`
+- [`04-loki.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/02-monitoring/04-loki.yaml):
+  - ติดตั้ง Loki สำหรับเก็บรวบรวม Log จาก Pods ต่างๆ ในระบบ
+  - กำหนด Service และ StatefulSet สำหรับประมวลผลข้อมูล Log
+
+นอกจากนี้ ระบบยังรองรับการติดตั้งผ่าน Helm Chart (เช่น kube-prometheus-stack และ loki-stack) เพื่อแก้ปัญหา Port Conflict ของ Sidecar และเพิ่มความยืดหยุ่นในการจัดการทรัพยากรบน Production สามารถศึกษาได้ที่ [`infrastructure_operations_guide.md`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/infrastructure_operations_guide.md)
 
 ---
 
@@ -116,8 +127,16 @@ cd infrastructure
 ./deploy.sh
 ```
 
+หากต้องการdeployผ่านระบบ Helm Stack (Prometheus, Grafana, Loki, Promtail) ให้ใช้สคริปต์ [deploy-monitoring-helm.sh](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/deploy-monitoring-helm.sh):
+
+```bash
+cd infrastructure
+./deploy-monitoring-helm.sh
+```
+
 หลังจากติดตั้งแล้ว สามารถเข้าตรวจสอบได้ดังนี้:
 - **แอปพลิเคชัน**: เข้าถึงผ่าน Ingress โดเมน `uniresearch.local`
 - **Prometheus UI**: `http://<node-ip>:30900`
-- **Grafana Dashboard**: `http://<node-ip>:30300` (เข้าสู่ระบบด้วยผู้ใช้ `admin` / รหัสผ่าน `admin123`)
+- **Grafana Dashboard**: `http://<node-ip>:30300` (เข้าสู่ระบบด้วยผู้ใช้ `admin` / รหัสผ่านที่ดึงจาก K8s Secret หรือรหัสผ่านตั้งต้น `admin123` สำหรับ Manual Deploy)
+- **Loki logs**: สามารถคิวรีผ่าน Grafana UI Data Source
 
