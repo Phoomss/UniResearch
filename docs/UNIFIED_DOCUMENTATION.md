@@ -28,14 +28,15 @@
 
 ## 🗺️ ภาพรวมสถาปัตยกรรมระบบ (System Architecture Overview)
 
-ระบบ UniResearch ถูกออกแบบมาภายใต้โครงสร้างแบบ Decoupled Client-Server (แยกส่วนหน้าบ้านและหลังบ้านออกจากกัน):
+ระบบ UniResearch ถูกออกแบบมาภายใต้โครงสร้างแบบ Decoupled Client-Server (แยกส่วนหน้าบ้านและหลังบ้านออกจากกัน) และบูรณาการระบบ AI:
 
 ```mermaid
 graph TD
     User([Web Browser / Client]) <-->|HTTPS / JSON / JWT| Frontend[Next.js Frontend]
     Frontend <-->|REST API / JWT| Backend[FastAPI Backend Server]
-    Backend <-->|SQLAlchemy AsyncPG| DB[(PostgreSQL Database)]
+    Backend <-->|SQLAlchemy AsyncPG| DB[(PostgreSQL Database + pgvector)]
     Backend <-->|Local Storage| Disk[Static File storage /Covers & PDFs/]
+    Backend <-->|HTTPS / API Key| Gemini[Google Gemini API]
 
     subgraph Docker Compose
         Frontend
@@ -45,8 +46,8 @@ graph TD
 ```
 
 - **Frontend**: แอปพลิเคชัน React ประสิทธิภาพสูง รองรับการแสดงผลทุกหน้าจอ พัฒนาด้วย **Next.js (App Router)** และ TypeScript
-- **Backend**: REST API ประสิทธิภาพสูงแบบ Asynchronous พัฒนาด้วย **FastAPI** และ **SQLAlchemy 2.0**
-- **Database**: ระบบฐานข้อมูลเชิงสัมพันธ์ **PostgreSQL** และจัดการโครงสร้างตาราง (Migration) ด้วย **Alembic**
+- **Backend**: REST API ประสิทธิภาพสูงแบบ Asynchronous พัฒนาด้วย **FastAPI** และ **SQLAlchemy 2.0** เชื่อมโยงกับ Google Gemini SDK สำหรับกระบวนการ AI
+- **Database**: ระบบฐานข้อมูลเชิงสัมพันธ์ **PostgreSQL** พร้อมเปิดใช้งาน **pgvector** สำหรับการทำเวกเตอร์ค้นหาความหมายเชิงลึก (Semantic Search) และจัดการโครงสร้างตาราง (Migration) ด้วย **Alembic**
 
 ---
 
@@ -74,6 +75,13 @@ graph TD
 - กรองข้อมูลตามหมวดหมู่ วันที่เผยแพร่ และจัดเรียงลำดับตามยอดเข้าชมหรือดาวน์โหลด
 - บันทึกข้อมูลการค้นหา (Search Log) ยอดดาวน์โหลด และยอดเข้าชม เพื่อนำมาประมวลผลเป็นสถิติยอดนิยมในแบบเรียลไทม์
 
+### 5. ระบบบูรณาการ AI อัจฉริยะ (AI Integration & Assistant Features)
+- **AI Research Writing Assistant (หน้าส่งผลงาน)**: สร้างบทคัดย่อ (Abstract) แบบสองภาษา (TH/EN) อัตโนมัติ, แนะนำชื่อเรื่องวิจัยที่น่าสนใจ, แนะนำคำสำคัญ (Keywords) และตรวจสอบรูปแบบความถูกต้องของภาษาเชิงวิชาการ (Academic Writing Check) พร้อมให้คะแนนคุณภาพ
+- **AI Peer Review Assistant (หน้าผู้ประเมิน/อาจารย์)**: ช่วยวิเคราะห์งานวิจัยเบื้องต้นแยกตามความถูกต้องของโครงสร้าง ระเบียบวิธีวิจัย และการใช้ภาษา (Pre-review Analysis), ระบบตรวจวัดระดับความซ้ำซ้อนกับงานชิ้นอื่นในระบบ (Plagiarism Similarity Check), ระบบวิเคราะห์เปรียบเทียบหาอาจารย์ที่ปรึกษาที่เหมาะสมกับเนื้อหางานวิจัย (Reviewer / Advisor Match) และสรุปความเห็นการตรวจสอบย้อนหลัง (Review Comment Summary)
+- **AI Q&A Chatbot (RAG System)**: วิดเจ็ตแชตบอตแบบลอย (Floating widget) ในทุกหน้าจอของระบบ ช่วยผู้ใช้สืบค้น ตอบคำถาม หรือหารายละเอียดงานวิจัยในระบบผ่านการค้นหาความหมายเชิงลึก (Semantic Retrieval) อ้างอิงข้อมูลจริงจากฐานข้อมูล
+- **AI Dashboard Analytics (สำหรับผู้ดูแลระบบ)**: ช่วยผู้บริหารวิเคราะห์ภาพรวมผลงานวิจัย, สรุปแนวโน้มหัวข้อและแนวความคิดที่กำลังมาแรง (Trending Topics) และเขียนข้อแนะนำเชิงกลยุทธ์ด้านการวิจัย
+- **Smart Notification System**: ระบบแจ้งเตือนแจ้งข้อมูลการจับคู่งานวิจัยและผู้ประเมิน, การอนุมัติ, และกิจกรรมสำคัญในระบบแบบเรียลไทม์
+
 ---
 
 ## 🛠️ เทคโนโลยีหลักที่เลือกใช้ (Tech Stack)
@@ -89,6 +97,8 @@ graph TD
 | | [Pydantic v2](https://docs.pydantic.dev/) | การแปลงข้อมูล ตรวจสอบความถูกต้อง (Data Validation) และกำหนดโครงสร้างโมเดล |
 | | [Alembic](https://alembic.sqlalchemy.org/) | เครื่องมือจัดการและทำ Database Migrations |
 | | [pytest](https://docs.pytest.org/) | ชุดเครื่องมือทดสอบประสิทธิภาพการทำงานฝั่งหลังบ้าน |
+| **AI / ML** | [Google Gemini API](https://ai.google.dev/) | โมเดลภาษาขนาดใหญ่ (LLM) สำหรับการสร้างบทคัดย่อ วิเคราะห์ รีวิว และประมวลผล RAG Chatbot |
+| | [pgvector](https://github.com/pgvector/pgvector) | ส่วนเสริม (Extension) ของ PostgreSQL สำหรับจัดเก็บและค้นหา Vector Embeddings เชิงความหมาย (Semantic Search) |
 | **DevOps** | [Docker & Compose](https://www.docker.com/) | ใช้สร้าง Container เพื่อให้ระบบทำงานได้เสถียรในทุกสภาพแวดล้อม |
 
 ---
@@ -103,36 +113,36 @@ UniResearch/
 ├── Makefile                  # 🐳 คำสั่งลัดสำหรับจัดการ Docker (make dev, make logs ฯลฯ)
 ├── backend/                  # ส่วนงานระบบหลังบ้าน FastAPI
 │   ├── app/                  # โค้ดหลักของแอปพลิเคชัน
-│   │   ├── core/             # การตั้งค่าระบบ ความปลอดภัย และสิทธิ์ JWT
+│   │   ├── core/             # การตั้งค่าระบบ, ความปลอดภัย และสิทธิ์ (รวมถึง ai_config.py)
 │   │   ├── db/               # การเชื่อมต่อฐานข้อมูลและการจัดสรร Session (Async)
-│   │   ├── models/           # โครงสร้างตารางฐานข้อมูล (SQLAlchemy Models)
-│   │   ├── schemas/          # ตัวตรวจสอบข้อมูลรับส่ง (Pydantic Schemas)
-│   │   ├── services/         # ส่วนประมวลผลตรรกะทางธุรกิจและการเขียนอ่านฐานข้อมูล
-│   │   ├── routers/          # เส้นทางของ endpoint API (Controllers)
-│   │   └── scripts/          # สคริปต์นำเข้าข้อมูล CSV และสร้างบัญชี Admin
+│   │   ├── models/           # โครงสร้างตารางฐานข้อมูล (รวมถึง notification.py)
+│   │   ├── schemas/          # ตัวตรวจสอบข้อมูล (รวมถึง ai.py, chat.py, notification.py)
+│   │   ├── services/         # ส่วนประมวลผลธุรกิจ (รวมถึง ai_service.py, rag_service.py, notification_service.py)
+│   │   ├── routers/          # เส้นทาง endpoint API (รวมถึง ai.py, notification.py)
+│   │   └── scripts/          # สคริปต์นำเข้าข้อมูล CSV, ทดสอบ AI และ migrate_csv
 │   ├── tests/                # ส่วนควบคุม Unit & Integration Tests (pytest)
 │   ├── static/               # โฟลเดอร์เก็บไฟล์ PDF และหน้าปกที่อัปโหลดเข้าสู่ระบบ (git-ignored)
 │   └── Dockerfile            # ตัวสร้าง Docker Container สำหรับ backend (multi-stage)
 ├── frontend/                 # ส่วนงานระบบหน้าบ้าน Next.js
 │   ├── app/                  # หน้าเว็บของระบบ (App Router)
-│   │   ├── admin/            # เมนูและหน้าจัดการสำหรับบทบาท Admin
-│   │   ├── advisor/          # หน้าอนุมัติและประเมินผลงานสำหรับบทบาท Advisor
+│   │   ├── admin/            # เมนูหน้าจัดการ (พร้อมแดชบอร์ดบทวิเคราะห์ AI)
+│   │   ├── advisor/          # หน้าประเมินผลงานสำหรับบทบาท Advisor
 │   │   ├── student/          # หน้าส่งและจัดการผลงานสำหรับบทบาท Student
-│   │   ├── research/         # หน้าสืบค้นและแสดงรายละเอียดผลงานวิจัยสาธารณะ
-│   │   ├── account/          # หน้าจัดการบัญชีผู้ใช้งาน
+│   │   ├── research/         # หน้าสืบค้นผลงานวิจัยและ Chatbot
+│   │   ├── api/              # API routes/BFF Proxy สำหรับการส่งคำสั่ง AI และ Notifications
 │   │   ├── login/            # หน้าเข้าสู่ระบบ
 │   │   └── register/         # หน้าสมัครสมาชิก
 │   ├── src/                  # ตรรกะและฟังก์ชันส่วนหน้าบ้าน
-│   │   ├── components/       # ส่วนประกอบ UI พื้นฐานและ Layout
-│   │   ├── features/         # จัดการฟังก์ชันตามบทบาทผู้ใช้งาน (admin, advisor, auth, research, review)
-│   │   ├── services/         # ฟังก์ชันการเรียก API ฝั่ง Backend (auth, research, category, stats)
-│   │   └── lib/              # ตัวเชื่อมต่อ API (Axios instance)
+│   │   ├── components/       # UI Components ทั่วไป (เช่น ChatbotFloat, notification-bell)
+│   │   ├── features/         # จัดการฟังก์ชันหลักตามโดเมน (รวมถึง ai, notifications, admin, review)
+│   │   ├── services/         # ฟังก์ชันเชื่อมต่อหลังบ้าน (รวมถึง ai.ts)
+│   │   └── lib/              # ตัวเชื่อมต่อ API (Axios client)
 │   ├── tests/                # การทดสอบการทำงานส่วนประกอบหน้าจอ (Frontend Tests)
 │   ├── e2e/                  # การทดสอบจำลองเบราว์เซอร์ด้วย Playwright
 │   ├── Dockerfile            # ตัวสร้าง Docker Container สำหรับ frontend (multi-stage)
 │   ├── package.json          # ไฟล์แสดงการอ้างอิงไลบรารี
 │   └── tsconfig.json         # การตั้งค่าโปรเจกต์ TypeScript
-└── docs/                     # เอกสารรายละเอียดความต้องการระบบและไดอะแกรมที่เกี่ยวข้อง
+└── docs/                     # เอกสารรายละเอียดความต้องการระบบ, AI Feature, Database และไดอะแกรม
 ```
 
 ---
@@ -289,9 +299,7 @@ pnpm test
 - [คู่มือการจัดการโครงสร้างพื้นฐานและการติดตั้ง (Terraform, Kubernetes, Prometheus, Grafana)](file:///Users/mac/Desktop/workspace/UniResearch/docs/INFRASTRUCTURE.md)
 
 
-
 ---
-
 
 <a name="uniresearch-project-requirementsmd"></a>
 # 📄 UniResearch_Project_Requirements.md
@@ -373,18 +381,18 @@ pnpm test
 | 10 | **ระบบบันทึกรายการโปรด** | ผู้ใช้ที่เข้าสู่ระบบสามารถบันทึกผลงานเป็น Bookmark/Favorite |
 | 11 | **ระบบบันทึกสถิติและแดชบอร์ด** | บันทึก View/Download Log, Search Log, แสดง Analytics Dashboard สำหรับ Admin |
 | 12 | **ระบบจัดการข้อมูลตัวเลือก** | จัดการรายชื่อสาขาวิชา (Departments) และประเภทผลงาน (Work Types) |
+| 13 | **ระบบผู้ช่วยถามตอบอัจฉริยะ (RAG Chatbot)** | ค้นหาบทความวิจัยใกล้เคียงด้วย Cosine Distance ผ่านเวกเตอร์และตอบคำถามเชิงวิชาการด้วย AI |
 
 #### 1.3.2 ขอบเขตที่ไม่อยู่ในระบบ (Out-of-Scope)
 
 | ลำดับ | รายการ | เหตุผล |
 | :---: | :--- | :--- |
 | 1 | ระบบแจ้งเตือนผ่านอีเมล/Push Notification | ยังไม่อยู่ในขอบเขตเฟสแรกของการพัฒนา |
-| 2 | ระบบแชทหรือสนทนาภายในระบบ (In-app Chat) | ไม่ใช่ฟังก์ชันหลักของคลังจัดเก็บผลงาน |
+| 2 | ระบบแชทระหว่างผู้ใช้งานด้วยกัน (Peer-to-Peer Chat) | ไม่ใช่ฟังก์ชันหลักของคลังจัดเก็บผลงาน |
 | 3 | ระบบชำระเงินหรือธุรกรรมทางการเงิน | ระบบเป็นคลังจัดเก็บเพื่อการศึกษา ไม่มีระบบค่าใช้จ่าย |
 | 4 | การเชื่อมต่อกับระบบสารสนเทศภายนอก (เช่น ระบบทะเบียน, LMS) | ต้องมีการศึกษา API ของระบบเป้าหมายเพิ่มเติม |
-| 5 | ระบบตรวจจับการคัดลอก (Plagiarism Detection) | ต้องอาศัยเครื่องมือภายนอกที่มีลิขสิทธิ์เฉพาะ |
-| 6 | การรองรับหลายภาษาอย่างเต็มรูปแบบ (Full i18n) | เฟสแรกรองรับ 2 ภาษาเฉพาะข้อมูลผลงาน (ไทย/อังกฤษ) ไม่รวม UI Localization |
-| 7 | ระบบวิเคราะห์ข้อมูลขั้นสูงด้วย AI/ML | จะพิจารณาพัฒนาในเฟสถัดไป |
+| 5 | การรองรับหลายภาษาอย่างเต็มรูปแบบ (Full i18n) | เฟสแรกรองรับ 2 ภาษาเฉพาะข้อมูลผลงาน (ไทย/อังกฤษ) ไม่รวม UI Localization |
+| 6 | การแสดงผลข้อมูลสถิติเชิงคาดการณ์ขั้นสูง | พิจารณาพัฒนาในลำดับถัดไป |
 
 #### 1.3.3 ข้อจำกัดของระบบ (Constraints)
 
@@ -997,9 +1005,7 @@ erDiagram
 
 > **หมายเหตุ**: เอกสารฉบับนี้เป็นเอกสารที่มีชีวิต (Living Document) จะถูกปรับปรุงตามการเปลี่ยนแปลงของความต้องการระบบในแต่ละเฟสของการพัฒนา
 
-
 ---
-
 
 <a name="uniresearch-rqmmd"></a>
 # 📄 UniResearch_rqm.md
@@ -1103,9 +1109,7 @@ erDiagram
 | **Dashboard** | เรียกดูแดชบอร์ดสถิติภาพรวมระบบ | ✘ | ✘ | ✘ | ✔ | |
 | | เรียกดูแดชบอร์ดเฉพาะกลุ่มผู้ใช้ที่ดูแล | ✘ | ✘ | ✔* | ✔ | Advisor ดูรายงานของนักศึกษาในที่ปรึกษา |
 
-
 ---
-
 
 <a name="advisor-analysismd"></a>
 # 📄 ADVISOR_ANALYSIS.md
@@ -1117,22 +1121,20 @@ erDiagram
 `advisor` ในระบบมี 2 ความหมายที่เกี่ยวข้องกัน แต่ระบบยังไม่ได้บังคับให้เป็นบุคคลเดียวกัน
 
 1. **อาจารย์ที่ปรึกษาของผลงาน** — เชื่อมกับผลงานผ่านตาราง `research_advisors`
-2. **ผู้ตรวจประเมินผลงาน** — มีสิทธิ์บันทึกความคิดเห็นและเปลี่ยนสถานะผลงาน
-
-ปัจจุบัน advisor ทุกคนสามารถตรวจผลงานใดก็ได้ ไม่จำเป็นต้องเป็น advisor ที่ถูกระบุไว้ในผลงานนั้น
+2. **ผู้ตรวจประเมินผลงาน** — มีสิทธิ์บันทึกความคิดเห็นและเปลี่ยนสถานะผลงาน โดยระบบจะจำกัดให้อาจารย์ประเมินได้เฉพาะงานที่ตนเป็นที่ปรึกษาเท่านั้น (เว้นแต่จะเป็น `admin` ที่ประเมินได้ทุกผลงาน)
 
 ## ความสามารถที่ใช้งานได้จริง
 
 | ความสามารถ | สถานะ | รายละเอียด |
 |---|---|---|
 | เข้าสู่ระบบ | ทำได้ | หลังเข้าสู่ระบบจะถูกส่งไป `/dashboard/reviewer` |
-| ดูรายการรอตรวจ | ทำได้ | เห็นผลงานสถานะ `pending` ทั้งระบบ |
-| เปิดงานด้วย Research ID | ทำได้ | เข้า `/advisor/reviews/{id}` ได้โดยตรง |
+| ดูรายการรอตรวจ | ทำได้ (คัดกรองแล้ว) | เห็นเฉพาะผลงานสถานะ `pending` ที่ตนเองเป็นอาจารย์ที่ปรึกษา (ส่วน Admin เห็นทั้งระบบ) |
+| เปิดงานด้วย Research ID | ทำได้ | เข้า `/advisor/reviews/{id}` ได้โดยตรงหากได้รับอนุญาตให้ตรวจ |
 | ดูและค้นหาผลงานทุกสถานะ | ทำได้ | Advisor ไม่ถูกจำกัดไว้เฉพาะผลงานที่อนุมัติแล้ว |
 | ดาวน์โหลดเอกสาร | ทำได้ | ต้องเข้าสู่ระบบและผลงานต้องมีไฟล์ |
-| อนุมัติผลงาน | ทำได้ | เปลี่ยนสถานะเป็น `approved` พร้อมบันทึกความคิดเห็น |
+| อนุมัติผลงาน | ทำได้ | เปลี่ยนสถานะเป็น `approved` บันทึกความคิดเห็น และตั้งค่าวันเวลาเผยแพร่ `published_at` อัตโนมัติ |
 | ไม่อนุมัติผลงาน | ทำได้ | เปลี่ยนสถานะเป็น `rejected` |
-| ส่งกลับแก้ไข | ทำได้บางส่วน | เปลี่ยนสถานะเป็น `needs_revision` แต่ยังไม่มี revision workflow สมบูรณ์ |
+| ส่งกลับแก้ไข | ทำได้ | เปลี่ยนสถานะเป็น `needs_revision` พร้อมระบบจัดเก็บประวัติย่อย (`FileRevision`) เมื่อมีการอัปโหลดไฟล์แก้ไขเข้ามาใหม่ |
 | ส่งผลงานใหม่ | ทำได้ | Backend อนุญาต `advisor`, `student` และ `admin` |
 | แก้ไขหรือลบผลงาน | มีเงื่อนไข | ทำได้เมื่อเป็นผู้ส่งหรือถูกระบุเป็นผู้เขียน การเป็นที่ปรึกษาอย่างเดียวไม่เพียงพอ |
 | ดูรายชื่อนักศึกษาและ advisor | ทำได้ | ใช้ participant API สำหรับเลือกผู้เขียนและที่ปรึกษา |
@@ -1147,12 +1149,12 @@ research_advisors
     ↓
 ผลงานเริ่มต้นด้วยสถานะ pending
     ↓
-Advisor/Admin เปิด Review Queue
+Advisor/Admin เปิด Review Queue (Advisor เห็นเฉพาะงานที่ดูแล)
     ↓
 ตรวจรายละเอียดและดาวน์โหลดเอกสาร
     ↓
-บันทึกความคิดเห็นและผลการประเมิน
-    ├─ approved
+บันทึกความคิดเห็นและผลการประเมิน (เฉพาะงานสถานะ pending)
+    ├─ approved (บันทึกเวลาเผยแพร่ published_at)
     ├─ rejected
     └─ needs_revision
     ↓
@@ -1167,8 +1169,8 @@ Advisor/Admin เปิด Review Queue
 - `backend/app/models/research.py` — เก็บผลงาน ความสัมพันธ์ advisor และประวัติการประเมิน
 - `backend/app/routers/deps.py` — ตรวจสอบ JWT ผู้ใช้ที่ active และสิทธิ์ตาม role
 - `backend/app/routers/research.py` — กำหนด API สำหรับ participant, pending queue, review, create, update และ delete
-- `backend/app/services/research_service.py` — ตรวจ advisor ID สร้างความสัมพันธ์ และบันทึกผลประเมิน
-- `backend/app/schemas/research.py` — กำหนดรูปแบบข้อมูลผลงาน advisor และ review comment
+- `backend/app/services/research_service.py` — ตรวจ advisor ID สร้างความสัมพันธ์ และบันทึกผลประเมิน พร้อมตรวจจับและเก็บเวอร์ชันไฟล์ (`FileRevision`)
+- `backend/app/schemas/research.py` — กำหนดรูปแบบข้อมูลผลงาน advisor และ review comment พร้อมบังคับใช้ Literal enum สำหรับสถานะผลการประเมิน
 - `backend/app/routers/auth.py` และ `backend/app/services/auth_service.py` — สมัครสมาชิก เข้าสู่ระบบ และสร้าง token
 
 ### Frontend
@@ -1181,51 +1183,37 @@ Advisor/Admin เปิด Review Queue
 - `frontend/src/components/shells.tsx` — เลือก Dashboard และเมนูตาม role
 - `frontend/app/api/auth/login/route.ts` — ส่ง advisor ไปหน้า reviewer หลัง login
 
-## ข้อจำกัดของระบบปัจจุบัน
+## ข้อจำกัดของระบบปัจจุบัน (ที่ยังคงเหลืออยู่)
 
-- Advisor เห็นผลงาน `pending` ทั้งระบบ ไม่จำกัดเฉพาะงานที่ตนเป็นที่ปรึกษา
-- Advisor สามารถตรวจงานใดก็ได้ แม้ไม่ได้อยู่ใน `research_advisors`
-- สามารถประเมินงานที่ไม่ได้อยู่สถานะ `pending`
-- สามารถประเมินงานเดิมซ้ำได้หลายครั้ง
-- ไม่มีระบบมอบหมายผู้ตรวจหรือผู้รับผิดชอบคิว
-- `/research/my` ไม่รวมงานที่ผู้ใช้เป็น advisor
-- ไม่มีหน้า “งานที่ฉันเป็นที่ปรึกษา” โดยเฉพาะ
-- การส่งกลับแก้ไขยังไม่มี revision workflow และ notification
-- การอนุมัติเปลี่ยน `status` แต่ไม่ได้ตั้งค่า `published_at`
-- Backend ไม่จำกัดค่าของ `status_result`; ข้อจำกัดสามสถานะมีอยู่ที่ Frontend เป็นหลัก
+- ไม่มีระบบมอบหมายผู้ตรวจหรือผู้รับผิดชอบคิวเพิ่มเติมแบบละเอียดนอกเหนือจาก `research_advisors`
+- `/research/my` ไม่รวมงานที่ผู้ใช้เป็น advisor (แต่มีคิว pending แยกต่างหาก)
+- ไม่มีหน้า “งานที่ฉันเป็นที่ปรึกษาทั้งหมด” โดยเฉพาะ (มีเพียงคิวงานรอประเมิน pending)
 - API รายละเอียดผลงานไม่บังคับ login และส่งประวัติการประเมินกลับมาด้วย จึงอาจเปิดเผยข้อมูลงานที่ยังไม่อนุมัติ
 
-## ประเด็นความปลอดภัยสำคัญ
+## ประเด็นความปลอดภัยสำคัญ (ที่ได้รับการแก้ไขแล้ว)
 
-หน้าเว็บระบุว่าการสมัครทั่วไปสร้างบัญชีนักศึกษา แต่ Backend รับค่า `role` จาก request โดยตรงโดยไม่มี whitelist หรือการอนุมัติจาก admin ผู้เรียก API โดยตรงจึงอาจสมัครเป็น `advisor` หรือ `admin` ได้
-
-ควรแก้ไขเร่งด่วนโดย:
-
-1. บังคับ public registration ให้สร้างเฉพาะ role `student` หรือ role ที่กำหนดตายตัว
-2. ให้การสร้าง `advisor` และ `admin` ทำได้ผ่าน Admin API หรือกระบวนการ provisioning เท่านั้น
-3. ตรวจความสัมพันธ์ `research_advisors` ก่อนอนุญาตให้ advisor ประเมินผลงาน
-4. จำกัด review ให้ทำกับสถานะที่อนุญาต เช่น `pending`
-5. กำหนด enum ของ `status_result` ที่ Backend
-6. แยกข้อมูลสาธารณะออกจากข้อมูลภายในและประวัติความคิดเห็น
+1. **บังคับสิทธิ์การสมัครสมาชิกทั่วไป (แก้ไขแล้ว):** บังคับที่ระบบหลังบ้านให้สมัครได้เฉพาะบทบาท `student` เท่านั้น
+2. **การสร้างบัญชีสิทธิ์สูง (แก้ไขแล้ว):** สิทธิ์ `advisor` และ `admin` ถูกปิดกั้นไม่ให้สร้างผ่านการลงทะเบียนทั่วไปหน้าบ้านได้โดยตรง
+3. **การเข้าตรวจประเมินผลงาน (แก้ไขแล้ว):** ระบบตรวจสอบตาราง `research_advisors` ก่อนประเมินเสมอ เพื่อป้องกันไม่ให้อาจารย์ท่านอื่นข้ามมาอนุมัติ/ไม่อนุมัติผลงานที่ตนเองไม่มีส่วนรับผิดชอบ
+4. **จำกัดการตรวจเฉพาะสถานะที่อนุญาต (แก้ไขแล้ว):** กำหนดให้ตรวจประเมินซ้ำได้เฉพาะผลงานวิจัยที่มีสถานะเป็น `pending` เท่านั้น
+5. **จำกัดค่าผลลัพธ์การประเมิน (แก้ไขแล้ว):** กำหนดเป็น Enum/Literal (`approved`, `rejected`, `needs_revision`) ที่ Backend Schema อย่างสมบูรณ์
 
 ## ข้อสรุปสำหรับใช้อธิบายระบบ
 
-Advisor คือผู้ใช้ที่สามารถดูคิวงานรอตรวจ เปิดดูรายละเอียด ดาวน์โหลดเอกสาร และบันทึกผลอนุมัติ ปฏิเสธ หรือส่งกลับแก้ไขได้ นอกจากนี้ยังสามารถถูกเลือกให้เป็นอาจารย์ที่ปรึกษาของผลงาน
-
-อย่างไรก็ตาม ระบบปัจจุบันยังเป็นการควบคุมสิทธิ์ตาม role แบบกว้าง และยังไม่ได้จำกัดว่า advisor จะตรวจได้เฉพาะผลงานที่ตนรับผิดชอบ จึงยังต้องเพิ่มระบบมอบหมายงาน การตรวจความสัมพันธ์ กระบวนการแก้ไขงาน และการควบคุมสิทธิ์สมัครสมาชิกก่อนใช้ในระบบจริง
-
+Advisor คือผู้ใช้ที่ได้รับมอบหมายให้ดูแลและประเมินผลงานวิจัยของนักศึกษาที่ตนเองเป็นที่ปรึกษา โดยมีความสามารถในการอนุมัติ ปฏิเสธ หรือส่งแก้ไขผลงาน ซึ่งการประเมินทั้งหมดได้รับการควบคุมความปลอดภัยระดับ Backend (เช่น การบังคับสิทธิ์การประเมินเฉพาะงานในดูแล, ตรวจสอบสถานะการตรวจ และระบบจัดเก็บเวอร์ชันประวัติย่อย `FileRevision` อัตโนมัติเมื่อนักศึกษาส่งแก้ไขกลับมา) เพื่อความถูกต้องและปลอดภัยของคลังผลงานวิชาการของมหาวิทยาลัย
 
 
 ---
 
-
 <a name="ai-features-proposalmd"></a>
 # 📄 AI_FEATURES_PROPOSAL.md
 
-# 🤖 AI Features Proposal — UniResearch
+# 🤖 AI Features Proposal & Implementation — UniResearch
 
-> เอกสารสรุปแผนการเพิ่ม AI Features สำหรับระบบจัดการงานวิจัยมหาวิทยาลัย  
-> วิเคราะห์จาก actual codebase: **FastAPI + Next.js 16 + PostgreSQL**
+> [!NOTE]
+> **สถานะปัจจุบัน (สิงหาคม 2569):** แผนงานพัฒนา AI Features ด้านล่างนี้ได้รับการพัฒนาและเปิดใช้งาน (Implemented & Active) อย่างสมบูรณ์แล้วในระบบปัจจุบัน
+
+> เอกสารสรุปแผนและการติดตั้งใช้งานจริงสำหรับระบบ AI Features บน **FastAPI + Next.js + PostgreSQL**
 
 ---
 
@@ -1411,35 +1399,39 @@ Frontend (แก้ไข):
 
 ---
 
-## 5. 💬 AI Chatbot / Research Q&A
+## 5. 💬 AI Chatbot / Research Q&A (RAG)
 
-**ตำแหน่ง:** Floating chat widget — แสดงทุกหน้า
+**ตำแหน่ง:** Floating chat widget — แสดงทุกหน้า (Global Layout)
 
 ### ฟีเจอร์ย่อย
 
-| Feature | คำอธิบาย |
-|---|---|
-| 💬 Research Q&A (RAG) | ถามคำถามเกี่ยวกับงานวิจัยในระบบ → AI ตอบพร้อมอ้างอิง |
-| 📚 Literature Review Helper | AI สรุป/เปรียบเทียบงานวิจัยหลายชิ้น |
-| 🧭 System Guide | ช่วยแนะนำการใช้งานระบบ (ขั้นตอนส่งงาน, วิธี review) |
-| 📄 PDF Summarizer | อัปโหลด PDF → AI สรุปให้ |
+| Feature | คำอธิบาย | สถานะ |
+|---|---|---|
+| 💬 Research Q&A (RAG) | ถามคำถามเกี่ยวกับงานวิจัยในระบบ → AI ตอบพร้อมอ้างอิงและลิงก์รายละเอียด | **Implemented (เสร็จสิ้น)** |
+| 🧠 Semantic Search (pgvector) | ค้นหาบทความใกล้เคียงด้วยการเปรียบเทียบระยะห่าง Cosine Distance | **Implemented (เสร็จสิ้น)** |
+| 📚 Citation & Link References | แสดงปุ่มและลิงก์รายละเอียดของงานวิจัยที่อ้างอิงในการตอบ | **Implemented (เสร็จสิ้น)** |
 
-> **RAG (Retrieval-Augmented Generation):** ใช้ pgvector ค้นหางานวิจัยที่เกี่ยวข้องก่อน แล้วส่ง context ให้ LLM ตอบ → ได้คำตอบที่แม่นยำและมีแหล่งอ้างอิง
+> **RAG (Retrieval-Augmented Generation):** ใช้ `pgvector` และโมเดล `embedding-001` ค้นหาข้อมูลวิจัยที่สอดคล้องกับหัวข้อที่ถาม แล้วส่งเป็นบริบท (Context) ร่วมกับประวัติการสนทนาให้ Gemini LLM ช่วยสรุปคำตอบให้ผู้ใช้งานได้ทันที
 
 ### ไฟล์ที่เกี่ยวข้อง
 
 ```
 Backend (ใหม่):
-  app/routers/chatbot.py               → chatbot endpoints
-  app/services/chatbot_service.py      → RAG-based chatbot
-  app/models/chat_history.py           → chat conversations table
+  app/services/rag_service.py          → RAG Chatbot Service (ประมวลผล Context ร่วมกับประวัติสนทนา)
+
+Backend (แก้ไข):
+  app/routers/ai.py                    → เพิ่ม POST `/ai/chat` สำหรับถามตอบ RAG
+  app/models/research.py               → เพิ่มคอลัมน์ embedding = Column(Vector(768))
+  app/services/research_service.py     → บันทึกและอัปเดตเวกเตอร์ embedding อัตโนมัติเมื่อสร้าง/แก้ไขงานวิจัย
+  app/main.py                          → เพิ่มการโหลด CREATE EXTENSION IF NOT EXISTS vector
 
 Frontend (ใหม่):
-  src/features/ai/chatbot.tsx          → floating chat widget
-  app/api/ai/chat/route.ts             → BFF proxy
+  src/components/ChatbotFloat.tsx      → Floating chat widget แสดงผลแชท ประวัติ และ Reference
 
 Frontend (แก้ไข):
-  app/layout.tsx                       → เพิ่ม chatbot widget
+  app/layout.tsx                       → เรียกใช้ ChatbotFloat ใน Root Layout
+  src/services/ai.ts                   → เพิ่ม askChatbot query function
+  app/api/ai/route.ts                  → ปรับแต่ง BFF Proxy ให้รอบรับการ Chat โดยผู้ใช้ทั่วไป (Guest)
 ```
 
 ---
@@ -1678,9 +1670,7 @@ PyPDF2>=3.0.0                 # PDF text extraction
 *วิเคราะห์จาก UniResearch codebase: FastAPI + Next.js 16 + PostgreSQL 16*
 
 
-
 ---
-
 
 <a name="uniresearch-database-schemamd"></a>
 # 📄 UniResearch_Database_Schema.md
@@ -1693,7 +1683,7 @@ PyPDF2>=3.0.0                 # PDF text extraction
 
 ## 1. การวิเคราะห์โครงสร้างตาราง (Table Analysis)
 
-ฐานข้อมูลของ UniResearch ประกอบด้วย 12 ตารางหลัก แบ่งออกเป็น 4 กลุ่มฟังก์ชัน ดังนี้:
+ฐานข้อมูลของ UniResearch ประกอบด้วย 13 ตารางหลัก แบ่งออกเป็น 4 กลุ่มฟังก์ชัน ดังนี้:
 
 ### กลุ่มที่ 1: ระบบผู้ใช้งานและการระบุสิทธิ์ (Identity & Access Control)
 - **`users`**: เก็บข้อมูลผู้ใช้งานระบบ เช่น นักศึกษา อาจารย์ และแอดมิน แยกแยะสิทธิ์ด้วยคอลัมน์ `role`
@@ -1701,19 +1691,20 @@ PyPDF2>=3.0.0                 # PDF text extraction
 - **`work_types`**: ตารางเก็บประเภทของผลงาน เช่น ปริญญานิพนธ์, งานวิจัย, บทความวิชาการ
 
 ### กลุ่มที่ 2: ระบบข้อมูลผลงานวิจัยและการส่งข้อมูล (Research & Submissions)
-- **`research_works`**: ตารางหลักเก็บข้อมูลงานวิจัยทั้งหมด (ชื่อเรื่อง บทคัดย่อ ไฟล์เอกสาร และสถานะอนุมัติ)
+- **`research_works`**: ตารางหลักเก็บข้อมูลงานวิจัยทั้งหมด (ชื่อเรื่อง บทคัดย่อ ไฟล์เอกสาร และสถานะอนุมัติ) รวมถึงเก็บเวกเตอร์ข้อความ `embedding` สำหรับใช้ทำ Semantic Search และ RAG Chatbot ผ่าน `pgvector`
 - **`categories`**: ตารางเก็บข้อมูลหมวดหมู่ของผลงานวิจัย เช่น AI, Web Application, UX/UI
 - **`research_authors`**: ตารางเชื่อมโยงความสัมพันธ์แบบ Many-to-Many ระหว่างผลงานวิจัยกับผู้ใช้ที่เป็นผู้แต่งผลงาน (`users`)
 - **`research_advisors`**: ตารางเชื่อมโยงความสัมพันธ์แบบ Many-to-Many ระหว่างผลงานวิจัยกับอาจารย์ที่ปรึกษาที่เป็นผู้ดูแลผลงาน (`users`)
 
 ### กลุ่มที่ 3: ระบบการตรวจและประวัติการส่งงาน (Review & Version Control)
 - **`file_revisions`**: บันทึกประวัติการส่งแก้ไขไฟล์เอกสารวิจัยย้อนหลังเมื่อส่งตรวจ
-- **`review_comments`**: บันทึกความคิดเห็น ประวัติการตรวจประเมิน และผลลัพธ์จากบทบาทผู้ตรวจประเมิน
+- **`review_comments`**: บันทึกความคิดเห็น คะแนนการประเมิน (`score`) ประวัติการตรวจประเมิน และผลลัพธ์จากบทบาทผู้ตรวจประเมิน
 
 ### กลุ่มที่ 4: การมีปฏิสัมพันธ์และประวัติการใช้งาน (Interactions & Logging)
 - **`favorites`**: ตารางเก็บรายการผลงานที่ผู้ใช้บันทึกไว้เป็นรายการโปรด (Bookmark)
 - **`download_view_logs`**: บันทึกประวัติเพื่อทำสถิติจำนวนการดาวน์โหลดและการเข้าเปิดชมผลงานวิจัย
 - **`search_logs`**: บันทึกคำค้นหา (Keywords) เพื่อนำไปวิเคราะห์แนวโน้มที่กำลังได้รับความสนใจ
+- **`notifications`**: บันทึกรายการแจ้งเตือนสำหรับผู้ใช้รายบุคคล (ทั้งเรื่องการรีวิว และการจับคู่ของ AI)
 
 ---
 
@@ -1768,6 +1759,7 @@ Table research_works {
   created_at datetime [default: `now()`]
   updated_at datetime [default: `now()`]
   submitted_by_id int [ref: > users.id]
+  embedding vector [null, note: 'Vector dimensions: 768 for Gemini embedding-001']
 }
 
 Table categories {
@@ -1807,6 +1799,7 @@ Table review_comments {
   reviewer_id int [ref: > users.id]
   comment_text text [not null]
   status_result varchar [not null, note: 'approved, rejected, needs_revision']
+  score int [null, note: 'Review score (1-100)']
   created_at datetime [default: `now()`]
 }
 
@@ -1833,12 +1826,20 @@ Table search_logs {
   keyword varchar [not null]
   searched_at datetime [default: `now()`]
 }
+
+Table notifications {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  title varchar [not null]
+  message text [not null]
+  type varchar [default: 'info', note: 'info, success, warning, alert, ai_match, review']
+  is_read boolean [default: false]
+  created_at datetime [default: `now()`]
+}
 ```
 
 
-
 ---
-
 
 <a name="uniresearch-uml-diagramsmd"></a>
 # 📄 UniResearch_UML_Diagrams.md
@@ -2263,9 +2264,7 @@ graph TD
 ```
 
 
-
 ---
-
 
 <a name="infrastructuremd"></a>
 # 📄 INFRASTRUCTURE.md
@@ -2414,6 +2413,4 @@ cd infrastructure
 
 
 
-
 ---
-

@@ -6,7 +6,7 @@
 
 ## 1. การวิเคราะห์โครงสร้างตาราง (Table Analysis)
 
-ฐานข้อมูลของ UniResearch ประกอบด้วย 12 ตารางหลัก แบ่งออกเป็น 4 กลุ่มฟังก์ชัน ดังนี้:
+ฐานข้อมูลของ UniResearch ประกอบด้วย 13 ตารางหลัก แบ่งออกเป็น 4 กลุ่มฟังก์ชัน ดังนี้:
 
 ### กลุ่มที่ 1: ระบบผู้ใช้งานและการระบุสิทธิ์ (Identity & Access Control)
 - **`users`**: เก็บข้อมูลผู้ใช้งานระบบ เช่น นักศึกษา อาจารย์ และแอดมิน แยกแยะสิทธิ์ด้วยคอลัมน์ `role`
@@ -21,12 +21,13 @@
 
 ### กลุ่มที่ 3: ระบบการตรวจและประวัติการส่งงาน (Review & Version Control)
 - **`file_revisions`**: บันทึกประวัติการส่งแก้ไขไฟล์เอกสารวิจัยย้อนหลังเมื่อส่งตรวจ
-- **`review_comments`**: บันทึกความคิดเห็น ประวัติการตรวจประเมิน และผลลัพธ์จากบทบาทผู้ตรวจประเมิน
+- **`review_comments`**: บันทึกความคิดเห็น คะแนนการประเมิน (`score`) ประวัติการตรวจประเมิน และผลลัพธ์จากบทบาทผู้ตรวจประเมิน
 
 ### กลุ่มที่ 4: การมีปฏิสัมพันธ์และประวัติการใช้งาน (Interactions & Logging)
 - **`favorites`**: ตารางเก็บรายการผลงานที่ผู้ใช้บันทึกไว้เป็นรายการโปรด (Bookmark)
 - **`download_view_logs`**: บันทึกประวัติเพื่อทำสถิติจำนวนการดาวน์โหลดและการเข้าเปิดชมผลงานวิจัย
 - **`search_logs`**: บันทึกคำค้นหา (Keywords) เพื่อนำไปวิเคราะห์แนวโน้มที่กำลังได้รับความสนใจ
+- **`notifications`**: บันทึกรายการแจ้งเตือนสำหรับผู้ใช้รายบุคคล (ทั้งเรื่องการรีวิว และการจับคู่ของ AI)
 
 ---
 
@@ -121,6 +122,7 @@ Table review_comments {
   reviewer_id int [ref: > users.id]
   comment_text text [not null]
   status_result varchar [not null, note: 'approved, rejected, needs_revision']
+  score int [null, note: 'Review score (1-100)']
   created_at datetime [default: `now()`]
 }
 
@@ -146,5 +148,15 @@ Table search_logs {
   id int [pk, increment]
   keyword varchar [not null]
   searched_at datetime [default: `now()`]
+}
+
+Table notifications {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  title varchar [not null]
+  message text [not null]
+  type varchar [default: 'info', note: 'info, success, warning, alert, ai_match, review']
+  is_read boolean [default: false]
+  created_at datetime [default: `now()`]
 }
 ```

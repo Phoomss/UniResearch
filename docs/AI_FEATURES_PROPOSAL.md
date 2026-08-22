@@ -1,7 +1,9 @@
-# 🤖 AI Features Proposal — UniResearch
+# 🤖 AI Features Proposal & Implementation — UniResearch
 
-> เอกสารสรุปแผนการเพิ่ม AI Features สำหรับระบบจัดการงานวิจัยมหาวิทยาลัย  
-> วิเคราะห์จาก actual codebase: **FastAPI + Next.js 16 + PostgreSQL**
+> [!NOTE]
+> **สถานะปัจจุบัน (สิงหาคม 2569):** แผนงานพัฒนา AI Features ด้านล่างนี้ได้รับการพัฒนาและเปิดใช้งาน (Implemented & Active) อย่างสมบูรณ์แล้วในระบบปัจจุบัน
+
+> เอกสารสรุปแผนและการติดตั้งใช้งานจริงสำหรับระบบ AI Features บน **FastAPI + Next.js + PostgreSQL**
 
 ---
 
