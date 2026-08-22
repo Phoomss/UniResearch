@@ -250,6 +250,27 @@ UniResearch/
 
 ---
 
+## 🏗️ โครงสร้างพื้นฐานและการติดตั้งจริง (Infrastructure & Deployments)
+
+ระบบ UniResearch รองรับการติดตั้งบนโปรดักชันด้วยสถาปัตยกรรมคลาวด์ที่ทันสมัยและระบบติดตามประสิทธิภาพการทำงาน:
+
+1. **Infrastructure as Code (IaC) ด้วย Terraform**:
+   - ใช้สร้างทรัพยากรบน AWS (VPC, Subnet, EC2 instances, Security Groups, Internet Gateway) ภายใต้โฟลเดอร์ [`infrastructure/terraform/`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/terraform)
+   - ประกอบด้วย Control Plane (1 Node) และ Worker Nodes (2 Nodes) ทำงานบน Ubuntu 24.04 LTS
+2. **Kubernetes Orchestration**:
+   - จัดการและติดตั้งคอนเทนเนอร์ (Frontend, Backend, DB Pods)
+   - ควบคุมการเข้าถึงจากภายนอกผ่าน Ingress Controller (Nginx)
+   - สคริปต์การ Deploy อยู่ที่โฟลเดอร์ [`infrastructure/k8s/`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s)
+3. **ระบบตรวจสอบประสิทธิภาพ (Monitoring Stack)**:
+   - ใช้ **Prometheus** สำหรับ Scrape Metric ของระบบและแอปพลิเคชัน
+   - ใช้ **Grafana** ในการจำลองภาพวิเคราะห์ประสิทธิภาพของคิวงานและทรัพยากร
+   - จัดส่งการตั้งค่าและรันผ่าน Helm Charts
+
+> [!TIP]
+> ศึกษาวิธีการตั้งค่า ปรับแต่ง และเริ่มต้น deploy จริงทั้งหมดได้ที่ **[คู่มือการจัดการโครงสร้างพื้นฐานและการติดตั้ง (INFRASTRUCTURE.md)](file:///Users/mac/Desktop/workspace/UniResearch/docs/INFRASTRUCTURE.md)**
+
+---
+
 ## 🧪 การทดสอบระบบ (Testing)
 
 ### การทดสอบหลังบ้าน (Backend Unit & Integration Tests)
