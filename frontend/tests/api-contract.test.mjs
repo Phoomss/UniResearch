@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const root=new URL("../",import.meta.url);
-const openapi=JSON.parse(readFileSync(new URL("docs/backend-openapi.json",root),"utf8"));
+const openapi=JSON.parse(readFileSync(new URL("../docs/backend/backend-openapi.json",root),"utf8"));
 const source=(path)=>readFileSync(new URL(path,root),"utf8");
 
 test("integrated backend paths and methods exist in the contract",()=>{

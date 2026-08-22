@@ -10,7 +10,7 @@ export default async function AdminReviewWorkspace({ params }: { params: Promise
   const id = Number((await params).id);
   if (!Number.isInteger(id) || id < 1) notFound();
 
-  const [result, categories, authenticated] = await Promise.all([
+  const [result, categories] = await Promise.all([
     getResearch(id),
     getCategories(),
     hasSession(),
