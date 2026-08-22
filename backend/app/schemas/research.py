@@ -30,9 +30,11 @@ class ResearchParticipantsResponse(BaseModel):
     authors: List[ResearchParticipantResponse]
     advisors: List[ResearchParticipantResponse]
 
+from typing import Optional, List, Literal
+
 class ReviewCommentCreate(BaseModel):
     comment_text: str
-    status_result: str
+    status_result: Literal["approved", "rejected", "needs_revision"]
 
 class ReviewCommentResponse(ReviewCommentCreate):
     id: int
