@@ -35,6 +35,7 @@ from typing import Optional, List, Literal
 class ReviewCommentCreate(BaseModel):
     comment_text: str
     status_result: Literal["approved", "rejected", "needs_revision"]
+    score: Optional[int] = None
 
 class ReviewCommentResponse(ReviewCommentCreate):
     id: int

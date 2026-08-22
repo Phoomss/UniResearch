@@ -77,6 +77,7 @@ class ReviewComment(Base):
     reviewer_id = Column(Integer, ForeignKey("users.id"))
     comment_text = Column(Text, nullable=False)
     status_result = Column(String, nullable=False) # e.g. approved, rejected, revision_needed
+    score = Column(Integer, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     research = relationship("ResearchWork", back_populates="reviews")

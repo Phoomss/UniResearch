@@ -304,7 +304,8 @@ async def review_research(db: AsyncSession, current_user: User, research_id: int
         research_id=research.id,
         reviewer_id=current_user.id,
         comment_text=review_in.comment_text,
-        status_result=review_in.status_result
+        status_result=review_in.status_result,
+        score=review_in.score
     )
     research.status = review_in.status_result
     if review_in.status_result == "approved":
@@ -781,4 +782,23 @@ async def get_ai_review_summary(db: AsyncSession, research_id: int):
     ]
     
     return await ai_service.review_summary(reviews)
+
+async def assign_advisors(db: AsyncSession, research_id: int, advisor_ids: list[int]) -> dict:
+    from sqlalchemy import delete
+    research = (await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))).scalars().first()
+    if not research:
+        raise HTTPException(status_code=404, detail="Research work not found")
+        
+    # Remove current advisors
+    await db.execute(
+        delete(ResearchAdvisor).where(ResearchAdvisor.research_id == research_id)
+    )
+    
+    # Add new advisors
+    for adv_id in advisor_ids:
+        db.add(ResearchAdvisor(research_id=research_id, user_id=adv_id))
+        
+    await db.commit()
+    return {"success": True}
+
 

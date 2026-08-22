@@ -249,3 +249,13 @@ async def delete_research(
 ):
     await research_service.delete_research(db=db, research_id=research_id, current_user=current_user)
     return {"message": "Research deleted successfully"}
+
+@router.post("/{research_id}/assign-advisors")
+async def assign_advisors(
+    research_id: int,
+    advisor_ids: List[int],
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"]))
+):
+    return await research_service.assign_advisors(db, research_id, advisor_ids)
+

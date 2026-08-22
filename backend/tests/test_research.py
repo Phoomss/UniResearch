@@ -466,3 +466,65 @@ async def test_advisor_pending_queue_filtered(client: AsyncClient, db_session, t
     assert len(admin_list) >= 2
 
 
+@pytest.mark.asyncio
+async def test_review_score(client: AsyncClient, db_session, test_user, advisor_user):
+    student_token = (await client.post("/auth/login", data={"username": "student@test.com", "password": "password123"})).json()["access_token"]
+    student_headers = {"Authorization": f"Bearer {student_token}"}
+
+    from app.models.category import Category
+    category = Category(category_name="Score Test")
+    db_session.add(category)
+    await db_session.commit()
+    await db_session.refresh(category)
+
+    res_resp = await client.post("/research/", headers=student_headers, data={
+        "title_th": "ทดสอบคะแนน",
+        "title_en": "Score Test",
+        "category_id": category.id,
+        "author_ids": json.dumps([test_user.id]),
+        "advisor_ids": json.dumps([advisor_user.id])
+    })
+    research_id = res_resp.json()["id"]
+
+    adv_token = (await client.post("/auth/login", data={"username": "advisor@test.com", "password": "password123"})).json()["access_token"]
+    adv_headers = {"Authorization": f"Bearer {adv_token}"}
+
+    rev_resp = await client.post(f"/research/{research_id}/review", json={
+        "comment_text": "Good work",
+        "status_result": "approved",
+        "score": 92
+    }, headers=adv_headers)
+    assert rev_resp.status_code == 200
+    assert rev_resp.json()["score"] == 92
+
+
+@pytest.mark.asyncio
+async def test_assign_advisors(client: AsyncClient, db_session, test_user, advisor_user, admin_user):
+    student_token = (await client.post("/auth/login", data={"username": "student@test.com", "password": "password123"})).json()["access_token"]
+    student_headers = {"Authorization": f"Bearer {student_token}"}
+
+    from app.models.category import Category
+    category = Category(category_name="Assignment Test")
+    db_session.add(category)
+    await db_session.commit()
+    await db_session.refresh(category)
+
+    res_resp = await client.post("/research/", headers=student_headers, data={
+        "title_th": "ทดสอบการมอบหมายคิว",
+        "title_en": "Assignment Test",
+        "category_id": category.id,
+        "author_ids": json.dumps([test_user.id]),
+        "advisor_ids": json.dumps([advisor_user.id])
+    })
+    research_id = res_resp.json()["id"]
+
+    # Assign new advisors (admin token)
+    admin_token = (await client.post("/auth/login", data={"username": "admin@test.com", "password": "password123"})).json()["access_token"]
+    admin_headers = {"Authorization": f"Bearer {admin_token}"}
+
+    assign_resp = await client.post(f"/research/{research_id}/assign-advisors", json=[advisor_user.id], headers=admin_headers)
+    assert assign_resp.status_code == 200
+    assert assign_resp.json() == {"success": True}
+
+
+
