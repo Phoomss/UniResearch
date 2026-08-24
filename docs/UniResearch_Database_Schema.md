@@ -6,7 +6,7 @@
 
 ## 1. การวิเคราะห์โครงสร้างตาราง (Table Analysis)
 
-ฐานข้อมูลของ UniResearch ประกอบด้วย 12 ตารางหลัก แบ่งออกเป็น 4 กลุ่มฟังก์ชัน ดังนี้:
+ฐานข้อมูลของ UniResearch ประกอบด้วย 13 ตารางหลัก แบ่งออกเป็น 4 กลุ่มฟังก์ชัน ดังนี้:
 
 ### กลุ่มที่ 1: ระบบผู้ใช้งานและการระบุสิทธิ์ (Identity & Access Control)
 - **`users`**: เก็บข้อมูลผู้ใช้งานระบบ เช่น นักศึกษา อาจารย์ และแอดมิน แยกแยะสิทธิ์ด้วยคอลัมน์ `role`
@@ -14,19 +14,20 @@
 - **`work_types`**: ตารางเก็บประเภทของผลงาน เช่น ปริญญานิพนธ์, งานวิจัย, บทความวิชาการ
 
 ### กลุ่มที่ 2: ระบบข้อมูลผลงานวิจัยและการส่งข้อมูล (Research & Submissions)
-- **`research_works`**: ตารางหลักเก็บข้อมูลงานวิจัยทั้งหมด (ชื่อเรื่อง บทคัดย่อ ไฟล์เอกสาร และสถานะอนุมัติ)
+- **`research_works`**: ตารางหลักเก็บข้อมูลงานวิจัยทั้งหมด (ชื่อเรื่อง บทคัดย่อ ไฟล์เอกสาร และสถานะอนุมัติ) รวมถึงเก็บเวกเตอร์ข้อความ `embedding` สำหรับใช้ทำ Semantic Search และ RAG Chatbot ผ่าน `pgvector`
 - **`categories`**: ตารางเก็บข้อมูลหมวดหมู่ของผลงานวิจัย เช่น AI, Web Application, UX/UI
 - **`research_authors`**: ตารางเชื่อมโยงความสัมพันธ์แบบ Many-to-Many ระหว่างผลงานวิจัยกับผู้ใช้ที่เป็นผู้แต่งผลงาน (`users`)
 - **`research_advisors`**: ตารางเชื่อมโยงความสัมพันธ์แบบ Many-to-Many ระหว่างผลงานวิจัยกับอาจารย์ที่ปรึกษาที่เป็นผู้ดูแลผลงาน (`users`)
 
 ### กลุ่มที่ 3: ระบบการตรวจและประวัติการส่งงาน (Review & Version Control)
 - **`file_revisions`**: บันทึกประวัติการส่งแก้ไขไฟล์เอกสารวิจัยย้อนหลังเมื่อส่งตรวจ
-- **`review_comments`**: บันทึกความคิดเห็น ประวัติการตรวจประเมิน และผลลัพธ์จากบทบาทผู้ตรวจประเมิน
+- **`review_comments`**: บันทึกความคิดเห็น คะแนนการประเมิน (`score`) ประวัติการตรวจประเมิน และผลลัพธ์จากบทบาทผู้ตรวจประเมิน
 
 ### กลุ่มที่ 4: การมีปฏิสัมพันธ์และประวัติการใช้งาน (Interactions & Logging)
 - **`favorites`**: ตารางเก็บรายการผลงานที่ผู้ใช้บันทึกไว้เป็นรายการโปรด (Bookmark)
 - **`download_view_logs`**: บันทึกประวัติเพื่อทำสถิติจำนวนการดาวน์โหลดและการเข้าเปิดชมผลงานวิจัย
 - **`search_logs`**: บันทึกคำค้นหา (Keywords) เพื่อนำไปวิเคราะห์แนวโน้มที่กำลังได้รับความสนใจ
+- **`notifications`**: บันทึกรายการแจ้งเตือนสำหรับผู้ใช้รายบุคคล (ทั้งเรื่องการรีวิว และการจับคู่ของ AI)
 
 ---
 
@@ -81,6 +82,7 @@ Table research_works {
   created_at datetime [default: `now()`]
   updated_at datetime [default: `now()`]
   submitted_by_id int [ref: > users.id]
+  embedding vector [null, note: 'Vector dimensions: 768 for Gemini embedding-001']
 }
 
 Table categories {
@@ -120,6 +122,7 @@ Table review_comments {
   reviewer_id int [ref: > users.id]
   comment_text text [not null]
   status_result varchar [not null, note: 'approved, rejected, needs_revision']
+  score int [null, note: 'Review score (1-100)']
   created_at datetime [default: `now()`]
 }
 
@@ -145,5 +148,15 @@ Table search_logs {
   id int [pk, increment]
   keyword varchar [not null]
   searched_at datetime [default: `now()`]
+}
+
+Table notifications {
+  id int [pk, increment]
+  user_id int [ref: > users.id]
+  title varchar [not null]
+  message text [not null]
+  type varchar [default: 'info', note: 'info, success, warning, alert, ai_match, review']
+  is_read boolean [default: false]
+  created_at datetime [default: `now()`]
 }
 ```

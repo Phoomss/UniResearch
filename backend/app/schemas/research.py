@@ -30,9 +30,12 @@ class ResearchParticipantsResponse(BaseModel):
     authors: List[ResearchParticipantResponse]
     advisors: List[ResearchParticipantResponse]
 
+from typing import Optional, List, Literal
+
 class ReviewCommentCreate(BaseModel):
     comment_text: str
-    status_result: str
+    status_result: Literal["approved", "rejected", "needs_revision"]
+    score: Optional[int] = None
 
 class ReviewCommentResponse(ReviewCommentCreate):
     id: int
@@ -80,4 +83,16 @@ class ResearchWorkResponse(ResearchWorkBase):
 
     class Config:
         from_attributes = True
+
+
+class SearchSuggestionTitle(BaseModel):
+    id: int
+    title_th: str
+    title_en: str
+
+
+class SearchSuggestionsResponse(BaseModel):
+    keywords: List[str]
+    titles: List[SearchSuggestionTitle]
+
 

@@ -9,3 +9,11 @@ variable "key_name" {
 variable "instance_type" {
   default = "c7i-flex.large"
 }
+
+locals {
+  common_tags = {
+    Project     = "UniResearch"
+    Environment = "Production"
+    ManagedBy   = "Terraform"
+  }
+}

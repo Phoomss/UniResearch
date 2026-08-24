@@ -77,3 +77,12 @@ prod: ## Build and start production stack
 
 prod-down: ## Stop production stack
 	docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+
+# ─── Kubernetes Deployment ───────────────────────────────────────────────────
+k8s-deploy-app: ## Deploy application stack to Kubernetes
+	./infrastructure/deploy.sh
+
+k8s-deploy-monitoring: ## Deploy Helm monitoring stack to Kubernetes
+	./infrastructure/deploy-monitoring-helm.sh
+
+k8s-deploy-all: k8s-deploy-app k8s-deploy-monitoring ## Deploy both application and Helm monitoring stacks

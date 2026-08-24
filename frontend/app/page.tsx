@@ -3,8 +3,8 @@ import { FolioCard } from "@/src/components/research";
 import { SiteFooter, SiteHeader } from "@/src/components/shells";
 import { Button } from "@/src/components/ui";
 import { adaptResearch } from "@/src/features/research/adapters";
-import { getCategories, getLatest, getPopular, getStats } from "@/src/features/research/api";
-import { FileUp, SlidersHorizontal, ArrowUpRight } from "lucide-react";
+import { getCategories, getLatest, getPopular, getStats, getPersonalizedRecommendations } from "@/src/features/research/api";
+import { FileUp, SlidersHorizontal, ArrowUpRight, Sparkles } from "lucide-react";
 import SearchTypewriter from "@/src/components/ui/SearchTypewriter";
 import { getLanguage, translations } from "@/src/lib/i18n";
 
@@ -12,15 +12,17 @@ export default async function Home() {
   const lang = await getLanguage();
   const t = translations[lang];
 
-  const [stats, latest, popular, categories] = await Promise.all([
+  const [stats, latest, popular, categories, personalized] = await Promise.all([
     getStats(),
     getLatest(3),
     getPopular(3),
     getCategories(),
+    getPersonalizedRecommendations(),
   ]);
   const categoryItems = categories.ok ? categories.data : [];
   const latestWorks = latest.ok ? latest.data.map(item => adaptResearch(item, categoryItems)) : [];
   const popularWorks = popular.ok ? popular.data.map(item => adaptResearch(item, categoryItems)) : [];
+  const recommendedWorks = personalized.ok ? personalized.data.map(item => adaptResearch(item, categoryItems)) : [];
   const featuredWork = popularWorks[0];
 
   return (
@@ -126,6 +128,26 @@ export default async function Home() {
             )}
           </div>
         </section>
+
+        {recommendedWorks.length > 0 && (
+          <section className="discovery-section container home-container" style={{ marginBottom: "48px" }} aria-labelledby="recommended-research">
+            <div className="discovery-section-heading">
+              <div>
+                <p className="eyebrow" style={{ display: "flex", alignItems: "center", gap: "6px", color: "var(--accent)" }}>
+                  <Sparkles size={14} /> [ Smart Recommendations ]
+                </p>
+                <h2 className="eyebrow-h2" id="recommended-research">
+                  {lang === "th" ? "แนะนำสำหรับคุณ" : "Recommended for You"}
+                </h2>
+              </div>
+            </div>
+            <div className="discovery-cards">
+              {recommendedWorks.map(item => (
+                <FolioCard key={item.id} item={item} />
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="discovery-section container home-container" aria-labelledby="latest-research">
           <div className="discovery-section-heading">

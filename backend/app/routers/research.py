@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.database import get_db
 from app.models.user import User
-from app.schemas.research import ResearchParticipantsResponse, ResearchWorkResponse, ReviewCommentCreate, ReviewCommentResponse
+from app.schemas.research import ResearchParticipantsResponse, ResearchWorkResponse, ReviewCommentCreate, ReviewCommentResponse, SearchSuggestionsResponse
 from app.routers.deps import get_current_active_user, require_role, oauth2_scheme
 from app.services import research_service
 
@@ -62,6 +62,27 @@ async def search_research(
             pass
     return await research_service.search_research(db, q, category_id, current_user)
 
+@router.get("/search/suggestions", response_model=SearchSuggestionsResponse)
+async def get_search_suggestions(
+    q: Optional[str] = None,
+    db: AsyncSession = Depends(get_db)
+):
+    return await research_service.get_search_suggestions(db, q)
+
+@router.get("/recommendations/personalized", response_model=List[ResearchWorkResponse])
+async def get_personalized_recommendations(
+    db: AsyncSession = Depends(get_db),
+    token: Optional[str] = Depends(optional_oauth2_scheme)
+):
+    current_user = None
+    if token:
+        try:
+            from app.routers.deps import get_current_user
+            current_user = await get_current_user(token, db)
+        except Exception:
+            pass
+    return await research_service.get_personalized_recommendations(db, current_user)
+
 @router.get("/my", response_model=List[ResearchWorkResponse])
 async def get_my_research(
     db: AsyncSession = Depends(get_db),
@@ -91,7 +112,16 @@ async def get_pending_research(
     from sqlalchemy import select
     from sqlalchemy.orm import selectinload
     from app.models.research import ResearchWork, ResearchAuthor, ResearchAdvisor, ReviewComment
-    query = select(ResearchWork).where(ResearchWork.status == "pending").options(
+    
+    query = select(ResearchWork).where(ResearchWork.status == "pending")
+    if current_user.role != "admin":
+        query = query.where(
+            ResearchWork.id.in_(
+                select(ResearchAdvisor.research_id).where(ResearchAdvisor.user_id == current_user.id)
+            )
+        )
+        
+    query = query.options(
         selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
         selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
         selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
@@ -128,6 +158,13 @@ async def get_research_detail(
 ):
     return await research_service.get_research_detail(db, research_id)
 
+@router.get("/{research_id}/recommendations", response_model=List[ResearchWorkResponse])
+async def get_related_recommendations(
+    research_id: int,
+    db: AsyncSession = Depends(get_db)
+):
+    return await research_service.get_related_recommendations(db, research_id)
+
 @router.post("/{research_id}/download")
 async def download_research(
     research_id: int, 
@@ -144,6 +181,38 @@ async def review_research(
     current_user: User = Depends(require_role(["advisor", "admin"]))
 ):
     return await research_service.review_research(db, current_user, research_id, review_in)
+
+@router.post("/{research_id}/ai-pre-review")
+async def ai_pre_review(
+    research_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["advisor", "admin"]))
+):
+    return await research_service.get_ai_pre_review_analysis(db, research_id)
+
+@router.post("/{research_id}/ai-plagiarism")
+async def ai_plagiarism(
+    research_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["advisor", "admin"]))
+):
+    return await research_service.get_ai_plagiarism_check(db, research_id)
+
+@router.post("/{research_id}/ai-reviewer-match")
+async def ai_reviewer_match(
+    research_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["advisor", "admin"]))
+):
+    return await research_service.get_ai_reviewer_match(db, research_id)
+
+@router.post("/{research_id}/ai-review-summary")
+async def ai_review_summary(
+    research_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["advisor", "admin"]))
+):
+    return await research_service.get_ai_review_summary(db, research_id)
 
 @router.put("/{research_id}", response_model=ResearchWorkResponse)
 async def update_research(
@@ -180,3 +249,13 @@ async def delete_research(
 ):
     await research_service.delete_research(db=db, research_id=research_id, current_user=current_user)
     return {"message": "Research deleted successfully"}
+
+@router.post("/{research_id}/assign-advisors")
+async def assign_advisors(
+    research_id: int,
+    advisor_ids: List[int],
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_role(["admin"]))
+):
+    return await research_service.assign_advisors(db, research_id, advisor_ids)
+

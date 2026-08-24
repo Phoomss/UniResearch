@@ -2,9 +2,9 @@ resource "aws_vpc" "main" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
 
-  tags = {
+  tags = merge(local.common_tags, {
     Name = "kubespray-vpc"
-  }
+  })
 }
 
 resource "aws_subnet" "public" {
@@ -17,14 +17,18 @@ resource "aws_subnet" "public" {
 
   availability_zone       = "ap-southeast-1a"
 
-  tags = {
+  tags = merge(local.common_tags, {
     Name = "public-subnet"
-  }
+  })
 }
 
 # internet gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
+
+  tags = merge(local.common_tags, {
+    Name = "kubespray-igw"
+  })
 }
 
 # route table
@@ -40,6 +44,9 @@ resource "aws_route_table" "public" {
 
   }
 
+  tags = merge(local.common_tags, {
+    Name = "kubespray-route-table"
+  })
 }
 
 resource "aws_route_table_association" "public" {

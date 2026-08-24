@@ -37,6 +37,7 @@ backend/
 │   ├── schemas/      # Data Validation Schemas (Pydantic v2)
 │   ├── routers/      # API Endpoint Handlers
 │   ├── services/     # Business & DB Processing Logic
+│   ├── scripts/      # สคริปต์สำหรับการนำเข้าข้อมูล CSV และการสร้างบัญชีผู้ใช้งาน Admin
 │   └── main.py       # จุดเริ่มต้น FastAPI Application
 ├── tests/            # ชุดทดสอบ API endpoints ทั้งหมด (pytest)
 ├── static/           # โฟลเดอร์เก็บไฟล์ (Covers/Documents)

@@ -10,4 +10,5 @@ python-jose[cryptography]
 python-multipart
 alembic
 email-validator
-
+google-generativeai
+pgvector

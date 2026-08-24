@@ -8,14 +8,15 @@
 
 ## 🗺️ ภาพรวมสถาปัตยกรรมระบบ (System Architecture Overview)
 
-ระบบ UniResearch ถูกออกแบบมาภายใต้โครงสร้างแบบ Decoupled Client-Server (แยกส่วนหน้าบ้านและหลังบ้านออกจากกัน):
+ระบบ UniResearch ถูกออกแบบมาภายใต้โครงสร้างแบบ Decoupled Client-Server (แยกส่วนหน้าบ้านและหลังบ้านออกจากกัน) และบูรณาการระบบ AI:
 
 ```mermaid
 graph TD
     User([Web Browser / Client]) <-->|HTTPS / JSON / JWT| Frontend[Next.js Frontend]
     Frontend <-->|REST API / JWT| Backend[FastAPI Backend Server]
-    Backend <-->|SQLAlchemy AsyncPG| DB[(PostgreSQL Database)]
+    Backend <-->|SQLAlchemy AsyncPG| DB[(PostgreSQL Database + pgvector)]
     Backend <-->|Local Storage| Disk[Static File storage /Covers & PDFs/]
+    Backend <-->|HTTPS / API Key| Gemini[Google Gemini API]
 
     subgraph Docker Compose
         Frontend
@@ -25,8 +26,8 @@ graph TD
 ```
 
 - **Frontend**: แอปพลิเคชัน React ประสิทธิภาพสูง รองรับการแสดงผลทุกหน้าจอ พัฒนาด้วย **Next.js (App Router)** และ TypeScript
-- **Backend**: REST API ประสิทธิภาพสูงแบบ Asynchronous พัฒนาด้วย **FastAPI** และ **SQLAlchemy 2.0**
-- **Database**: ระบบฐานข้อมูลเชิงสัมพันธ์ **PostgreSQL** และจัดการโครงสร้างตาราง (Migration) ด้วย **Alembic**
+- **Backend**: REST API ประสิทธิภาพสูงแบบ Asynchronous พัฒนาด้วย **FastAPI** และ **SQLAlchemy 2.0** เชื่อมโยงกับ Google Gemini SDK สำหรับกระบวนการ AI
+- **Database**: ระบบฐานข้อมูลเชิงสัมพันธ์ **PostgreSQL** พร้อมเปิดใช้งาน **pgvector** สำหรับการทำเวกเตอร์ค้นหาความหมายเชิงลึก (Semantic Search) และจัดการโครงสร้างตาราง (Migration) ด้วย **Alembic**
 
 ---
 
@@ -54,6 +55,13 @@ graph TD
 - กรองข้อมูลตามหมวดหมู่ วันที่เผยแพร่ และจัดเรียงลำดับตามยอดเข้าชมหรือดาวน์โหลด
 - บันทึกข้อมูลการค้นหา (Search Log) ยอดดาวน์โหลด และยอดเข้าชม เพื่อนำมาประมวลผลเป็นสถิติยอดนิยมในแบบเรียลไทม์
 
+### 5. ระบบบูรณาการ AI อัจฉริยะ (AI Integration & Assistant Features)
+- **AI Research Writing Assistant (หน้าส่งผลงาน)**: สร้างบทคัดย่อ (Abstract) แบบสองภาษา (TH/EN) อัตโนมัติ, แนะนำชื่อเรื่องวิจัยที่น่าสนใจ, แนะนำคำสำคัญ (Keywords) และตรวจสอบรูปแบบความถูกต้องของภาษาเชิงวิชาการ (Academic Writing Check) พร้อมให้คะแนนคุณภาพ
+- **AI Peer Review Assistant (หน้าผู้ประเมิน/อาจารย์)**: ช่วยวิเคราะห์งานวิจัยเบื้องต้นแยกตามความถูกต้องของโครงสร้าง ระเบียบวิธีวิจัย และการใช้ภาษา (Pre-review Analysis), ระบบตรวจวัดระดับความซ้ำซ้อนกับงานชิ้นอื่นในระบบ (Plagiarism Similarity Check), ระบบวิเคราะห์เปรียบเทียบหาอาจารย์ที่ปรึกษาที่เหมาะสมกับเนื้อหางานวิจัย (Reviewer / Advisor Match) และสรุปความเห็นการตรวจสอบย้อนหลัง (Review Comment Summary)
+- **AI Q&A Chatbot (RAG System)**: วิดเจ็ตแชตบอตแบบลอย (Floating widget) ในทุกหน้าจอของระบบ ช่วยผู้ใช้สืบค้น ตอบคำถาม หรือหารายละเอียดงานวิจัยในระบบผ่านการค้นหาความหมายเชิงลึก (Semantic Retrieval) อ้างอิงข้อมูลจริงจากฐานข้อมูล
+- **AI Dashboard Analytics (สำหรับผู้ดูแลระบบ)**: ช่วยผู้บริหารวิเคราะห์ภาพรวมผลงานวิจัย, สรุปแนวโน้มหัวข้อและแนวความคิดที่กำลังมาแรง (Trending Topics) และเขียนข้อแนะนำเชิงกลยุทธ์ด้านการวิจัย
+- **Smart Notification System**: ระบบแจ้งเตือนแจ้งข้อมูลการจับคู่งานวิจัยและผู้ประเมิน, การอนุมัติ, และกิจกรรมสำคัญในระบบแบบเรียลไทม์
+
 ---
 
 ## 🛠️ เทคโนโลยีหลักที่เลือกใช้ (Tech Stack)
@@ -69,6 +77,8 @@ graph TD
 | | [Pydantic v2](https://docs.pydantic.dev/) | การแปลงข้อมูล ตรวจสอบความถูกต้อง (Data Validation) และกำหนดโครงสร้างโมเดล |
 | | [Alembic](https://alembic.sqlalchemy.org/) | เครื่องมือจัดการและทำ Database Migrations |
 | | [pytest](https://docs.pytest.org/) | ชุดเครื่องมือทดสอบประสิทธิภาพการทำงานฝั่งหลังบ้าน |
+| **AI / ML** | [Google Gemini API](https://ai.google.dev/) | โมเดลภาษาขนาดใหญ่ (LLM) สำหรับการสร้างบทคัดย่อ วิเคราะห์ รีวิว และประมวลผล RAG Chatbot |
+| | [pgvector](https://github.com/pgvector/pgvector) | ส่วนเสริม (Extension) ของ PostgreSQL สำหรับจัดเก็บและค้นหา Vector Embeddings เชิงความหมาย (Semantic Search) |
 | **DevOps** | [Docker & Compose](https://www.docker.com/) | ใช้สร้าง Container เพื่อให้ระบบทำงานได้เสถียรในทุกสภาพแวดล้อม |
 
 ---
@@ -83,24 +93,36 @@ UniResearch/
 ├── Makefile                  # 🐳 คำสั่งลัดสำหรับจัดการ Docker (make dev, make logs ฯลฯ)
 ├── backend/                  # ส่วนงานระบบหลังบ้าน FastAPI
 │   ├── app/                  # โค้ดหลักของแอปพลิเคชัน
-│   │   ├── core/             # การตั้งค่าระบบ ความปลอดภัย และสิทธิ์ JWT
+│   │   ├── core/             # การตั้งค่าระบบ, ความปลอดภัย และสิทธิ์ (รวมถึง ai_config.py)
 │   │   ├── db/               # การเชื่อมต่อฐานข้อมูลและการจัดสรร Session (Async)
-│   │   ├── models/           # โครงสร้างตารางฐานข้อมูล (SQLAlchemy Models)
-│   │   ├── schemas/          # ตัวตรวจสอบข้อมูลรับส่ง (Pydantic Schemas)
-│   │   ├── services/         # ส่วนประมวลผลตรรกะทางธุรกิจและการเขียนอ่านฐานข้อมูล
-│   │   └── routers/          # เส้นทางของ endpoint API (Controllers)
+│   │   ├── models/           # โครงสร้างตารางฐานข้อมูล (รวมถึง notification.py)
+│   │   ├── schemas/          # ตัวตรวจสอบข้อมูล (รวมถึง ai.py, chat.py, notification.py)
+│   │   ├── services/         # ส่วนประมวลผลธุรกิจ (รวมถึง ai_service.py, rag_service.py, notification_service.py)
+│   │   ├── routers/          # เส้นทาง endpoint API (รวมถึง ai.py, notification.py)
+│   │   └── scripts/          # สคริปต์นำเข้าข้อมูล CSV, ทดสอบ AI และ migrate_csv
 │   ├── tests/                # ส่วนควบคุม Unit & Integration Tests (pytest)
 │   ├── static/               # โฟลเดอร์เก็บไฟล์ PDF และหน้าปกที่อัปโหลดเข้าสู่ระบบ (git-ignored)
 │   └── Dockerfile            # ตัวสร้าง Docker Container สำหรับ backend (multi-stage)
 ├── frontend/                 # ส่วนงานระบบหน้าบ้าน Next.js
-│   ├── app/                  # หน้าเว็บของระบบ (App Router) และ API Routes ท้องถิ่น
-│   ├── src/                  # ส่วนประกอบของหน้าจอ (Components), Hooks, ตัวช่วย, และฟีเจอร์หลัก
+│   ├── app/                  # หน้าเว็บของระบบ (App Router)
+│   │   ├── admin/            # เมนูหน้าจัดการ (พร้อมแดชบอร์ดบทวิเคราะห์ AI)
+│   │   ├── advisor/          # หน้าประเมินผลงานสำหรับบทบาท Advisor
+│   │   ├── student/          # หน้าส่งและจัดการผลงานสำหรับบทบาท Student
+│   │   ├── research/         # หน้าสืบค้นผลงานวิจัยและ Chatbot
+│   │   ├── api/              # API routes/BFF Proxy สำหรับการส่งคำสั่ง AI และ Notifications
+│   │   ├── login/            # หน้าเข้าสู่ระบบ
+│   │   └── register/         # หน้าสมัครสมาชิก
+│   ├── src/                  # ตรรกะและฟังก์ชันส่วนหน้าบ้าน
+│   │   ├── components/       # UI Components ทั่วไป (เช่น ChatbotFloat, notification-bell)
+│   │   ├── features/         # จัดการฟังก์ชันหลักตามโดเมน (รวมถึง ai, notifications, admin, review)
+│   │   ├── services/         # ฟังก์ชันเชื่อมต่อหลังบ้าน (รวมถึง ai.ts)
+│   │   └── lib/              # ตัวเชื่อมต่อ API (Axios client)
 │   ├── tests/                # การทดสอบการทำงานส่วนประกอบหน้าจอ (Frontend Tests)
 │   ├── e2e/                  # การทดสอบจำลองเบราว์เซอร์ด้วย Playwright
 │   ├── Dockerfile            # ตัวสร้าง Docker Container สำหรับ frontend (multi-stage)
 │   ├── package.json          # ไฟล์แสดงการอ้างอิงไลบรารี
 │   └── tsconfig.json         # การตั้งค่าโปรเจกต์ TypeScript
-└── docs/                     # เอกสารรายละเอียดความต้องการระบบและไดอะแกรมที่เกี่ยวข้อง
+└── docs/                     # เอกสารรายละเอียดความต้องการระบบ, AI Feature, Database และไดอะแกรม
 ```
 
 ---
@@ -144,7 +166,7 @@ UniResearch/
    | :--- | :--- | :--- |
    | หน้าบ้าน (Frontend UI) | [http://localhost:3000](http://localhost:3000) | Next.js App Router |
    | หลังบ้าน (Backend API) | [http://localhost:8000](http://localhost:8000) | FastAPI |
-   | เอกสาร API (Swagger UI) | [http://localhost:8000/docs](http://localhost:8000/docs) | Interactive API docs |
+   | เอกสาร API (Swagger UI) | [http://localhost:8000/swagger](http://localhost:8000/swagger) | Interactive API docs (หรือผ่าน [http://localhost:8000/docs](http://localhost:8000/docs) ซึ่งจะ Redirect ไปยัง `/swagger`) |
    | ฐานข้อมูล PostgreSQL | `localhost:5433` | เชื่อมต่อผ่าน psql หรือ DB client |
 
 5. **คำสั่งลัดที่มีประโยชน์ (Make Commands):**
@@ -225,6 +247,27 @@ UniResearch/
   source venv/bin/activate
   python app/scripts/migrate_csv.py
   ```
+
+---
+
+## 🏗️ โครงสร้างพื้นฐานและการติดตั้งจริง (Infrastructure & Deployments)
+
+ระบบ UniResearch รองรับการติดตั้งบนโปรดักชันด้วยสถาปัตยกรรมคลาวด์ที่ทันสมัยและระบบติดตามประสิทธิภาพการทำงาน:
+
+1. **Infrastructure as Code (IaC) ด้วย Terraform**:
+   - ใช้สร้างทรัพยากรบน AWS (VPC, Subnet, EC2 instances, Security Groups, Internet Gateway) ภายใต้โฟลเดอร์ [`infrastructure/terraform/`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/terraform)
+   - ประกอบด้วย Control Plane (1 Node) และ Worker Nodes (2 Nodes) ทำงานบน Ubuntu 24.04 LTS
+2. **Kubernetes Orchestration**:
+   - จัดการและติดตั้งคอนเทนเนอร์ (Frontend, Backend, DB Pods)
+   - ควบคุมการเข้าถึงจากภายนอกผ่าน Ingress Controller (Nginx)
+   - สคริปต์การ Deploy อยู่ที่โฟลเดอร์ [`infrastructure/k8s/`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s)
+3. **ระบบตรวจสอบประสิทธิภาพ (Monitoring Stack)**:
+   - ใช้ **Prometheus** สำหรับ Scrape Metric ของระบบและแอปพลิเคชัน
+   - ใช้ **Grafana** ในการจำลองภาพวิเคราะห์ประสิทธิภาพของคิวงานและทรัพยากร
+   - จัดส่งการตั้งค่าและรันผ่าน Helm Charts
+
+> [!TIP]
+> ศึกษาวิธีการตั้งค่า ปรับแต่ง และเริ่มต้น deploy จริงทั้งหมดได้ที่ **[คู่มือการจัดการโครงสร้างพื้นฐานและการติดตั้ง (INFRASTRUCTURE.md)](file:///Users/mac/Desktop/workspace/UniResearch/docs/INFRASTRUCTURE.md)**
 
 ---
 

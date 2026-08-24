@@ -3,6 +3,7 @@
 import { useState, useMemo } from "react";
 import { Download } from "lucide-react";
 import type { ResearchWorkResponse } from "@/src/lib/api/types";
+import { AIDashboardAnalytics } from "./ai-dashboard-analytics";
 
 interface AdminAnalyticsDashboardProps {
   initialStats: {
@@ -259,6 +260,12 @@ export function AdminAnalyticsDashboard({
           </button>
         </div>
       </header>
+
+      <AIDashboardAnalytics 
+        stats={initialStats}
+        categories={initialCategories}
+        researchList={initialResearch}
+      />
 
       {filterRange === "custom" && (
         <div className="admin-custom-date-range" style={{ display: "flex", gap: "12px", alignItems: "center", background: "var(--paper-low)", padding: "12px 18px", borderRadius: "10px", width: "fit-content", border: "1px solid #cdc3d040", marginBottom: "20px" }}>

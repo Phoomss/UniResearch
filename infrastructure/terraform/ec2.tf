@@ -28,18 +28,16 @@ resource "aws_instance" "control_plane" {
 
   }
 
-  tags = {
-
+  tags = merge(local.common_tags, {
     Name = "control-plane"
-
-  }
+  })
 
 }
 
 # worker
 resource "aws_instance" "worker" {
 
-  count = 3
+  count = 2
 
   ami = data.aws_ami.ubuntu.id
 
@@ -63,10 +61,8 @@ resource "aws_instance" "worker" {
 
   }
 
-  tags = {
-
-    Name = "worker-${count.index+1}"
-
-  }
+  tags = merge(local.common_tags, {
+    Name = "worker-${count.index + 1}"
+  })
 
 }

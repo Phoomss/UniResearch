@@ -4,6 +4,7 @@ import os
 from pathlib import Path
 from typing import List, Optional
 from uuid import uuid4
+from datetime import datetime
 
 from fastapi import HTTPException, UploadFile
 from sqlalchemy import or_
@@ -14,7 +15,7 @@ from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
 from app.models.category import Category
-from app.models.interactions import DownloadViewLog, SearchLog
+from app.models.interactions import DownloadViewLog, SearchLog, Favorite
 from app.models.research import ResearchAdvisor, ResearchAuthor, ResearchWork, ReviewComment
 from app.models.user import User
 from app.schemas.research import ReviewCommentCreate
@@ -118,10 +119,37 @@ async def create_research(db: AsyncSession, current_user: User, title_th: str, t
         research = ResearchWork(title_th=title_th.strip(), title_en=title_en.strip(), category_id=category_id,
             abstract=abstract, department=department, work_type=work_type, academic_year=academic_year, keywords=keywords,
             cover_image_path=cover_path, file_path=doc_path, submitted_by_id=current_user.id)
+        
+        # Calculate text embedding vector using AI service
+        try:
+            from app.services.ai_service import ai_service
+            embedding_text = f"{research.title_th or ''} {research.title_en or ''} {research.abstract or ''} {research.keywords or ''}".strip()
+            if embedding_text:
+                research.embedding = await ai_service.get_embedding(embedding_text)
+        except Exception:
+            pass
+
         db.add(research)
         await db.flush()
         db.add_all([ResearchAuthor(research_id=research.id, user_id=user_id, role_in_work="primary" if index == 0 else "co-author") for index, user_id in enumerate(authors)])
         db.add_all([ResearchAdvisor(research_id=research.id, user_id=user_id) for user_id in advisors])
+        await db.flush()
+        
+        # Trigger notifications for advisors
+        from app.services.notification_service import notification_service
+        author_name = f"{current_user.first_name or ''} {current_user.last_name or ''}".strip() or current_user.email
+        for advisor_id in advisors:
+            try:
+                await notification_service.create_notification(
+                    db=db,
+                    user_id=advisor_id,
+                    title="มีงานวิจัยใหม่รอการตรวจสอบจากคุณ",
+                    message=f"นักศึกษา {author_name} ได้ยื่นเสนอผลงานวิจัยเรื่อง '{research.title_th or research.title_en}' และระบุคุณเป็นอาจารย์ที่ปรึกษา/ผู้ตรวจประเมิน",
+                    type="review"
+                )
+            except Exception:
+                pass
+                
         await db.commit()
         query = select(ResearchWork).where(ResearchWork.id == research.id).options(
             selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
@@ -162,16 +190,76 @@ async def search_research(db: AsyncSession, q: Optional[str], category_id: Optio
     else:
         query = select(ResearchWork).where(ResearchWork.status == "approved")
 
-    if q:
-        query = query.where(or_(ResearchWork.title_th.ilike(f"%{q}%"), ResearchWork.title_en.ilike(f"%{q}%"), ResearchWork.keywords.ilike(f"%{q}%")))
-        db.add(SearchLog(keyword=q)); await db.flush()
-    if category_id: query = query.where(ResearchWork.category_id == category_id)
+    terms = []
+    if q and q.strip():
+        terms = [term for term in q.strip().split() if term]
+        if terms:
+            or_conds = []
+            for term in terms:
+                t = f"%{term}%"
+                or_conds.extend([
+                    ResearchWork.title_th.ilike(t),
+                    ResearchWork.title_en.ilike(t),
+                    ResearchWork.keywords.ilike(t),
+                    ResearchWork.abstract.ilike(t)
+                ])
+            query = query.where(or_(*or_conds))
+            db.add(SearchLog(keyword=q))
+            await db.flush()
+
+    if category_id:
+        query = query.where(ResearchWork.category_id == category_id)
+
     query = query.options(
         selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
         selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
         selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
     )
-    result = await db.execute(query); await db.commit(); return result.scalars().all()
+    result = await db.execute(query)
+    await db.commit()
+    works = list(result.scalars().all())
+
+    # Smart Python-side scoring and ranking if a query is specified
+    if q and q.strip() and works:
+        q_lower = q.strip().lower()
+        ranked_works = []
+        for work in works:
+            score = 0
+            title_th_lower = (work.title_th or "").lower()
+            title_en_lower = (work.title_en or "").lower()
+            keywords_lower = (work.keywords or "").lower()
+            abstract_lower = (work.abstract or "").lower()
+
+            # Exact phrase match in Title gets huge boost
+            if q_lower in title_th_lower or q_lower in title_en_lower:
+                score += 50
+
+            # Exact match in keywords
+            if q_lower in keywords_lower:
+                score += 30
+
+            # Individual term matches
+            for term in terms:
+                t_lower = term.lower()
+                if t_lower in title_th_lower:
+                    score += 15
+                if t_lower in title_en_lower:
+                    score += 15
+                if t_lower in keywords_lower:
+                    score += 10
+                if t_lower in abstract_lower:
+                    score += 5
+
+            # Small popularity boost (up to 10 points)
+            pop = (work.view_count or 0) * 0.1 + (work.download_count or 0) * 0.3
+            score += min(pop, 10.0)
+
+            ranked_works.append((work, score))
+
+        ranked_works.sort(key=lambda x: x[1], reverse=True)
+        works = [item[0] for item in ranked_works]
+
+    return works
 
 
 async def get_research_detail(db: AsyncSession, research_id: int) -> ResearchWork:
@@ -188,12 +276,79 @@ async def download_research(db: AsyncSession, current_user: User, research_id: i
     research = (await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))).scalars().first()
     if not research or not research.file_path: raise HTTPException(status_code=404, detail="File not found")
     research.download_count += 1; db.add(DownloadViewLog(research_id=research.id, user_id=current_user.id, action_type="download")); await db.commit(); return {"file_url": f"/{research.file_path}"}
-
 async def review_research(db: AsyncSession, current_user: User, research_id: int, review_in: ReviewCommentCreate) -> ReviewComment:
-    research = (await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))).scalars().first()
-    if not research: raise HTTPException(status_code=404, detail="Not found")
-    review = ReviewComment(research_id=research.id, reviewer_id=current_user.id, comment_text=review_in.comment_text, status_result=review_in.status_result)
-    research.status = review_in.status_result; db.add(review); await db.commit(); await db.refresh(review); return review
+    from app.services.notification_service import notification_service
+    
+    query = select(ResearchWork).where(ResearchWork.id == research_id).options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user)
+    )
+    research = (await db.execute(query)).scalars().first()
+    if not research:
+        raise HTTPException(status_code=404, detail="Not found")
+        
+    if research.status != "pending":
+        raise HTTPException(status_code=400, detail="Can only review research works with pending status")
+        
+    if current_user.role != "admin":
+        advisor_check = await db.execute(
+            select(ResearchAdvisor).where(
+                ResearchAdvisor.research_id == research_id,
+                ResearchAdvisor.user_id == current_user.id
+            )
+        )
+        if not advisor_check.scalars().first():
+            raise HTTPException(status_code=403, detail="Not authorized to review this research (you are not an advisor for this work)")
+            
+    review = ReviewComment(
+        research_id=research.id,
+        reviewer_id=current_user.id,
+        comment_text=review_in.comment_text,
+        status_result=review_in.status_result,
+        score=review_in.score
+    )
+    research.status = review_in.status_result
+    if review_in.status_result == "approved":
+        research.published_at = datetime.utcnow()
+        
+    db.add(review)
+    await db.flush()
+    
+    # Notify all co-authors & submitter
+    notify_recipients = {research.submitted_by_id}
+    for auth_rel in research.authors:
+        notify_recipients.add(auth_rel.user_id)
+        
+    status_th = {
+        "approved": "อนุมัติแล้ว",
+        "rejected": "ปฏิเสธแล้ว",
+        "revision_needed": "ต้องแก้ไขผลงาน",
+        "needs_revision": "ต้องแก้ไขผลงาน",
+        "pending": "รอการตรวจสอบ"
+    }.get(review_in.status_result, review_in.status_result)
+
+    type_map = {
+        "approved": "success",
+        "rejected": "alert",
+        "revision_needed": "warning",
+        "needs_revision": "warning"
+    }.get(review_in.status_result, "info")
+
+    for uid in notify_recipients:
+        try:
+            await notification_service.create_notification(
+                db=db,
+                user_id=uid,
+                title=f"สถานะผลงานได้รับการเปลี่ยนเป็น: {status_th}",
+                message=f"ผลงานเรื่อง '{research.title_th or research.title_en}' ได้รับผลการตรวจสอบและปรับสถานะเป็น {status_th}. ความเห็นเพิ่มเติม: {review_in.comment_text}",
+                type=type_map
+            )
+        except Exception:
+            pass # Keep transactions clean
+            
+    await db.commit()
+    await db.refresh(review)
+    return review
 
 async def update_research(db: AsyncSession, research_id: int, current_user: User, title_th: str, title_en: str, category_id: int,
     abstract: Optional[str], department: Optional[str], work_type: Optional[str], academic_year: Optional[int],
@@ -228,11 +383,28 @@ async def update_research(db: AsyncSession, research_id: int, current_user: User
         if document:
             disk_path, doc_path = await _store_upload(document, UPLOAD_DOCS_DIR, DOCUMENT_TYPES, settings.MAX_DOCUMENT_BYTES, "document")
             stored.append(disk_path)
-            if research.file_path:
-                old_path = settings.STATIC_DIR / research.file_path.replace("static/", "", 1)
-                try:
-                    if old_path.exists(): old_path.unlink()
-                except Exception: pass
+            
+            if research.status == "needs_revision" and research.file_path:
+                from sqlalchemy import func
+                from app.models.research import FileRevision
+                max_ver_query = select(func.max(FileRevision.version_no)).where(FileRevision.research_id == research.id)
+                max_ver_result = await db.execute(max_ver_query)
+                max_ver = max_ver_result.scalar() or 0
+                
+                revision = FileRevision(
+                    research_id=research.id,
+                    file_path=research.file_path,
+                    version_no=max_ver + 1,
+                    uploaded_by=current_user.id,
+                    uploaded_at=datetime.utcnow()
+                )
+                db.add(revision)
+            else:
+                if research.file_path:
+                    old_path = settings.STATIC_DIR / research.file_path.replace("static/", "", 1)
+                    try:
+                        if old_path.exists(): old_path.unlink()
+                    except Exception: pass
             research.file_path = doc_path
         research.title_th = title_th.strip()
         research.title_en = title_en.strip()
@@ -243,6 +415,15 @@ async def update_research(db: AsyncSession, research_id: int, current_user: User
         research.academic_year = academic_year
         research.keywords = keywords
         research.status = "pending" # Reset status to pending when updated
+
+        # Calculate updated text embedding vector using AI service
+        try:
+            from app.services.ai_service import ai_service
+            embedding_text = f"{research.title_th or ''} {research.title_en or ''} {research.abstract or ''} {research.keywords or ''}".strip()
+            if embedding_text:
+                research.embedding = await ai_service.get_embedding(embedding_text)
+        except Exception:
+            pass
         
         from sqlalchemy import delete
         await db.execute(delete(ResearchAuthor).where(ResearchAuthor.research_id == research.id))
@@ -302,3 +483,322 @@ async def delete_research(db: AsyncSession, research_id: int, current_user: User
     await db.execute(delete(FileRevision).where(FileRevision.research_id == research.id))
     await db.delete(research)
     await db.commit()
+
+
+async def get_search_suggestions(db: AsyncSession, q: Optional[str] = None) -> dict:
+    # 1. Popular keywords
+    if not q or not q.strip():
+        # Get recent search logs
+        recent_query = select(SearchLog.keyword).order_by(SearchLog.searched_at.desc()).limit(30)
+        recent_res = (await db.execute(recent_query)).scalars().all()
+        # Find unique and top ones
+        keywords_list = []
+        for kw in recent_res:
+            kw_clean = kw.strip()
+            if kw_clean and kw_clean not in keywords_list:
+                keywords_list.append(kw_clean)
+        # Limit to 5
+        keywords_list = keywords_list[:5]
+        
+        # Also fall back to general database keywords if search logs are empty
+        if not keywords_list:
+            works_query = select(ResearchWork.keywords).where(ResearchWork.status == "approved").limit(100)
+            works_res = (await db.execute(works_query)).scalars().all()
+            kws = set()
+            for w_kws in works_res:
+                if w_kws:
+                    for kw in w_kws.split(','):
+                        kw_clean = kw.strip()
+                        if kw_clean:
+                            kws.add(kw_clean)
+            keywords_list = list(kws)[:5]
+            
+        return {"keywords": keywords_list, "titles": []}
+    
+    # If q is provided
+    q_clean = q.strip().lower()
+    
+    # Get matching titles
+    titles_query = select(ResearchWork).where(
+        ResearchWork.status == "approved",
+        or_(
+            ResearchWork.title_th.ilike(f"%{q_clean}%"),
+            ResearchWork.title_en.ilike(f"%{q_clean}%")
+        )
+    ).limit(5)
+    matching_works = (await db.execute(titles_query)).scalars().all()
+    titles = [
+        {"id": w.id, "title_th": w.title_th, "title_en": w.title_en}
+        for w in matching_works
+    ]
+    
+    # Get matching keywords from ResearchWork
+    works_query = select(ResearchWork.keywords).where(
+        ResearchWork.status == "approved",
+        ResearchWork.keywords.ilike(f"%{q_clean}%")
+    ).limit(50)
+    works_res = (await db.execute(works_query)).scalars().all()
+    matching_kws = set()
+    for w_kws in works_res:
+        if w_kws:
+            for kw in w_kws.split(','):
+                kw_clean = kw.strip()
+                if q_clean in kw_clean.lower():
+                    matching_kws.add(kw_clean)
+                    
+    return {"keywords": list(matching_kws)[:5], "titles": titles}
+
+
+async def get_related_recommendations(db: AsyncSession, research_id: int) -> List[ResearchWork]:
+    # Get current work
+    current_work = (await db.execute(
+        select(ResearchWork).where(ResearchWork.id == research_id)
+    )).scalars().first()
+    if not current_work:
+        return []
+        
+    # Get all other approved works
+    query = select(ResearchWork).where(
+        ResearchWork.id != research_id,
+        ResearchWork.status == "approved"
+    ).options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+        selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+    )
+    all_works = (await db.execute(query)).scalars().all()
+    
+    # Score each other work relative to the current work
+    scored_works = []
+    curr_keywords = [k.strip().lower() for k in (current_work.keywords or "").split(',') if k.strip()]
+    
+    for work in all_works:
+        score = 0
+        
+        # Category match
+        if work.category_id == current_work.category_id:
+            score += 20
+            
+        # Keyword matches
+        work_keywords = [k.strip().lower() for k in (work.keywords or "").split(',') if k.strip()]
+        matches = len(set(curr_keywords) & set(work_keywords))
+        score += matches * 10
+        
+        # Department match
+        if work.department and current_work.department and work.department.strip().lower() == current_work.department.strip().lower():
+            score += 5
+            
+        # Advisor match
+        curr_advs = {a.user_id for a in current_work.advisors}
+        work_advs = {a.user_id for a in work.advisors}
+        score += len(curr_advs & work_advs) * 10
+        
+        # Author match
+        curr_auths = {a.user_id for a in current_work.authors}
+        work_auths = {a.user_id for a in work.authors}
+        score += len(curr_auths & work_auths) * 10
+
+        # View/download popularity weight
+        score += min((work.view_count or 0) * 0.05 + (work.download_count or 0) * 0.1, 5.0)
+
+        if score > 0:
+            scored_works.append((work, score))
+            
+    # Sort and return top 5
+    scored_works.sort(key=lambda x: x[1], reverse=True)
+    return [item[0] for item in scored_works[:5]]
+
+
+async def get_personalized_recommendations(db: AsyncSession, current_user: Optional[User] = None) -> List[ResearchWork]:
+    interactions_found = False
+    profile_categories = {}
+    profile_keywords = {}
+    
+    if current_user:
+        # Get favorites
+        favs = (await db.execute(
+            select(Favorite.research_id).where(Favorite.user_id == current_user.id)
+        )).scalars().all()
+        
+        # Get download/view logs
+        logs = (await db.execute(
+            select(DownloadViewLog.research_id).where(DownloadViewLog.user_id == current_user.id)
+        )).scalars().all()
+        
+        interacted_ids = list(set(favs) | set(logs))
+        if interacted_ids:
+            interactions_found = True
+            interacted_works = (await db.execute(
+                select(ResearchWork).where(ResearchWork.id.in_(interacted_ids))
+            )).scalars().all()
+            
+            for w in interacted_works:
+                profile_categories[w.category_id] = profile_categories.get(w.category_id, 0) + 1
+                if w.keywords:
+                    for kw in w.keywords.split(','):
+                        kw_clean = kw.strip().lower()
+                        if kw_clean:
+                            profile_keywords[kw_clean] = profile_keywords.get(kw_clean, 0) + 1
+                            
+    # Get all approved works
+    query = select(ResearchWork).where(ResearchWork.status == "approved").options(
+        selectinload(ResearchWork.authors).selectinload(ResearchAuthor.user),
+        selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
+        selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
+    )
+    all_works = (await db.execute(query)).scalars().all()
+    
+    if not interactions_found:
+        sorted_works = sorted(
+            all_works,
+            key=lambda w: (w.view_count or 0) * 1 + (w.download_count or 0) * 3,
+            reverse=True
+        )
+        return sorted_works[:5]
+        
+    scored_works = []
+    for work in all_works:
+        score = 0
+        
+        if work.category_id in profile_categories:
+            score += profile_categories[work.category_id] * 15
+            
+        if work.keywords:
+            for kw in work.keywords.split(','):
+                kw_clean = kw.strip().lower()
+                if kw_clean in profile_keywords:
+                    score += profile_keywords[kw_clean] * 5
+                    
+        score += min((work.view_count or 0) * 0.05 + (work.download_count or 0) * 0.1, 5.0)
+        
+        scored_works.append((work, score))
+        
+    scored_works.sort(key=lambda x: x[1], reverse=True)
+    return [item[0] for item in scored_works[:5]]
+
+
+async def get_ai_pre_review_analysis(db: AsyncSession, research_id: int):
+    from app.services.ai_service import ai_service
+    work = (await db.execute(
+        select(ResearchWork).where(ResearchWork.id == research_id).options(selectinload(ResearchWork.category))
+    )).scalars().first()
+    if not work:
+        raise HTTPException(status_code=404, detail="ไม่พบงานวิจัยที่ระบุ")
+        
+    category_name = work.category.category_name if work.category else "ทั่วไป"
+    return await ai_service.pre_review_analysis(
+        title_th=work.title_th,
+        title_en=work.title_en,
+        abstract=work.abstract or "",
+        keywords=work.keywords or "",
+        category=category_name,
+        department=work.department or ""
+    )
+
+
+async def get_ai_plagiarism_check(db: AsyncSession, research_id: int):
+    from app.services.ai_service import ai_service
+    work = (await db.execute(
+        select(ResearchWork).where(ResearchWork.id == research_id)
+    )).scalars().first()
+    if not work:
+        raise HTTPException(status_code=404, detail="ไม่พบงานวิจัยที่ระบุ")
+        
+    # Get other approved works
+    other_query = select(ResearchWork).where(ResearchWork.id != research_id, ResearchWork.status == "approved")
+    other_results = (await db.execute(other_query)).scalars().all()
+    
+    other_works = [
+        {
+            "id": w.id,
+            "title_th": w.title_th,
+            "title_en": w.title_en,
+            "abstract": w.abstract or ""
+        }
+        for w in other_results
+    ]
+    
+    return await ai_service.plagiarism_check(
+        title_th=work.title_th,
+        title_en=work.title_en,
+        abstract=work.abstract or "",
+        other_works=other_works
+    )
+
+
+async def get_ai_reviewer_match(db: AsyncSession, research_id: int):
+    from app.services.ai_service import ai_service
+    work = (await db.execute(
+        select(ResearchWork).where(ResearchWork.id == research_id).options(selectinload(ResearchWork.category))
+    )).scalars().first()
+    if not work:
+        raise HTTPException(status_code=404, detail="ไม่พบงานวิจัยที่ระบุ")
+        
+    # Get all advisors
+    advisor_query = select(User).where(User.role == "advisor", User.is_active.is_(True))
+    advisor_results = (await db.execute(advisor_query)).scalars().all()
+    
+    advisors = [
+        {
+            "id": u.id,
+            "name": f"{u.first_name or ''} {u.last_name or ''}".strip() or u.email,
+            "department": u.department or ""
+        }
+        for u in advisor_results
+    ]
+    
+    category_name = work.category.category_name if work.category else "ทั่วไป"
+    return await ai_service.reviewer_match(
+        title_th=work.title_th,
+        title_en=work.title_en,
+        abstract=work.abstract or "",
+        keywords=work.keywords or "",
+        category=category_name,
+        advisors=advisors
+    )
+
+
+async def get_ai_review_summary(db: AsyncSession, research_id: int):
+    from app.services.ai_service import ai_service
+    work = (await db.execute(
+        select(ResearchWork).where(ResearchWork.id == research_id).options(selectinload(ResearchWork.reviews))
+    )).scalars().first()
+    if not work:
+        raise HTTPException(status_code=404, detail="ไม่พบงานวิจัยที่ระบุ")
+        
+    if not work.reviews:
+        return {
+            "executive_summary": "ยังไม่มีการส่งข้อเสนอแนะหรือประเมินผลงานนี้ในระบบ",
+            "key_issues_raised": [],
+            "improvement_sentiment": "Neutral"
+        }
+        
+    reviews = [
+        {
+            "status_result": r.status_result,
+            "comment_text": r.comment_text
+        }
+        for r in work.reviews
+    ]
+    
+    return await ai_service.review_summary(reviews)
+
+async def assign_advisors(db: AsyncSession, research_id: int, advisor_ids: list[int]) -> dict:
+    from sqlalchemy import delete
+    research = (await db.execute(select(ResearchWork).where(ResearchWork.id == research_id))).scalars().first()
+    if not research:
+        raise HTTPException(status_code=404, detail="Research work not found")
+        
+    # Remove current advisors
+    await db.execute(
+        delete(ResearchAdvisor).where(ResearchAdvisor.research_id == research_id)
+    )
+    
+    # Add new advisors
+    for adv_id in advisor_ids:
+        db.add(ResearchAdvisor(research_id=research_id, user_id=adv_id))
+        
+    await db.commit()
+    return {"success": True}
+
+

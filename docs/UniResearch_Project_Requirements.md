@@ -75,18 +75,18 @@
 | 10 | **ระบบบันทึกรายการโปรด** | ผู้ใช้ที่เข้าสู่ระบบสามารถบันทึกผลงานเป็น Bookmark/Favorite |
 | 11 | **ระบบบันทึกสถิติและแดชบอร์ด** | บันทึก View/Download Log, Search Log, แสดง Analytics Dashboard สำหรับ Admin |
 | 12 | **ระบบจัดการข้อมูลตัวเลือก** | จัดการรายชื่อสาขาวิชา (Departments) และประเภทผลงาน (Work Types) |
+| 13 | **ระบบผู้ช่วยถามตอบอัจฉริยะ (RAG Chatbot)** | ค้นหาบทความวิจัยใกล้เคียงด้วย Cosine Distance ผ่านเวกเตอร์และตอบคำถามเชิงวิชาการด้วย AI |
 
 #### 1.3.2 ขอบเขตที่ไม่อยู่ในระบบ (Out-of-Scope)
 
 | ลำดับ | รายการ | เหตุผล |
 | :---: | :--- | :--- |
 | 1 | ระบบแจ้งเตือนผ่านอีเมล/Push Notification | ยังไม่อยู่ในขอบเขตเฟสแรกของการพัฒนา |
-| 2 | ระบบแชทหรือสนทนาภายในระบบ (In-app Chat) | ไม่ใช่ฟังก์ชันหลักของคลังจัดเก็บผลงาน |
+| 2 | ระบบแชทระหว่างผู้ใช้งานด้วยกัน (Peer-to-Peer Chat) | ไม่ใช่ฟังก์ชันหลักของคลังจัดเก็บผลงาน |
 | 3 | ระบบชำระเงินหรือธุรกรรมทางการเงิน | ระบบเป็นคลังจัดเก็บเพื่อการศึกษา ไม่มีระบบค่าใช้จ่าย |
 | 4 | การเชื่อมต่อกับระบบสารสนเทศภายนอก (เช่น ระบบทะเบียน, LMS) | ต้องมีการศึกษา API ของระบบเป้าหมายเพิ่มเติม |
-| 5 | ระบบตรวจจับการคัดลอก (Plagiarism Detection) | ต้องอาศัยเครื่องมือภายนอกที่มีลิขสิทธิ์เฉพาะ |
-| 6 | การรองรับหลายภาษาอย่างเต็มรูปแบบ (Full i18n) | เฟสแรกรองรับ 2 ภาษาเฉพาะข้อมูลผลงาน (ไทย/อังกฤษ) ไม่รวม UI Localization |
-| 7 | ระบบวิเคราะห์ข้อมูลขั้นสูงด้วย AI/ML | จะพิจารณาพัฒนาในเฟสถัดไป |
+| 5 | การรองรับหลายภาษาอย่างเต็มรูปแบบ (Full i18n) | เฟสแรกรองรับ 2 ภาษาเฉพาะข้อมูลผลงาน (ไทย/อังกฤษ) ไม่รวม UI Localization |
+| 6 | การแสดงผลข้อมูลสถิติเชิงคาดการณ์ขั้นสูง | พิจารณาพัฒนาในลำดับถัดไป |
 
 #### 1.3.3 ข้อจำกัดของระบบ (Constraints)
 
@@ -177,7 +177,7 @@ graph TD
     end
 
     subgraph Frontend Layer
-        NextJS["Next.js 15+ (App Router)<br/>TypeScript / React 19"]
+        NextJS["Next.js 16+ (App Router)<br/>TypeScript / React 19"]
         NextJS --- Pages["📄 Pages<br/>(SSR + Client Components)"]
         NextJS --- Components["🧩 Components<br/>(UI / Layout / Feature)"]
         NextJS --- Hooks["🔗 Hooks<br/>(useAuth / useResearch)"]
@@ -207,7 +207,7 @@ graph TD
 
 | หมวดหมู่ | เทคโนโลยี | เวอร์ชัน | วัตถุประสงค์ในการใช้งาน |
 | :--- | :--- | :---: | :--- |
-| **Frontend** | Next.js (App Router) | 15+ | เฟรมเวิร์ก React สำหรับ SSR และ Client Components |
+| **Frontend** | Next.js (App Router) | 16+ | เฟรมเวิร์ก React สำหรับ SSR และ Client Components |
 | | React | 19 | ไลบรารีสร้าง User Interface |
 | | TypeScript | 5.x | เพิ่มความปลอดภัยและถูกต้องของชนิดข้อมูล |
 | | Zustand | — | State Management แบบเบาและยืดหยุ่น |
@@ -241,25 +241,26 @@ UniResearch/
 │   │   ├── models/                 # SQLAlchemy Models (user, research, category, interactions, options)
 │   │   ├── schemas/                # Pydantic Schemas (Request/Response validation)
 │   │   ├── services/               # Business Logic Layer
-│   │   ├── routers/                # API Endpoints (auth, users, research, reviews, categories, favorites, stats, options)
+│   │   ├── routers/                # API Endpoints (auth, users, research, reviews, categories, stats, options)
+│   │   ├── scripts/                # สคริปต์นำเข้าข้อมูล CSV และสร้างบัญชี Admin
 │   │   └── main.py                 # FastAPI App Entry Point
 │   ├── tests/                      # pytest Unit & Integration Tests
 │   ├── static/                     # ไฟล์ PDF และหน้าปกที่อัปโหลด (git-ignored)
-│   ├── Dockerfile
-│   └── docker-compose.yml          # FastAPI + PostgreSQL + Next.js
+│   └── Dockerfile
 ├── frontend/                       # ระบบหน้าบ้าน Next.js
 │   ├── app/                        # App Router Pages
-│   │   ├── auth/                   # login, register
-│   │   ├── research/               # ค้นหา, รายละเอียดผลงาน [id]
-│   │   ├── dashboard/              # student, reviewer, admin, submit
-│   │   ├── profile/                # โปรไฟล์ผู้ใช้
-│   │   └── favorites/              # รายการโปรด
+│   │   ├── admin/                  # เมนูและหน้าจัดการสำหรับบทบาท Admin
+│   │   ├── advisor/                # หน้าอนุมัติและประเมินผลงานสำหรับบทบาท Advisor
+│   │   ├── student/                # หน้าส่งและจัดการผลงานสำหรับบทบาท Student
+│   │   ├── research/               # หน้าสืบค้นและแสดงรายละเอียดผลงานวิจัยสาธารณะ
+│   │   ├── account/                # หน้าจัดการบัญชีผู้ใช้งาน
+│   │   ├── login/                  # หน้าเข้าสู่ระบบ
+│   │   └── register/               # หน้าสมัครสมาชิก
 │   ├── src/
-│   │   ├── components/             # UI, Layout, Research, Dashboard, Auth
-│   │   ├── hooks/                  # useAuth, useResearch, useSearch
-│   │   ├── lib/                    # API Client (Axios), Auth Utils
-│   │   ├── types/                  # TypeScript Type Definitions
-│   │   └── features/               # Feature-based Logic (auth, research, admin)
+│   │   ├── components/             # UI Components (Layout, buttons, cards, tables, etc.)
+│   │   ├── features/               # ส่วนจัดการตรรกะและองค์ประกอบเฉพาะฟังก์ชัน (admin, advisor, auth, research, review)
+│   │   ├── services/               # ส่วนเรียกใช้งาน API Backend (auth, research, category, stats)
+│   │   └── lib/                    # ตัวเชื่อมต่อ API (Axios instance)
 │   ├── e2e/                        # Playwright E2E Tests
 │   └── package.json
 └── docs/                           # เอกสารความต้องการระบบ, UML Diagrams, RBAC Matrix
