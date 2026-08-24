@@ -105,6 +105,7 @@ classDiagram
         +int view_count
         +int download_count
         +datetime published_at
+        +vector embedding
         +datetime created_at
         +datetime updated_at
         +int submitted_by_id
@@ -144,6 +145,7 @@ classDiagram
         +int reviewer_id
         +string comment_text
         +string status_result
+        +int score
         +datetime created_at
     }
 
@@ -168,6 +170,16 @@ classDiagram
         +datetime searched_at
     }
 
+    class Notification {
+        +int id
+        +int user_id
+        +string title
+        +string message
+        +string type
+        +boolean is_read
+        +datetime created_at
+    }
+
     User "1" <-- "many" ResearchWork : submitted_by
     ResearchWork "many" --> "1" Category : has_category
     ResearchWork "1" *-- "many" ResearchAuthor : has_authors
@@ -185,6 +197,8 @@ classDiagram
 
     ResearchWork "1" <-- "many" DownloadViewLog : logs
     User "0..1" <-- "many" DownloadViewLog : logs_by
+
+    User "1" <-- "many" Notification : receives
 ```
 
 ---
@@ -230,6 +244,7 @@ erDiagram
         int view_count
         int download_count
         datetime published_at
+        vector embedding
         datetime created_at
         datetime updated_at
         int submitted_by_id FK
@@ -264,6 +279,7 @@ erDiagram
         int reviewer_id FK
         text comment_text
         string status_result
+        int score
         datetime created_at
     }
     favorites {
@@ -284,6 +300,15 @@ erDiagram
         string keyword
         datetime searched_at
     }
+    notifications {
+        int id PK
+        int user_id FK
+        string title
+        text message
+        string type
+        boolean is_read
+        datetime created_at
+    }
 
     users ||--o{ research_works : "submits"
     users ||--o{ research_authors : "authored_by"
@@ -292,6 +317,7 @@ erDiagram
     users ||--o{ review_comments : "reviews_by"
     users ||--o{ favorites : "saved_by"
     users |o--o{ download_view_logs : "triggers"
+    users ||--o{ notifications : "receives"
 
     categories ||--o{ research_works : "categorizes"
 
@@ -369,6 +395,7 @@ sequenceDiagram
     actor Student as นักศึกษา
     participant Frontend as Frontend (Next.js)
     participant Backend as Backend (FastAPI)
+    participant AI as AI Service (Gemini API)
     participant DB as Database (PostgreSQL)
 
     Student->>Frontend: กรอกข้อมูลและส่งผลงานวิจัย (อัปโหลด PDF)
@@ -376,13 +403,21 @@ sequenceDiagram
     Frontend->>Backend: HTTP POST /api/research (พร้อม JWT)
     activate Backend
     Backend->>Backend: ตรวจสอบความถูกต้องของสิทธิ์และข้อมูล
-    Backend->>DB: บันทึกข้อมูลวิจัยใหม่ (สถานะ = 'pending')
+    Backend->>AI: เรียก API เพื่อสร้าง Text Embedding จาก Title/Abstract
+    activate AI
+    AI-->>Backend: ส่งกลับ Vector (768 มิติ)
+    deactivate AI
+    Backend->>DB: บันทึกข้อมูลวิจัยและเวกเตอร์ (สถานะ = 'pending')
     activate DB
     DB-->>Backend: ยืนยันบันทึกข้อมูล (research_id)
     deactivate DB
     Backend->>DB: บันทึกความสัมพันธ์ผู้เขียนและอาจารย์ที่ปรึกษา
     activate DB
     DB-->>Backend: ยืนยันบันทึกสำเร็จ
+    deactivate DB
+    Backend->>DB: บันทึกแจ้งเตือน (Notifications) ไปยังบัญชีผู้ประเมิน/อาจารย์
+    activate DB
+    DB-->>Backend: ยืนยันสำเร็จ
     deactivate DB
     Backend-->>Frontend: ส่งข้อมูลตอบรับ HTTP 201 (Created)
     deactivate Backend

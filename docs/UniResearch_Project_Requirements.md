@@ -76,12 +76,16 @@
 | 11 | **ระบบบันทึกสถิติและแดชบอร์ด** | บันทึก View/Download Log, Search Log, แสดง Analytics Dashboard สำหรับ Admin |
 | 12 | **ระบบจัดการข้อมูลตัวเลือก** | จัดการรายชื่อสาขาวิชา (Departments) และประเภทผลงาน (Work Types) |
 | 13 | **ระบบผู้ช่วยถามตอบอัจฉริยะ (RAG Chatbot)** | ค้นหาบทความวิจัยใกล้เคียงด้วย Cosine Distance ผ่านเวกเตอร์และตอบคำถามเชิงวิชาการด้วย AI |
+| 14 | **ระบบช่วยร่างและตรวจสอบงานวิจัย (AI Writing Assistant)** | สร้างบทคัดย่อ (Abstract) สองภาษา (TH/EN) อัตโนมัติ, แนะนำชื่อเรื่องและคำสำคัญ (Keywords), และตรวจสอบรูปแบบความถูกต้องของภาษาเชิงวิชาการ (Academic Writing Check) |
+| 15 | **ระบบสืบค้นและแนะนำผลงานอัจฉริยะ (AI Search & Recommendations)** | ค้นหาความหมายเชิงลึก (Semantic Search) ผ่าน pgvector, แสดงผลงานที่เกี่ยวข้อง (Similar Research) และเสนอแนะผลงานตามความสนใจรายบุคคล |
+| 16 | **ระบบช่วยประเมินผลงานสำหรับอาจารย์ (AI Peer Review Assistant)** | วิเคราะห์ผลงานเบื้องต้น (Pre-review Analysis), ตรวจระดับความซ้ำซ้อนกับงานชิ้นอื่น (Plagiarism Check), และจับคู่อาจารย์ที่ปรึกษาที่เหมาะสม |
+| 17 | **ระบบการแจ้งเตือนภายในแอปพลิเคชัน (In-App Notifications)** | แจ้งเตือนสถานะผลงาน เมนูงานประเมิน และการแจ้งเตือนความเข้ากันได้/จับคู่ของ AI (AI-match alerts) |
 
 #### 1.3.2 ขอบเขตที่ไม่อยู่ในระบบ (Out-of-Scope)
 
 | ลำดับ | รายการ | เหตุผล |
 | :---: | :--- | :--- |
-| 1 | ระบบแจ้งเตือนผ่านอีเมล/Push Notification | ยังไม่อยู่ในขอบเขตเฟสแรกของการพัฒนา |
+| 1 | ระบบแจ้งเตือนผ่านอีเมล/Push Notification | พัฒนาเฉพาะระบบแจ้งเตือนภายในระบบ (In-App Notification) ในเฟสแรก |
 | 2 | ระบบแชทระหว่างผู้ใช้งานด้วยกัน (Peer-to-Peer Chat) | ไม่ใช่ฟังก์ชันหลักของคลังจัดเก็บผลงาน |
 | 3 | ระบบชำระเงินหรือธุรกรรมทางการเงิน | ระบบเป็นคลังจัดเก็บเพื่อการศึกษา ไม่มีระบบค่าใช้จ่าย |
 | 4 | การเชื่อมต่อกับระบบสารสนเทศภายนอก (เช่น ระบบทะเบียน, LMS) | ต้องมีการศึกษา API ของระบบเป้าหมายเพิ่มเติม |
@@ -285,7 +289,7 @@ UniResearch/
 
 | รหัส | ความต้องการ | รายละเอียด | API Endpoint |
 | :--- | :--- | :--- | :--- |
-| FR-2.1 | สร้างผลงานใหม่ | Student/Advisor/Admin สร้างผลงานใหม่ พร้อมระบุชื่อเรื่อง (TH/EN), บทคัดย่อ (TH/EN), ผู้แต่ง, อาจารย์ที่ปรึกษา, หมวดหมู่, สาขา, ประเภท, ปีการศึกษา, คำสำคัญ สถานะเริ่มต้นเป็น `pending` | `POST /research/` |
+| FR-2.1 | สร้างผลงานใหม่ | Student/Advisor/Admin สร้างผลงานใหม่ พร้อมระบุชื่อเรื่อง (TH/EN), บทคัดย่อ (abstract), ผู้แต่ง, อาจารย์ที่ปรึกษา, หมวดหมู่, สาขา, ประเภท, ปีการศึกษา, คำสำคัญ สถานะเริ่มต้นเป็น `pending` | `POST /research/` |
 | FR-2.2 | แก้ไขผลงาน | เจ้าของสามารถแก้ไขได้เฉพาะผลงานที่มีสถานะ `pending` หรือ `needs_revision` | `PUT /research/{id}` |
 | FR-2.3 | ลบผลงาน | จำกัดเฉพาะ Admin เท่านั้น | `DELETE /research/{id}` |
 | FR-2.4 | อัปโหลดภาพหน้าปก | อัปโหลดไฟล์ภาพหน้าปกผลงาน (.jpg, .jpeg, .png) | `POST /research/{id}/cover` |
@@ -299,14 +303,14 @@ UniResearch/
 | รหัส | ความต้องการ | รายละเอียด | API Endpoint |
 | :--- | :--- | :--- | :--- |
 | FR-3.1 | คิวงานรอประเมิน | Advisor และ Admin เปิดดูรายการผลงานที่มีสถานะ `pending` — Advisor เห็นเฉพาะงานที่ตนเป็นที่ปรึกษา | `GET /reviews/queue` |
-| FR-3.2 | ตัดสินผลประเมิน | ผู้ประเมินบันทึกข้อคิดเห็นและเลือก: `approved` (เผยแพร่, ตั้ง `published_at`), `needs_revision` (ส่งกลับแก้ไข), `rejected` (ปฏิเสธ) | `POST /reviews/{research_id}` |
-| FR-3.3 | ดูประวัติการประเมิน | แสดงรายการ Review Comments ทั้งหมดของผลงาน พร้อมชื่อผู้ประเมิน, ข้อคิดเห็น, ผลลัพธ์ และเวลา | `GET /reviews/{research_id}` |
+| FR-3.2 | ตัดสินผลประเมิน | ผู้ประเมินบันทึกข้อคิดเห็น บันทึกคะแนนการประเมิน (score 1-100) และเลือก: `approved` (เผยแพร่, ตั้ง `published_at`), `needs_revision` (ส่งกลับแก้ไข), `rejected` (ปฏิเสธ) | `POST /reviews/{research_id}` |
+| FR-3.3 | ดูประวัติการประเมิน | แสดงรายการ Review Comments ทั้งหมดของผลงาน พร้อมชื่อผู้ประเมิน, ข้อคิดเห็น, คะแนน, ผลลัพธ์ และเวลา | `GET /reviews/{research_id}` |
 
 ### FR-4: การค้นหาและแสดงรายละเอียดผลงาน (Search & Detail View)
 
 | รหัส | ความต้องการ | รายละเอียด | API Endpoint |
 | :--- | :--- | :--- | :--- |
-| FR-4.1 | ค้นหาขั้นสูง | Full-text Search จากชื่อเรื่อง, บทคัดย่อ, คำสำคัญ พร้อมกรองตาม: `category_id`, `department`, `work_type`, `academic_year`, `advisor`, `status`, `sort_by` | `GET /research/?q=...&...` |
+| FR-4.1 | ค้นหาขั้นสูง | Full-text Search และ Semantic Search (pgvector) จากชื่อเรื่อง, บทคัดย่อ, คำสำคัญ พร้อมกรองตาม: `category_id`, `department`, `work_type`, `academic_year`, `advisor`, `status`, `sort_by` | `GET /research/?q=...&...` |
 | FR-4.2 | รายละเอียดผลงาน | แสดงข้อมูลฉบับเต็ม พร้อมเพิ่ม `view_count` อัตโนมัติ | `GET /research/{id}` |
 | FR-4.3 | ผลงานที่เกี่ยวข้อง | แสดงรายการผลงานที่คำนวณจากหมวดหมู่หรือคำสำคัญเดียวกัน | `GET /research/{id}/related` |
 | FR-4.4 | บันทึกคำค้นหา | ทุกการค้นหาถูกบันทึกลง `search_logs` เพื่อวิเคราะห์แนวโน้ม | อัตโนมัติ |
@@ -337,6 +341,23 @@ UniResearch/
 | FR-7.2 | จัดการผู้ใช้ | Admin ดูรายชื่อ/แก้ไข/ลบ/เปลี่ยนบทบาทผู้ใช้ | `GET/PUT/DELETE /users/`, `PUT /users/{id}/role` |
 | FR-7.3 | จัดการสาขาวิชา | Admin เพิ่มรายชื่อสาขาวิชา | `GET/POST /options/departments` |
 | FR-7.4 | จัดการประเภทผลงาน | Admin เพิ่มประเภทผลงาน | `GET/POST /options/work-types` |
+
+### FR-8: ระบบบูรณาการ AI อัจฉริยะ (AI Integration & Assistant Features)
+
+| รหัส | ความต้องการ | รายละเอียด | API Endpoint |
+| :--- | :--- | :--- | :--- |
+| FR-8.1 | ช่วยร่างเนื้อหา (AI Writing Assistant) | สร้างบทคัดย่อ (Abstract) สองภาษา (TH/EN) จากหัวข้อ/คำสำคัญ, แนะนำชื่อเรื่อง, แท็กหมวดหมู่/คำสำคัญอัตโนมัติ และตรวจสอบความถูกต้องของภาษาเชิงวิชาการ | `POST /ai/generate-abstract`, `POST /ai/suggest-title`, `POST /ai/check-writing` |
+| FR-8.2 | ค้นหาและแนะนำอัจฉริยะ (Semantic Search & Recs) | ค้นหางานวิจัยด้วยคำถามภาษาธรรมชาติ (Semantic Search) และคำนวณงานวิจัยที่คล้ายกันโดยคำนวณ cosine similarity จาก vector embeddings | `GET /research/semantic-search`, `GET /research/{id}/similar` |
+| FR-8.3 | ตรวจสอบงานวิจัยเบื้องต้น (AI Review Assistant) | ช่วยประเมินความถูกต้องโครงสร้างงานวิจัยเบื้องต้น (Pre-review Analysis) ตรวจจับความคัดลอก/ความซ้ำซ้อนของงานในคลัง (Plagiarism Check) และช่วยแนะนำผู้ประเมินที่เหมาะสม | `GET /reviews/{research_id}/ai-analysis` |
+| FR-8.4 | แชทบอตตอบคำถามอัจฉริยะ (RAG Chatbot) | ช่วยให้ผู้ใช้งานสืบค้นหรือถามตอบข้อมูลเกี่ยวกับงานวิจัยในระบบผ่าน floating widget ในรูปแบบ RAG พร้อมแสดงปุ่ม/ลิงก์ผลงานที่อ้างอิง | `POST /ai/chat` |
+
+### FR-9: ระบบการแจ้งเตือน (Notification System)
+
+| รหัส | ความต้องการ | รายละเอียด | API Endpoint |
+| :--- | :--- | :--- | :--- |
+| FR-9.1 | สร้างการแจ้งเตือน | ระบบสร้างการแจ้งเตือนอัตโนมัติให้ผู้ใช้รายบุคคลเมื่อเกิดเหตุการณ์ในเวิร์กโฟลว์ เช่น เมื่องานได้รับการอนุมัติ / ส่งกลับแก้ไข หรือเมื่อมีการมอบหมายผู้ตรวจประเมิน | `POST /notifications/` |
+| FR-9.2 | ดึงข้อมูลการแจ้งเตือน | ผู้ใช้แต่ละคนดึงข้อมูลการแจ้งเตือนของตนเอง และสามารถทำเครื่องหมายว่าอ่านแล้ว | `GET /notifications/`, `PUT /notifications/{id}/read` |
+| FR-9.3 | แจ้งเตือนอัจฉริยะ (AI-match alerts) | สร้างการแจ้งเตือนเมื่องานวิจัยหัวข้อใหม่มีความสอดคล้องกับความเชี่ยวชาญหรือความสนใจของ Advisor/Student | `GET /notifications/` |
 
 ---
 
@@ -419,6 +440,8 @@ stateDiagram-v2
 | **NFR-11** | การจัดเก็บไฟล์ (Storage) | รูปแบบไฟล์ | เอกสาร: `.pdf` เท่านั้น / ภาพหน้าปก: `.jpg`, `.jpeg`, `.png` เท่านั้น |
 | **NFR-12** | การนำไปใช้งาน (Deployability) | Containerization | ระบบทั้งหมดสามารถ Deploy ผ่าน Docker Compose ได้ในคำสั่งเดียว |
 | **NFR-13** | ความสามารถในการทดสอบ (Testability) | ชุดทดสอบ | Backend มี pytest (Unit/Integration), Frontend มี Playwright (E2E) |
+| **NFR-14** | ความปลอดภัย (Security) | การจัดการคีย์ API ของ AI | คีย์ API ของ Google Gemini จะต้องถูกเก็บเป็น Environment Variable อย่างปลอดภัยและไม่ถูกเปิดเผยลงในซอร์สโค้ด |
+| **NFR-15** | ประสิทธิภาพ (Performance) | ค้นหาเวกเตอร์ (Vector Similarity Search) | การค้นหา Semantic Search และการดึงข้อมูลแบบ RAG จะต้องใช้ pgvector index ช่วยจำกัดความเร็วการประมวลผลและตอบสนองภายใน ≤ 3 วินาที |
 
 ---
 
@@ -426,7 +449,7 @@ stateDiagram-v2
 
 ### 7.1 ภาพรวมตาราง (Table Overview)
 
-ฐานข้อมูลประกอบด้วย **12 ตาราง** แบ่งเป็น 4 กลุ่มฟังก์ชัน:
+ฐานข้อมูลประกอบด้วย **13 ตาราง** แบ่งเป็น 4 กลุ่มฟังก์ชัน:
 
 ```mermaid
 erDiagram
@@ -437,6 +460,7 @@ erDiagram
     users ||--o{ file_revisions : "uploaded"
     users ||--o{ favorites : "bookmarked"
     users ||--o{ download_view_logs : "interacted"
+    users ||--o{ notifications : "receives"
 
     research_works ||--o{ research_authors : "has authors"
     research_works ||--o{ research_advisors : "has advisors"
@@ -463,8 +487,7 @@ erDiagram
         int id PK
         string title_th
         string title_en
-        text abstract_th
-        text abstract_en
+        text abstract
         int category_id FK
         string department
         string work_type
@@ -477,6 +500,7 @@ erDiagram
         int download_count
         datetime published_at
         int submitted_by_id FK
+        vector embedding
         datetime created_at
         datetime updated_at
     }
@@ -515,6 +539,7 @@ erDiagram
         int reviewer_id FK
         text comment_text
         string status_result
+        int score
         datetime created_at
     }
 
@@ -548,6 +573,16 @@ erDiagram
         int id PK
         string name UK
     }
+
+    notifications {
+        int id PK
+        int user_id FK
+        string title
+        text message
+        string type
+        boolean is_read
+        datetime created_at
+    }
 ```
 
 ### 7.2 รายละเอียดตารางแยกกลุ่ม
@@ -564,7 +599,7 @@ erDiagram
 
 | ตาราง | คำอธิบาย | คอลัมน์สำคัญ |
 | :--- | :--- | :--- |
-| `research_works` | ข้อมูลผลงานวิจัยหลัก | `title_th/en`, `abstract_th/en`, `status`, `file_path`, `submitted_by_id` |
+| `research_works` | ข้อมูลผลงานวิจัยหลัก | `title_th/en`, `abstract`, `embedding` (pgvector), `status`, `file_path`, `submitted_by_id` |
 | `categories` | หมวดหมู่ผลงาน | `category_name` (UNIQUE) |
 | `research_authors` | ตาราง M:N เชื่อมผลงาน↔ผู้แต่ง | `role_in_work` (primary/co-author) |
 | `research_advisors` | ตาราง M:N เชื่อมผลงาน↔อาจารย์ที่ปรึกษา | `research_id`, `user_id` |
@@ -574,7 +609,7 @@ erDiagram
 | ตาราง | คำอธิบาย | คอลัมน์สำคัญ |
 | :--- | :--- | :--- |
 | `file_revisions` | ประวัติไฟล์เวอร์ชันย้อนหลัง | `version_no`, `file_path`, `uploaded_by` |
-| `review_comments` | ประวัติการประเมินผลงาน | `comment_text`, `status_result` (approved/rejected/needs_revision) |
+| `review_comments` | ประวัติการประเมินผลงาน | `comment_text`, `status_result` (approved/rejected/needs_revision), `score` (1-100) |
 
 #### กลุ่มที่ 4: การปฏิสัมพันธ์และสถิติ (Interactions & Logging)
 
@@ -583,6 +618,7 @@ erDiagram
 | `favorites` | รายการโปรดของผู้ใช้ | `user_id`, `research_id` |
 | `download_view_logs` | บันทึกการเข้าชม/ดาวน์โหลด | `action_type` (view/download) |
 | `search_logs` | บันทึกคำค้นหา | `keyword`, `searched_at` |
+| `notifications` | บันทึกรายการแจ้งเตือนสำหรับผู้ใช้ | `user_id`, `title`, `message`, `type`, `is_read` |
 
 ---
 
@@ -602,6 +638,9 @@ erDiagram
 | BR-08 | การเก็บ Audit Trail | ประวัติการประเมิน (`review_comments`) และเวอร์ชันไฟล์ (`file_revisions`) ห้ามลบ |
 | BR-09 | การนับสถิติ | ยอดเข้าชม (`view_count`) เพิ่มทุกครั้งที่เปิดหน้ารายละเอียด / ยอดดาวน์โหลด (`download_count`) เพิ่มทุกครั้งที่ดาวน์โหลด PDF |
 | BR-10 | การเก็บเวอร์ชันไฟล์ | ทุกครั้งที่อัปโหลดไฟล์แก้ไขในสถานะ `needs_revision` ระบบจะเพิ่ม `version_no` ขึ้น 1 และเก็บไฟล์เดิมไว้ |
+| BR-11 | การสร้างข้อมูล Vector Embedding | เมื่อสร้างหรือแก้ไขผลงานวิจัยชิ้นใหม่สำเร็จ ระบบจะเรียกใช้ AI Service เพื่อสร้างและบันทึก Vector Embedding (Gemini embedding-001) อัตโนมัติ |
+| BR-12 | การแจ้งเตือนและการจับคู่ (AI-match alerts) | เมื่อระบบบันทึกผลงานสำเร็จ ระบบจะวิเคราะห์หาความเหมาะสมของผลงานวิจัยกับความเชี่ยวชาญ/ความสนใจของอาจารย์ และสร้างรายการแจ้งเตือนอัตโนมัติ |
+| BR-13 | คะแนนการประเมิน (Review Score) | การส่งความคิดเห็นประเมินงานวิจัยโดย Advisor หรือ Admin จะต้องระบุคะแนน (score) ระหว่าง 1 ถึง 100 เพื่อนำไปคำนวณและแสดงคะแนนเฉลี่ย |
 
 ### 8.2 ตารางควบคุมสิทธิ์ตามบทบาท (RBAC Matrix)
 
@@ -631,6 +670,8 @@ erDiagram
 | | Advisor Dashboard | ✘ | ✘ | ✔* | ✔ | Advisor ดูรายงานของนักศึกษาในที่ปรึกษา |
 | **Options** | ดูรายชื่อสาขา/ประเภทผลงาน | ✔ | ✔ | ✔ | ✔ | |
 | | เพิ่มสาขา/ประเภทผลงาน | ✘ | ✘ | ✘ | ✔ | |
+| **Notifications** | ดูแจ้งเตือนของตนเอง / ตั้งค่าอ่านแล้ว | ✘ | ✔ | ✔ | ✔ | |
+| **AI Assistants** | ใช้งาน AI Writing Assistant / RAG Chatbot | ✔* | ✔ | ✔ | ✔ | Guest ใช้ได้เฉพาะ RAG Chatbot |
 
 ---
 
@@ -640,7 +681,7 @@ erDiagram
 
 | ลำดับ | ข้อจำกัด | รายละเอียด |
 | :---: | :--- | :--- |
-| 1 | ฐานข้อมูล | ระบบใช้ PostgreSQL 16 เป็นฐานข้อมูลหลักเท่านั้น (ไม่รองรับ MySQL, MongoDB ฯลฯ) |
+| 1 | ฐานข้อมูล | ระบบใช้ PostgreSQL 16 ร่วมกับ extension `pgvector` เป็นฐานข้อมูลหลักเท่านั้น |
 | 2 | ไฟล์เอกสาร | รองรับเฉพาะ `.pdf` สำหรับเอกสารวิจัย |
 | 3 | ไฟล์ภาพ | รองรับเฉพาะ `.jpg`, `.jpeg`, `.png` สำหรับหน้าปก |
 | 4 | การเก็บไฟล์ | เก็บไฟล์บน Local Disk (`static/uploads/`) — ไม่ใช้ Cloud Storage (S3, GCS) ในเฟสแรก |
@@ -648,6 +689,7 @@ erDiagram
 | 6 | Authentication | ใช้ JWT เท่านั้น (ไม่รองรับ OAuth2 / SSO ในเฟสแรก) |
 | 7 | Token Lifetime | Access Token: 30 นาที, Refresh Token: 7 วัน, Algorithm: HS256 |
 | 8 | CORS | เฟสพัฒนาอนุญาตทุก Origin (จะถูกจำกัดในโปรดักชัน) |
+| 9 | ปัญญาประดิษฐ์ (AI) | บูรณาการระบบ AI ผ่านบริการ Google Gemini API (โมเดล gemini-1.5-flash / embedding-001) |
 
 ### 9.2 สมมติฐาน (Assumptions)
 
@@ -690,6 +732,7 @@ erDiagram
 | การวิเคราะห์บทบาทอาจารย์ที่ปรึกษา | `docs/ADVISOR_ANALYSIS.md` |
 | โครงสร้างฐานข้อมูลและโค้ด DBML | `docs/UniResearch_Database_Schema.md` |
 | แผนภาพ UML ฉบับเต็ม | `docs/UniResearch_UML_Diagrams.md` |
+| แผนงานและการติดตั้ง AI Features | `docs/AI_FEATURES_PROPOSAL.md` |
 | RBAC Matrix (CSV) | `docs/UniResearch_Requirements_Analysis - RBAC Matrix.csv` |
 | เอกสาร API (Swagger UI) | `http://localhost:8000/docs` (เมื่อรันระบบ) |
 | คู่มือการติดตั้ง Backend | `backend/README.md` |
