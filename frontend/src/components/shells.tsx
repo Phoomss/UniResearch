@@ -3,6 +3,7 @@ import { Brand, ButtonLink, LanguageSwitch } from "./ui";
 import { hasSession } from "@/src/lib/api/session";
 import { LogoutButton } from "@/src/features/auth/session-controls";
 import { getLanguage, translations } from "@/src/lib/i18n";
+import { NotificationBellDropdown } from "./ui/notification-bell";
 
 export async function SiteHeader(
     { variant = "default" }: { variant?: "default" | "home" } = {},
@@ -21,8 +22,9 @@ export async function SiteHeader(
                     <Link href="/#categories">{t.exploreCategories}</Link>
                     <Link href="/#about">{t.aboutSystem}</Link>
                 </nav>
-                <div className="header-actions">
+                <div className="header-actions" style={{ display: "flex", alignItems: "center", gap: "14px" }}>
                     <LanguageSwitch />
+                    {authenticated && <NotificationBellDropdown />}
                     {authenticated ? <LogoutButton /> : <ButtonLink href="/login" variant="secondary">{t.login}</ButtonLink>}
                     <ButtonLink href="/dashboard/student/submit">{t.submitResearch}</ButtonLink>
                     <details className="mobile-nav">
@@ -134,6 +136,7 @@ export async function DashboardShell({ children, active = "01" }: { children: Re
                         </span>
                     )}
                     <Link className="icon-btn" href="/research" aria-label="ค้นหา">⌕</Link>
+                    {authenticated && <NotificationBellDropdown />}
                     {authenticated ? <LogoutButton /> : <ButtonLink href="/login" variant="secondary">เข้าสู่ระบบ</ButtonLink>}
                 </div>
             </header>

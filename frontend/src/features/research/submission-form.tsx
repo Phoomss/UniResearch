@@ -12,6 +12,7 @@ import {
 } from "react";
 import { Button, Field, Input, Select } from "@/src/components/ui";
 import { Bold, Italic, Heading1, Heading2, List, ListOrdered, Eye, Edit2 } from "lucide-react";
+import { AIWritingAssistant } from "@/src/features/ai/writing-assistant";
 import { useToast } from "@/src/components/ui/Toast";
 import type {
   CategoryResponse,
@@ -636,6 +637,18 @@ export function SubmissionForm({
                 />
               </Field>
             </div>
+            <AIWritingAssistant
+              values={{
+                title_th: values.title_th,
+                title_en: values.title_en,
+                abstract: values.abstract,
+                keywords: values.keywords,
+                category_id: values.category_id,
+              }}
+              onUpdate={(field, value) => update(field as FieldName, value)}
+              categories={categories}
+              disabled={pending}
+            />
           </>
         )}
         {step === 1 && (
@@ -834,6 +847,18 @@ export function SubmissionForm({
               </div>
               <input type="hidden" name="keywords" value={values.keywords} />
             </div>
+            <AIWritingAssistant
+              values={{
+                title_th: values.title_th,
+                title_en: values.title_en,
+                abstract: values.abstract,
+                keywords: values.keywords,
+                category_id: values.category_id,
+              }}
+              onUpdate={(field, value) => update(field as FieldName, value)}
+              categories={categories}
+              disabled={pending}
+            />
           </>
         )}
         {step === 3 && (

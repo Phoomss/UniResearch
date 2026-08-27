@@ -75,10 +75,10 @@ graph TD
 - [`00-namespace.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/00-namespace.yaml): สร้าง namespace ชื่อ `uniresearch` เพื่อแยกทรัพยากร
 - [`01-postgres.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/01-postgres.yaml):
   - สร้าง PersistentVolumeClaim (`postgres-pvc`) ขนาด 10Gi สำหรับเก็บข้อมูล PostgreSQL
-  - สร้าง Service และ Deployment รัน PostgreSQL 15-alpine แบบ Stateful
+  - สร้าง Service และ Deployment รัน PostgreSQL (ใช้รูปภาพ `pgvector/pgvector:pg15` เพื่อรองรับการเก็บเวกเตอร์ข้อความ) แบบ Stateful
 - [`02-backend.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/02-backend.yaml):
   - สร้าง PVC (`backend-static-pvc`) ขนาด 5Gi สำหรับเก็บไฟล์อัปโหลด เช่น PDFs และรูปภาพหน้าปก
-  - รัน FastAPI Backend จำนวน 2 Replicas เพื่อการกระจายภาระงาน (Load Balancing)
+  - รัน FastAPI Backend จำนวน 2 Replicas เพื่อการกระจายภาระงาน (Load Balancing) ร่วมกับการตั้งค่า Environment Variables เชื่อมต่อ Google Gemini API
   - ทำการอัปเกรด DB Schema อัตโนมัติในตอนเริ่มต้นด้วยคำสั่ง `alembic upgrade head`
 - [`03-frontend.yaml`](file:///Users/mac/Desktop/workspace/UniResearch/infrastructure/k8s/01-app/03-frontend.yaml):
   - รัน Next.js Frontend App จำนวน 2 Replicas

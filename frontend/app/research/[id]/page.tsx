@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { SiteFooter, SiteHeader } from "@/src/components/shells";
 import { ArchiveTab, StatePanel, Status } from "@/src/components/ui";
 import { ResearchActions } from "@/src/features/research/actions";
-import { getCategories, getResearch, getCurrentUser, searchResearch, getLatest } from "@/src/features/research/api";
+import { getCategories, getResearch, getCurrentUser, searchResearch, getLatest, getRelatedRecommendations } from "@/src/features/research/api";
 import { adaptResearch } from "@/src/features/research/adapters";
 import { hasSession } from "@/src/lib/api/session";
 import { AbstractRenderer } from "@/src/features/research/abstract-renderer";
@@ -29,14 +29,15 @@ export default async function ResearchDetail({params}:{params:Promise<{id:string
     }
   }
 
-  // Fetch related works
+  // Fetch related works using the new Smart Recommendation endpoint
   let relatedWorks: ResearchWorkResponse[] = [];
   if (result.ok) {
-    const searchRes = await searchResearch({ categoryId: result.data.category_id });
-    if (searchRes.ok) {
-      relatedWorks = searchRes.data.filter(w => w.id !== id).slice(0, 3);
+    const recsRes = await getRelatedRecommendations(id);
+    if (recsRes.ok) {
+      relatedWorks = recsRes.data.slice(0, 3);
     }
     if (relatedWorks.length === 0) {
+      // Fallback
       const latestRes = await getLatest(4);
       if (latestRes.ok) {
         relatedWorks = latestRes.data.filter(w => w.id !== id).slice(0, 3);

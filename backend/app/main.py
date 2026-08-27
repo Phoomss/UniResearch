@@ -9,12 +9,20 @@ from app.models.category import Category
 from app.models.options import Department, WorkType
 from app.models.research import ResearchWork, ResearchAuthor, ResearchAdvisor, FileRevision, ReviewComment
 from app.models.interactions import Favorite, DownloadViewLog, SearchLog
-from app.routers import auth, research, stats, category, interactions, home, options, users
+from app.models.notification import Notification
+from app.routers import auth, research, stats, category, interactions, home, options, users, ai, notification
 from sqlalchemy.future import select
+
+from sqlalchemy import text
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
+        # Try raw SQL to ensure extension exists
+        try:
+            await conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        except Exception:
+            pass
         await conn.run_sync(Base.metadata.create_all)
         
     async with AsyncSessionLocal() as db:
@@ -169,6 +177,8 @@ app.include_router(interactions.router)
 app.include_router(stats.router)
 app.include_router(home.router)
 app.include_router(users.router)
+app.include_router(ai.router)
+app.include_router(notification.router)
 
 @app.get("/")
 def read_root():

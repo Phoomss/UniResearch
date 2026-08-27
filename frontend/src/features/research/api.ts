@@ -15,7 +15,8 @@ export async function listFavorites(){ return apiRequest<FavoriteResponse[]>("/f
 export async function getMyResearch(){ return apiRequest<ResearchWorkResponse[]>("/research/my",{token:await getSessionToken()}); }
 export async function getPendingResearch(){ return apiRequest<ResearchWorkResponse[]>("/research/pending",{token:await getSessionToken()}); }
 export async function getReviewHistory(){ return apiRequest<ResearchWorkResponse[]>("/research/history",{token:await getSessionToken()}); }
-export async function toggleFavorite(id:number){ return apiRequest<FavoriteResponse|FavoriteRemovedResponse>(`/favorites/${id}`,{method:"POST",token:await getSessionToken()}); }
+
+export async function toggleFavorite(id: number){ return apiRequest<FavoriteResponse|FavoriteRemovedResponse>(`/favorites/${id}`,{method:"POST",token:await getSessionToken()}); }
 
 export async function getCurrentUser(){
   const token = await getSessionToken();
@@ -42,6 +43,17 @@ export async function updateOptions(departments: string[], workTypes: string[]) 
     body: JSON.stringify({ departments, work_types: workTypes }),
   });
 }
+
+export async function getPersonalizedRecommendations() {
+  return apiRequest<ResearchWorkResponse[]>("/research/recommendations/personalized", {
+    token: await getSessionToken(),
+  });
+}
+
+export function getRelatedRecommendations(id: number) {
+  return apiRequest<ResearchWorkResponse[]>(`/research/${id}/recommendations`);
+}
+
 
 
 

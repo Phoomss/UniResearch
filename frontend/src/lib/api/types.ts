@@ -35,7 +35,7 @@ export interface ResearchWorkResponse {
 }
 export interface ResearchParticipant { id:number;email:string;role:"student"|"advisor";first_name:string|null;last_name:string|null;student_id:string|null;department:string|null;is_current:boolean; }
 export interface ResearchParticipantsResponse { authors:ResearchParticipant[];advisors:ResearchParticipant[]; }
-export interface ReviewCommentCreate { comment_text:string; status_result:string; }
+export interface ReviewCommentCreate { comment_text:string; status_result:string; score?:number; }
 export interface ReviewCommentResponse extends ReviewCommentCreate { id:number; research_id:number; reviewer_id:number; created_at:string; }
 export interface FavoriteResponse { id:number; user_id:number; research_id:number; saved_at:string; }
 export interface FavoriteRemovedResponse { detail:string; }

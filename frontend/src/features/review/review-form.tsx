@@ -2,7 +2,7 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Field, Select, Textarea } from "@/src/components/ui";
+import { Button, Field, Select, Textarea, Input } from "@/src/components/ui";
 import { useToast } from "@/src/components/ui/Toast";
 import { AnimatePresence, motion } from "framer-motion";
 import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
@@ -29,6 +29,8 @@ export function ReviewForm({ researchId }: { researchId: number }) {
     if (!form) return;
     const data = new FormData(form);
     const comment = String(data.get("comment_text") ?? "").trim();
+    const scoreVal = data.get("score");
+    const score = scoreVal ? Number(scoreVal) : undefined;
     if (!comment) {
       setIsOpen(false);
       error("กรุณากรอกความคิดเห็นประกอบการประเมิน");
@@ -40,7 +42,7 @@ export function ReviewForm({ researchId }: { researchId: number }) {
       const response = await fetch(`/api/research/${researchId}/review`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ comment_text: comment, status_result: decision }),
+        body: JSON.stringify({ comment_text: comment, status_result: decision, score }),
       });
       const body = await response.json().catch(() => ({}));
       if (response.status===401) { 
@@ -80,10 +82,12 @@ export function ReviewForm({ researchId }: { researchId: number }) {
             <option value="needs_revision">ส่งกลับแก้ไข (Request revision)</option>
           </Select>
         </Field>
+        <Field label="คะแนนการประเมิน (0-100)" required>
+          <Input name="score" type="number" min={0} max={100} required defaultValue={80} disabled={pending} />
+        </Field>
         <Field label="ความคิดเห็นของผู้ประเมิน" required>
           <Textarea name="comment_text" required minLength={1} disabled={pending} />
         </Field>
-        <p id="review-contract-note" className="muted">หมายเหตุ: คะแนน การมอบหมายคิว และประวัติการประเมินย้อนหลัง ยังไม่เปิดใช้งานในระบบหลังบ้าน</p>
         <Button type="submit" disabled={pending}>{pending ? "กำลังบันทึกผลการประเมิน…" : "ยืนยันผลการประเมิน"}</Button>
       </form>
 
