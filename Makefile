@@ -51,11 +51,12 @@ shell-db: ## Open psql in the database container
 	docker compose exec db psql -U postgres -d uniresearch
 
 # ─── Database ────────────────────────────────────────────────────────────────
-migrate: ## Run alembic migrations
-	docker compose exec backend alembic upgrade head
+migrate: ## Run unified database migration & seed script
+	docker compose exec backend python -m app.scripts.migrate
 
 migrate-create: ## Create a new alembic migration (usage: make migrate-create MSG="your message")
 	docker compose exec backend alembic revision --autogenerate -m "$(MSG)"
+
 
 db-reset: ## Reset database (destroy volume and recreate)
 	docker compose down -v
