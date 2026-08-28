@@ -170,6 +170,7 @@ UniResearch/
    ```bash
    cp .env.docker .env
    # แก้ไขค่าตามต้องการ (เช่น SECRET_KEY, POSTGRES_PASSWORD)
+   # สำคัญ: ต้องใส่คีย์ GEMINI_API_KEY=your_api_key เพื่อเปิดใช้งานฟังก์ชัน AI
    ```
 
 3. **เปิดคำสั่ง Docker Compose:**
