@@ -25,6 +25,9 @@ services:
 
     volumes: !reset []
 
+    ports: !override
+      - "80:3000"
+
     environment:
       - NODE_ENV=production
       - BACKEND_API_URL=http://backend:8000
