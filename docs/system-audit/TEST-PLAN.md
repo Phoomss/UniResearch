@@ -1,122 +1,131 @@
-# แผนทดสอบ
+# แผนการทดสอบ UniResearch
 
-| รายการควบคุมเอกสาร | ค่า |
-|---|---|
-| รหัสเอกสาร | UR-TP-001 |
-| รุ่น | 0.2 ฉบับร่าง |
-| วันที่จัดทำ | 4 ตุลาคม 2026 |
-| อ้างอิงเวอร์ชันระบบ | commit/แท็กสำหรับรอบทดสอบ: `TBD` |
-| ผู้จัดทำ/ผู้ทบทวน/ผู้อนุมัติ | `TBD` |
-| สถานะ | รอทบทวน; ยังไม่ใช่ผลการทดสอบ |
+เนื้อหาส่วนที่ 1 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md)
 
-| รุ่น | วันที่ | รายการแก้ไข |
-|---|---|---|
-| 0.1 | 4 ตุลาคม 2026 | วิเคราะห์ Source Code และจัดทำแผนเริ่มต้น |
-| 0.2 | 4 ตุลาคม 2026 | เพิ่มรายละเอียดตามรูปแบบเอกสารทดสอบรายกรณีและรายงาน โดยไม่ยืมข้อกำหนดของระบบตัวอย่าง |
+## 1.1 วัตถุประสงค์ของการทดสอบ
 
-## 1. วัตถุประสงค์
+- ตรวจพฤติกรรมของ FR-001–FR-032 ด้วย TC-001–TC-048 ทั้งเส้นทางหน้าเว็บ API และการบันทึกข้อมูล
+- ตรวจการยืนยันตัวตนด้วย JWT/HttpOnly cookie และสิทธิ์ของ guest, student, advisor, admin ที่ระดับ UI และ HTTP
+- ตรวจ workflow ที่โค้ดใช้จริง: สร้างงานเป็น pending → ตรวจเป็น approved/rejected/needs_revision → แก้ไขแล้วกลับ pending รวมถึงการแจ้งเตือนและ revision ของไฟล์
+- ตรวจการค้นหา การมองเห็นรายละเอียด การดาวน์โหลด การจัดการผู้ใช้/หมวดหมู่/ตัวเลือก และการเชื่อมต่อ AI แบบควบคุมผล
+- บันทึกความต่างระหว่าง frontend กับ backend ตามผลทดสอบจริง โดยเฉพาะหน้า /admin, คิว advisor และ URL ไฟล์
 
-ตรวจว่าพฤติกรรมตาม [FR-001–FR-032](FUNCTIONAL-REQUIREMENTS.md) ทำงานจริงทั้งระดับ FastAPI, Next.js proxy และหน้าเว็บ โดยเน้นสิทธิ์ ข้อมูลสัมพันธ์ ไฟล์ และสถานะงาน ตาม Source Code ปัจจุบัน
+## 1.2 ขอบเขตการทดสอบ
 
-## 2. ขอบเขต
+### 1.2.1 สิ่งที่อยู่ในขอบเขต (In Scope)
 
-**In Scope:** บัญชี/JWT/session, role, ผู้ใช้, หมวดหมู่, ตัวเลือก, ค้นหา/รายละเอียด/คำแนะนำ, การส่ง/แก้/ลบ/ดาวน์โหลดงาน, คิว/ผลตรวจ, favorite, notification, AI endpoint แบบ mock provider, integration ระหว่างเว็บกับ API และ E2E เส้นทางหลัก
+- กรณีทดสอบ TC-001–TC-048: Positive 32 และ Negative 16; ครอบคลุม 32 FR ในเอกสาร Functional Requirements
+- บัญชี/โปรไฟล์/session, RBAC, ผู้ใช้, หมวดหมู่และตัวเลือก, ค้นหาและคำแนะนำ, ผลงานวิจัย, ไฟล์, คิวตรวจ/ผลตรวจ, favorite, notification, AI endpoint และ E2E ข้ามบทบาท
+- ตรวจ HTTP status, response body, UI/redirect, ฐานข้อมูล, file storage และ log ที่เกี่ยวข้องตามแต่ละ TC
+- ทดสอบกรณีข้อมูลผิด ขาด token, role ไม่ถูก, relation ไม่ถูก, ขนาดไฟล์ขอบเขต และ ID ไม่พบ
 
-**Out of Scope:** คุณภาพเชิงความหมายของคำตอบ AI จริง, ประสิทธิภาพระดับ production, penetration test เต็มรูปแบบ, การ deploy บน Kubernetes/Terraform, เอกสารหรือ feature ที่ไม่มี implementation ยืนยัน และการทดสอบไฟล์ที่ generated
+### 1.2.2 สิ่งที่อยู่นอกขอบเขต (Out of Scope)
 
-## 3. กลยุทธ์และประเภท
+- คุณภาพเชิงเนื้อหาของ AI provider จริง; ใช้ test double เพื่อทดสอบ contract และสิทธิ์
+- Load/Stress, penetration test เต็มรูปแบบ, deployment Kubernetes/Terraform และ browser/อุปกรณ์ที่ยังไม่กำหนดในรอบทดสอบ
+- ความสามารถจากตัวอย่าง SPRS ที่ไม่มีใน UniResearch เช่น draft/submitted/completed, committee, คะแนนประเมินสี่ด้าน, activity_logs, tags และรูปโปรไฟล์
 
-ใช้ API integration กับฐานข้อมูลทดสอบแยกสำหรับ positive/negative/validation/boundary และ RBAC; ใช้ test double สำหรับ AI เพื่อให้ผลทำซ้ำได้; ใช้ E2E ตรวจเส้นทาง student → advisor และ admin พร้อมตรวจ state ใน backend; ตรวจ frontend proxy และ cookie แยกจาก backend เพราะ validation/status ต่างกัน ประเภทและกรณีอยู่ใน [TEST-CASES.md](TEST-CASES.md)
+## 1.3 กลยุทธ์และประเภทการทดสอบ
 
-| ระดับ/ประเภท | เป้าหมาย | วิธีและหลักฐาน | กรณีตัวอย่าง |
+คอลัมน์ “ใช้ตามแผน” ระบุวิธีที่ตั้งใจใช้ ไม่ได้หมายถึงทดสอบแล้ว
+
+| ประเภทการทดสอบ | วิธีการ | เครื่องมือ/หลักฐาน | ใช้ตามแผน |
 |---|---|---|---|
-| API positive | ตรวจ response และผลบันทึกจริง | เรียก FastAPI โดยตรง; เก็บ HTTP response, query ก่อน/หลัง | TC-003, TC-022, TC-038 |
-| API negative/RBAC | ตรวจการปฏิเสธทั้งไม่มี token และ role ไม่ถูก | ส่งคำขอตรงโดยไม่อาศัยการซ่อนปุ่มใน UI; ตรวจ status และฐานข้อมูลไม่เปลี่ยน | TC-006, TC-009, TC-023, TC-039 |
-| Validation/boundary | ตรวจ schema, relation และขอบเขตไฟล์ | ชุด input ถูก/ผิด/ค่าขอบเขต; ตรวจไฟล์ค้างและ row count | TC-024–TC-027 |
-| Integration | ตรวจ backend, PostgreSQL, static file, notification | เทียบ response กับตาราง/ไฟล์จริงในฐานทดสอบ | TC-031, TC-040, TC-043 |
-| Frontend/proxy | ตรวจ session cookie, route handler, UI state | browser และคำขอ `/api/*`; ตรวจ redirect, HTTP และการแสดงผล | TC-007, TC-047, TC-048 |
-| E2E | ตรวจขั้นตอนงานข้าม role | Playwright/manual browser กับข้อมูลทดสอบที่รู้ ID | TC-047, TC-048 |
-| AI แบบควบคุม | ตรวจ contract/RBAC/fallback | mock provider; ตรวจโครงสร้างผล ไม่ตัดสินคุณภาพภาษา | TC-044–TC-046 |
+| Functional / E2E | เดิน workflow ผ่าน /register, /login, /student/research/new, /advisor/reviews, /admin/* | Browser/Playwright; screenshot, URL, DB | ☑ |
+| API/Integration | เรียก FastAPI และ Next.js proxy โดยตรง แล้วเทียบฐานข้อมูลและไฟล์ | HTTP client, PostgreSQL query, file check | ☑ |
+| Negative / RBAC | ตรวจหน้าเว็บและส่ง HTTP ตรงด้วยไม่มี token หรือ role ไม่ถูก | Browser, HTTP client, before/after snapshot | ☑ |
+| Validation / Boundary | ส่ง JSON ID ผิด, category/role ผิด, ไฟล์ชนิด/ขนาดขอบเขต | HTTP client, ชุดไฟล์ทดสอบ | ☑ |
+| Automated Backend | รันชุด pytest ที่มีอยู่ใน backend/tests | pytest; log และ commit ที่รัน | ☑ |
+| Automated Frontend | typecheck, lint, Node tests และ build ตาม package.json | pnpm; log และ commit ที่รัน | ☑ |
+| Automated E2E | รัน Playwright เฉพาะเมื่อ fixture และ server พร้อม; ตรวจ skip ด้วย | Playwright trace/screenshot | ☑ |
+| AI แบบควบคุม | mock provider และตรวจ schema/RBAC/fallback | Test double, HTTP response | ☑ |
+| Regression | รัน TC ที่ได้รับผลกระทบซ้ำหลังแก้ defect | Test Execution Log และหลักฐานก่อน/หลัง | ☑ |
 
-**เกณฑ์ผ่านรายกรณี:** ผลที่สังเกตได้ตรงทุกข้อใน Expected Result ทั้ง HTTP/UI และ persistence ที่ระบุ; กรณีปฏิเสธต้องตรวจว่าไม่มี side effect; หากขึ้นกับบริการ AI/ฐานข้อมูล ให้แยกความผิดพลาดของ environment จาก defect ของฟังก์ชัน
+เกณฑ์ผ่านราย TC: ผลจริงตรงทุก Expected Result ที่ระบุ; กรณี Negative ต้องไม่มีการเปลี่ยนข้อมูลที่ถูกปฏิเสธ; ต้องมีหลักฐานตรวจซ้ำได้ ข้อสังเกตจากการอ่านโค้ดยังไม่ใช่ผล Passed หรือ Failed
 
-## 4. Entry Criteria
+## 1.4 เกณฑ์การเริ่มและสิ้นสุดการทดสอบ
 
-โค้ดและ dependency ของเวอร์ชันที่จะทดสอบพร้อม; backend/frontend เริ่มได้; มี PostgreSQL พร้อม pgvector และฐานข้อมูลทดสอบแบบใช้แล้วทิ้ง; มีข้อมูลตัวอย่าง category, student, advisor, admin และงานหลายสถานะ; มีวิธีแทน AI provider; ระบุผู้ทดสอบและเจ้าของผลทดสอบแล้ว
+### 1.4.1 เกณฑ์การเริ่มทดสอบ (Entry Criteria)
 
-| จุดตรวจเริ่มงาน | วิธีตรวจ | สถานะก่อนเริ่มรอบจริง |
+- ระบุ commit, configuration และ browser/OS ที่ใช้จริง โดยไม่บันทึก secret
+- เริ่ม frontend/backend และ PostgreSQL pgvector บนฐานทดสอบแยกได้; /health ตอบ และตารางที่ backend ใช้พร้อม
+- เตรียม fixture A1/S1/S2/S3/D1/D2/G1/U2, C1/C2, W1–W5, N1/N2 และไฟล์ valid/invalid ตาม [TEST-CASES.md](TEST-CASES.md)
+- มีวิธีควบคุม AI provider และสถานที่เก็บหลักฐานที่ปกปิด token/ข้อมูลลับ
+- ผู้รับผิดชอบอนุมัติ scope และกรณีทดสอบของรอบนั้น: TBD
+
+### 1.4.2 เกณฑ์การสิ้นสุดการทดสอบ (Exit Criteria)
+
+- มีผลและหลักฐานสำหรับ TC ทั้ง 48 หรือบันทึกเหตุผลของกรณีที่ข้าม/Blocked
+- กรณี Priority สูง 31 ข้อมีผลครบ; เป้าหมายอัตราผ่านและการจัดการ defect ให้ผู้อนุมัติรอบทดสอบกำหนด: TBD
+- ทุก FR มีผลอย่างน้อยหนึ่ง TC; defect สำคัญได้รับการแก้หรือมีการรับความเสี่ยงอย่างชัดเจน
+- รายงานข้อ 2.1–2.8 กรอกผลจริงและผ่านการทบทวน
+
+### 1.4.3 เกณฑ์การระงับและกลับมาทดสอบ (Suspension / Resumption)
+
+ระงับกรณีที่ขึ้นกับ service เมื่อล็อกอินไม่ได้ ฐานข้อมูล/pgvector ไม่พร้อม fixture ปนข้อมูลจริง หรือ AI test double ใช้ไม่ได้ บันทึกเป็น Blocked พร้อมสาเหตุและเวลา กลับมาทดสอบเมื่อแก้ dependency แล้วผ่าน smoke check ที่เกี่ยวข้อง
+
+## 1.5 สภาพแวดล้อมการทดสอบ
+
+| รายการ | ค่าอ้างอิงจาก Repository | ค่าจริงในรอบทดสอบ |
 |---|---|---|
-| ระบุ commit และ configuration ที่ไม่เปิดเผย secret | บันทึก commit hash, เวอร์ชัน runtime, feature flag | `TBD` |
-| ฐานทดสอบแยกจาก production และรองรับ `Vector(768)` | ตรวจชื่อ target แบบปกปิดข้อมูลลับและสร้างตารางบนฐานใช้แล้วทิ้ง | `TBD` |
-| ระบบตอบได้ | `/health`, หน้า `/`, API สำคัญ และ log startup | `TBD` |
-| fixture พร้อม | บัญชี role หลัก, งาน `pending`/`approved`/`needs_revision`, category, PDF/ภาพถูกต้อง | `TBD` |
-| วิธีบันทึกหลักฐานพร้อม | ที่เก็บ response, screenshot, query ผล, defect ID | `TBD` |
+| แอปพลิเคชัน | Next.js 16.2.12, React 19.2.4, FastAPI | TBD |
+| Runtime | Node 22 / pnpm 9 / Python 3.11 ตาม CI | TBD |
+| ฐานข้อมูล | pgvector/pgvector:pg15 ตาม docker-compose.yml | TBD |
+| การเริ่มระบบ | docker compose up --build; backend เรียก Base.metadata.create_all ระหว่าง startup | TBD |
+| URL/Port ค่าเริ่มต้น | Frontend 3000, Backend 8000, DB host 5433 | TBD |
+| เวอร์ชัน/Commit | ต้องบันทึกก่อนรัน | TBD |
+| Browser/OS | Repository ไม่ระบุรุ่นที่ต้องรับรอง | TBD |
+| บัญชีทดสอบ | สร้างบนฐานทดสอบตาม role; ไม่ใช้ข้อมูลจริง | TBD |
+| AI | test double สำหรับ Functional; smoke จริงแยก | TBD |
+| ขนาดไฟล์ค่าเริ่มต้น | cover 5 MiB, document 25 MiB; environment override ได้ | TBD |
 
-## 5. Exit Criteria
+## 1.6 บทบาทหน้าที่และผู้รับผิดชอบ
 
-กรณี Priority สูงทั้งหมดมีผลและหลักฐาน; ทุก FR มีผลการทดสอบอย่างน้อยหนึ่ง TC; defect ระดับขัดขวาง/วิกฤตได้รับการจัดการหรือรับความเสี่ยงโดยเจ้าของระบบ; บันทึก failed/blocked พร้อมเหตุผล และออกรายงานผลจริง ตัวเลขเกณฑ์ผ่านเชิงร้อยละ: `TBD` เพราะ Repository ไม่กำหนด
-
-**ระงับ/กลับมาทดสอบ:** ระงับเฉพาะกลุ่มกรณีที่ระบบเริ่มไม่ได้, DB/pgvector ใช้ไม่ได้, fixture ปนข้อมูลจริง หรือ provider จำเป็นไม่พร้อม; ระบุ `Blocked` พร้อมช่วงเวลา/สาเหตุ กลับมาทดสอบเมื่อแก้ dependency แล้วและรัน smoke check ซ้ำ ไม่ตีความ `Blocked` เป็น `Passed`
-
-## 6. สภาพแวดล้อม
-
-อ้างอิง `docker-compose.yml`: Next.js ที่พอร์ต 3000, FastAPI 8000, PostgreSQL pgvector 15 ที่พอร์ต host 5433 ตามค่าเริ่มต้นที่กำหนดใน Compose; ฐานทดสอบต้องแยกจากข้อมูลจริง Frontend ใช้ Node 22/pnpm 9 และ backend ใช้ Python 3.11 ตาม CI ([workflow](../../.github/workflows/develop-ci.yml)) ขนาดอัปโหลดค่าเริ่มต้นภาพ 5 MiB/PDF 25 MiB ([config.py](../../backend/app/core/config.py)); ค่า deployment จริงอาจ override ได้
-
-| ส่วนประกอบ | ค่าอ้างอิงจาก Repository | ค่าจริงรอบทดสอบ |
+| บทบาท | หน้าที่ | ผู้รับผิดชอบ |
 |---|---|---|
-| Frontend | Next.js 16.2.12 / React 19.2.4; `pnpm dev` หรือ build ตาม CI | `TBD` |
-| Backend | FastAPI / Python 3.11 ใน CI; `/health` | `TBD` |
-| Database | PostgreSQL image `pgvector/pgvector:pg15` | `TBD` |
-| Browser/OS | Repository ไม่กำหนดรุ่นที่ต้องรับรอง | `TBD` |
-| AI | configuration ผ่าน environment; test double สำหรับ functional | `TBD` |
-| เวอร์ชัน/commit | ต้องบันทึกก่อนรัน | `TBD` |
+| Test Manager | กำหนดรอบ ติดตาม entry/exit และสรุปผล | TBD |
+| Tester | เตรียม fixture, execute TC, เก็บหลักฐานและเปิด defect | TBD |
+| ผู้ดูแลสภาพแวดล้อม | ดูแลฐานทดสอบและ AI test double | TBD |
+| Developer | วิเคราะห์/แก้ defect และส่ง commit สำหรับ retest | TBD |
+| Approver | รับรองผลหรือรับความเสี่ยงคงค้าง | TBD |
 
-**ข้อมูลทดสอบขั้นต่ำ:** ผู้ใช้ `student` 2 คนที่รหัสนักศึกษามี prefix เดียวกันและอีกคนต่าง prefix, `advisor` 2 คน, `admin` 1 คน, ผู้ใช้ inactive 1 คน, category อย่างน้อย 2 รายการ, งาน approved/pending/needs_revision ที่มีเจ้าของต่างกัน, ภาพ JPG/PNG/WEBP และ PDF ที่มีลายเซ็นไฟล์จริง ชื่ออีเมลและรหัสผ่านให้สร้างเฉพาะใน environment ทดสอบและไม่บันทึกค่าในเอกสารนี้
+## 1.7 กำหนดการทดสอบ (Test Schedule)
 
-## 7. บทบาทและผู้รับผิดชอบ
-
-ผู้ทดสอบ: `TBD`; ผู้ดูแลข้อมูลทดสอบ/สภาพแวดล้อม: `TBD`; ผู้แก้ defect backend/frontend: `TBD`; ผู้อนุมัติผลและรับความเสี่ยง: `TBD` ไม่มีข้อมูลมอบหมายบุคคลจาก Source Code
-
-| หน้าที่ในรอบทดสอบ | งานที่รับผิดชอบ | ผู้รับผิดชอบ |
-|---|---|---|
-| ผู้ประสานรอบทดสอบ | กำหนด scope, entry/exit, ติดตามผล | `TBD` |
-| ผู้ทดสอบ | เตรียม fixture, execute TC, เก็บหลักฐาน | `TBD` |
-| ผู้ดูแลสภาพแวดล้อม | ฐานทดสอบ, runtime, mock provider | `TBD` |
-| ผู้พัฒนา | วิเคราะห์/แก้ defect และส่ง commit ให้ retest | `TBD` |
-| ผู้อนุมัติ | ตัดสินผลและรับความเสี่ยงคงค้าง | `TBD` |
-
-## 8. กำหนดการ
-
-วันเริ่ม/สิ้นสุด: `TBD` ลำดับเสนอให้ทำ environment และข้อมูล → API/RBAC/validation → integration/proxy → E2E → retest/report ระยะเวลาแต่ละช่วง: `TBD`
-
-| กิจกรรม | เริ่ม | สิ้นสุด | ผู้รับผิดชอบ | เงื่อนไขส่งต่อ |
-|---|---|---|---|---|
-| เตรียม environment/fixture | `TBD` | `TBD` | `TBD` | ผ่าน entry criteria |
-| API, RBAC, validation | `TBD` | `TBD` | `TBD` | บันทึกผลและ defect |
-| Integration และ frontend proxy | `TBD` | `TBD` | `TBD` | จุดเชื่อมต่อพร้อม |
-| E2E และ regression | `TBD` | `TBD` | `TBD` | ข้อขัดขวางหลักแก้แล้ว |
-| สรุปและอนุมัติผล | `TBD` | `TBD` | `TBD` | ประเมิน exit criteria |
-
-## 9. ความเสี่ยงและแผนรองรับ
-
-| ความเสี่ยงจากโค้ด | แผนทดสอบ/รองรับ |
-|---|---|
-| `GET /research/{id}` และ static file ไม่มีการตรวจสิทธิ์หรือสถานะ | ทดสอบการเข้าถึงงาน pending ผ่าน URL ตรง; บันทึกผลเป็น defect หรือยืนยันนโยบายกับเจ้าของระบบก่อนเปลี่ยนข้อกำหนด ([research.py](../../backend/app/routers/research.py), [main.py](../../backend/app/main.py)) |
-| Frontend รับ `reviewer` แต่ backend RBAC ไม่รับ | ทดสอบบัญชี role นี้แบบแยกชั้น; บันทึกความต่าง ([advisor/layout.tsx](../../frontend/app/advisor/layout.tsx), [deps.py](../../backend/app/routers/deps.py)) |
-| `/admin` ตรวจเพียง session | ทดสอบการเปิดหน้าโดย non-admin และการปฏิเสธจาก API; แจ้ง defect หาก UI เปิดข้อมูลที่ไม่ควร ([admin/layout.tsx](../../frontend/app/admin/layout.tsx)) |
-| การยกเลิก favorite ใช้ HTTPException สถานะ 200 | ตรวจทั้ง status และ body ตาม implementation ก่อนกำหนด acceptance ([interactions.py](../../backend/app/routers/interactions.py)) |
-| AI และ pgvector พึ่งพาบริการ/ส่วนขยาย | mock AI ใน functional tests; แยก smoke test สภาพแวดล้อมจริงและบันทึก dependency failure |
-| ไม่มี migration ใน Repository และ `create_all` ระหว่าง startup | ใช้ฐานทดสอบใหม่; ตรวจ schema ก่อนรัน; อย่าทดสอบบนฐานข้อมูลจริง ([main.py](../../backend/app/main.py)) |
-| `assign_advisors` ไม่ตรวจ ID/role ใน service | ทดสอบ input ไม่ถูกและบันทึกพฤติกรรม/defect ตามผลจริง ([research_service.py](../../backend/app/services/research_service.py)) |
-
-## 10. สิ่งส่งมอบ
-
-เอกสารชุดนี้, test data ที่ไม่ใช่ข้อมูลจริง, log/หลักฐานการรัน, defect list, และรายงานผลที่กรอกหลัง execute ([TEST-REPORT.md](TEST-REPORT.md))
-
-## 11. อนุมัติแผน
-
-| บทบาท | ชื่อ | วันที่ | สถานะ |
+| กิจกรรม | วันที่เริ่ม | วันที่สิ้นสุด | ผู้รับผิดชอบ |
 |---|---|---|---|
-| ผู้จัดทำ | `TBD` | `TBD` | รอ |
-| ผู้ทบทวน | `TBD` | `TBD` | รอ |
-| ผู้อนุมัติ | `TBD` | `TBD` | รอ |
+| เตรียมสภาพแวดล้อมและข้อมูลทดสอบ | TBD | TBD | TBD |
+| ทดสอบรอบที่ 1: API/RBAC/Validation | TBD | TBD | TBD |
+| ทดสอบรอบที่ 1: UI/Integration/E2E | TBD | TBD | TBD |
+| แก้ไขข้อบกพร่อง | TBD | TBD | TBD |
+| ทดสอบซ้ำและ Regression | TBD | TBD | TBD |
+| จัดทำรายงานและสรุปผล | TBD | TBD | TBD |
+
+## 1.8 ความเสี่ยงและแผนรองรับ (Risks & Mitigation)
+
+ระดับผลกระทบ/โอกาสเป็นการประเมินสำหรับแผนทดสอบ ยังไม่ใช่ผล defect
+
+| ความเสี่ยงจาก Implementation | ผลกระทบ | โอกาสเกิด | แผนรองรับ |
+|---|---|---|---|
+| GET /research/{id} และ /static/* ไม่มีการตรวจสถานะหรือสิทธิ์ของงาน | สูง | สูง | TC-018/034 ตรวจ URL ตรง; ให้เจ้าของระบบยืนยันนโยบายก่อนสรุป defect |
+| หน้า /admin ตรวจเพียง session แต่ API admin ตรวจ role | กลาง | สูง | TC-048 ตรวจทั้งหน้าและ HTTP; แยก UI access จาก data access |
+| หน้า /advisor/reviews ใช้ searchResearch ที่ให้ advisor เห็นงานทั้งหมด ต่างจาก /research/pending | กลาง | สูง | TC-036 เทียบ UI กับ API และบันทึกการมองเห็นจริง |
+| role reviewer ปรากฏใน frontend แต่ backend require_role ไม่ให้ตรวจงาน | กลาง | สูง | ตรวจบัญชี role นี้แบบแยกชั้นก่อนใช้เป็น fixture หลัก |
+| AI provider/pgvector ไม่พร้อม | กลาง | กลาง | mock provider, smoke check, บันทึก Blocked เมื่อ dependency ไม่พร้อม |
+| ไม่มี migration file ใน Repository และ startup ใช้ create_all | กลาง | กลาง | ใช้ฐานใหม่แยก ตรวจ schema ก่อนรัน ห้าม reset ฐานจริง |
+| ข้อมูล fixture/ไฟล์ค้างทำให้ผลรอบถัดไปเปลี่ยน | กลาง | กลาง | reset fixture ก่อนแต่ละ TC; เทียบ row/file ก่อนและหลัง |
+| เวลาทดสอบจำกัด | สูง | กลาง | เรียง Priority สูงก่อน แต่บันทึก TC ที่ไม่ได้รันตามจริง |
+
+## 1.9 สิ่งส่งมอบของการทดสอบ (Test Deliverables)
+
+- แผนการทดสอบที่อนุมัติแล้วและ [TEST-CASES.md](TEST-CASES.md)
+- ข้อมูล fixture บนฐานทดสอบพร้อมวิธี reset โดยไม่รวม credential ในเอกสาร
+- Test Execution Log พร้อมหลักฐานที่ปกปิดข้อมูลลับ
+- Defect Log, หลักฐาน retest และรายงานสรุปผลตามส่วนที่ 2
+
+## 1.10 การอนุมัติแผนการทดสอบ
+
+| บทบาท | ชื่อ-นามสกุล | ลายเซ็น/วิธีรับรอง | วันที่ |
+|---|---|---|---|
+| ผู้จัดทำแผน | TBD | TBD | TBD |
+| ผู้ทบทวน | TBD | TBD | TBD |
+| ผู้อนุมัติ | TBD | TBD | TBD |

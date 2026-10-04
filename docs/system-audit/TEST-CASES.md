@@ -1,1325 +1,1545 @@
-# กรณีทดสอบ
+# เอกสารกรณีทดสอบ (Test Case Specification)
 
-ทุกกรณีมีสถานะเริ่มต้น `Not Tested` และเป็นแผนทดสอบ ยังไม่มีผลรันจริง ข้อมูลตัวอย่างต้องสร้างในฐานทดสอบแยกและล้างหลังทดสอบ คำว่า “ตอบสำเร็จ” ให้ตรวจทั้ง HTTP status และข้อมูลในฐานข้อมูลหรือ UI ตามขั้นตอน
+## การทดสอบแบบ E2E และ API/Integration
 
-| TC | FR | Module | กรณีทดสอบ | Priority | Preconditions | Steps | Expected Result |
-|---|---|---|---|---|---|---|---|
-| TC-001 | FR-001 | บัญชี | สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin | สูง | email ยังไม่มี | POST `/auth/register` พร้อม role `admin` | สร้างผู้ใช้ role `student` |
-| TC-002 | FR-001 | บัญชี | สมัคร email ซ้ำ | สูง | มีผู้ใช้เดิม | POST `/auth/register` ด้วย email เดิม | 400; ไม่เพิ่มผู้ใช้ |
-| TC-003 | FR-002 | บัญชี | ล็อกอินข้อมูลถูก | สูง | มีผู้ใช้ | POST `/auth/login` แบบ form | ได้ `access_token` และ `token_type=bearer` |
-| TC-004 | FR-002 | บัญชี | รหัสผ่านผิด | สูง | มีผู้ใช้ | POST `/auth/login` ด้วยรหัสผิด | 400; ไม่มี token |
-| TC-005 | FR-003 | บัญชี | ดู/แก้โปรไฟล์และเปลี่ยนรหัส | สูง | token ผู้ใช้ active | GET และ PUT `/auth/me`; ล็อกอินใหม่ | ข้อมูลที่แก้บันทึกและรหัสใหม่ใช้ได้ |
-| TC-006 | FR-003 | บัญชี | token ไม่ถูก/ผู้ใช้ inactive/email ซ้ำ | สูง | มีผู้ใช้สองราย | GET/PUT `/auth/me` ด้วยแต่ละเงื่อนไข | token ผิดได้ 401, inactive ถูกปฏิเสธ, email ซ้ำได้ 400 |
-| TC-007 | FR-004 | เว็บบัญชี | ล็อกอินแล้วออกจากระบบ | สูง | backend พร้อม | POST `/api/auth/login`; ดู Set-Cookie; POST logout | cookie มี HttpOnly; หลัง logout session หาย |
-| TC-008 | FR-005 | ผู้ใช้ | admin CRUD ผู้ใช้ | สูง | token admin | GET/POST/GET id/PUT/DELETE `/users` | ข้อมูลเปลี่ยนตามคำขอ; หลังลบหาไม่พบ |
-| TC-009 | FR-005 | ผู้ใช้ | student เรียก API จัดการผู้ใช้ | สูง | token student | GET/POST/PUT/DELETE `/users` | ทุกคำขอได้ 403 |
-| TC-010 | FR-006 | หมวดหมู่ | อ่านสาธารณะและเพิ่มโดย admin | กลาง | token admin | GET แล้ว POST `/categories/` | รายการใหม่ปรากฏใน GET |
-| TC-011 | FR-006 | หมวดหมู่ | ผู้ไม่ใช่ admin เพิ่มหมวดหมู่ | สูง | token student | POST `/categories/` | 403 |
-| TC-012 | FR-007 | ตัวเลือก | admin แทนรายการตัวเลือก | กลาง | token admin | GET; POST `/options/` พร้อมสอง array; GET อีกครั้ง | คืนเฉพาะรายการใหม่ที่ไม่ว่าง |
-| TC-013 | FR-007 | ตัวเลือก | student เปลี่ยนตัวเลือก | สูง | token student | POST `/options/` | 403; รายการเดิมคงอยู่ |
-| TC-014 | FR-008 | ค้นหา | guest/student/admin ค้นงาน approved และ pending | สูง | งานสองสถานะ หลายเจ้าของ | GET `/research/search?q=...&category_id=...` ด้วยแต่ละสิทธิ์ | guest เห็น approved; student เห็น approved และงานเกี่ยวข้อง; admin เห็นทั้งหมด; filter ถูกต้อง |
-| TC-015 | FR-008 | ค้นหา | คำค้นมีหลายคำและบันทึก log | กลาง | งานตัวอย่าง | ค้นหลายคำ; ตรวจ `search_logs` | ผลตรงอย่างน้อยหนึ่งเงื่อนไข OR ตามโค้ด; มี log |
-| TC-016 | FR-009 | ค้นหา | คำแนะนำไม่เผยงาน pending | สูง | ชื่อ/คำสำคัญเฉพาะใน pending | GET `/research/search/suggestions?q=...` | ไม่มีชื่อ/คำสำคัญจาก pending |
-| TC-017 | FR-010 | หน้าหลัก | latest/popular และสถิติ | กลาง | งาน approved/pending และ count | GET `/home/latest`, `/home/popular`, `/stats/` | สองรายการแรกมี approved เท่านั้นและเรียงถูก; ยอดรวมตรงฐานข้อมูล |
-| TC-018 | FR-011 | รายละเอียด | เปิดงานและแนะนำงานที่เกี่ยวข้อง | กลาง | งานที่มี category/keywords | GET `/research/{id}` และ `/recommendations` | รายละเอียดตรง; view_count เพิ่ม 1; คำแนะนำเป็น approved อื่น |
-| TC-019 | FR-011 | รายละเอียด | ID ไม่มีอยู่ | กลาง | ไม่มี ID | GET `/research/{id}` | 404 |
-| TC-020 | FR-012 | คำแนะนำ | ผู้ไม่ล็อกอิน/มี favorite ได้คำแนะนำ | กลาง | approved หลายหมวด | GET `/recommendations/personalized` สองสภาพ | คืน approved สูงสุด 5 รายการตามคะแนนที่โค้ดใช้ |
-| TC-021 | FR-013 | ผู้เกี่ยวข้อง | รายชื่อผู้เขียน/ที่ปรึกษา | กลาง | student/advisor active/inactive | GET `/research/participants` ด้วย token | แยก active ตาม role และระบุ `is_current` |
-| TC-022 | FR-014 | ส่งผลงาน | ส่งงานครบข้อมูลและผู้เกี่ยวข้อง | สูง | token student; category/IDs ถูก | POST multipart `/research/` | ได้งาน `pending`; relations และ submitter บันทึก |
-| TC-023 | FR-014 | ส่งผลงาน | ไม่ล็อกอินหรือ role guest ส่งงาน | สูง | guest token หรือไม่มี token | POST `/research/` | ไม่มี token ได้ 401; guest ได้ 403 |
-| TC-024 | FR-015 | Validation | IDs ไม่ใช่ JSON array/มี 0/role ผิด | สูง | category ถูก | POST `/research/` หลายชุดข้อมูล | 422 หรือ 404 ตามเงื่อนไข; ไม่สร้างงาน |
-| TC-025 | FR-015 | Validation | ผู้เขียนคนละ prefix ปี | กลาง | student สองคนมี student_id ต่าง prefix | POST `/research/` พร้อมทั้งคู่ | 422; ไม่สร้างงาน |
-| TC-026 | FR-016 | ไฟล์ | อัปโหลดชนิดถูกและทดสอบขนาดขอบเขต | สูง | ไฟล์ภาพ/PDF ถูกต้อง | ส่งไฟล์ที่ขนาดเท่าขีดจำกัดและเกิน 1 byte | เท่าขีดจำกัดรับ; เกินได้ 413 |
-| TC-027 | FR-016 | ไฟล์ | นามสกุล/MIME/ลายเซ็นผิด | สูง | เตรียมไฟล์ปลอม | POST multipart พร้อมไฟล์ปลอม | 415; ไม่มีไฟล์ค้างเมื่อเกิดข้อผิดพลาด |
-| TC-028 | FR-017 | ผลงานของฉัน | ผู้ส่ง/author เห็นงานใน `/my` | สูง | งานที่เกี่ยวข้องและไม่เกี่ยวข้อง | GET `/research/my` | ได้เฉพาะงานที่ส่งหรือเป็น author |
-| TC-029 | FR-018 | แก้ผลงาน | ผู้มีสิทธิ์แก้แล้วกลับ pending | สูง | งาน approved ของตน | PUT `/research/{id}` | ข้อมูลแก้แล้ว; `status=pending` |
-| TC-030 | FR-018 | แก้ผลงาน | คนอื่นแก้งาน | สูง | งานของผู้อื่น | PUT `/research/{id}` | 403; งานไม่เปลี่ยน |
-| TC-031 | FR-019 | Revision | ส่งเอกสารใหม่หลัง `needs_revision` | สูง | งาน needs_revision มีเอกสารเดิม | PUT พร้อม PDF ใหม่ | `file_revisions` เก็บ path เดิมและ version เพิ่ม; งานกลับ pending |
-| TC-032 | FR-020 | ลบผลงาน | เจ้าของลบงานพร้อมข้อมูลสัมพันธ์ | สูง | งานที่มี authors/advisors/favorites | DELETE `/research/{id}` | งานและ relation ที่ service ลบหาย; GET ได้ 404 |
-| TC-033 | FR-020 | ลบผลงาน | คนอื่นลบงาน | สูง | งานของผู้อื่น | DELETE `/research/{id}` | 403; งานคงอยู่ |
-| TC-034 | FR-021 | ดาวน์โหลด | ผู้ใช้ active ดาวน์โหลดงานมีไฟล์ | กลาง | งานมี PDF | POST `/research/{id}/download` | ได้ `file_url`; counter/log เพิ่ม |
-| TC-035 | FR-021 | ดาวน์โหลด | ไม่มี token หรือไม่มีไฟล์ | กลาง | งานไม่มีไฟล์ | POST endpoint | ไม่ล็อกอินได้ 401; ไม่มีไฟล์ได้ 404 |
-| TC-036 | FR-022 | คิวตรวจ | admin/advisor/student ดู pending | สูง | งานมอบหมายหลาย advisor | GET `/research/pending` ด้วยสาม role | admin เห็นทั้งหมด; advisor เฉพาะงานตน; student ได้ 403 |
-| TC-037 | FR-023 | ประวัติตรวจ | ผู้ตรวจเห็นประวัติของตน | กลาง | มี ReviewComment หลาย reviewer | GET `/research/history` | ผลตรง query สำหรับ role ที่เรียก; student ได้ 403 |
-| TC-038 | FR-024 | ตรวจงาน | advisor ที่ได้รับมอบหมายอนุมัติ pending | สูง | งาน pending มอบหมาย advisor | POST `/research/{id}/review` สถานะ approved | สร้าง review; status approved |
-| TC-039 | FR-024 | ตรวจงาน | advisor ไม่ได้รับมอบหมาย/งานไม่ pending/enum ผิด | สูง | มีงานตามเงื่อนไข | POST review สามกรณี | ได้ 403/400/422 ตามลำดับ; ไม่มี review ใหม่ |
-| TC-040 | FR-025 | ตรวจงาน | อนุมัติพร้อมคะแนนและแจ้งผู้เกี่ยวข้อง | สูง | งาน pending มี submitter/author | POST review approved พร้อม score | `published_at` ถูกตั้ง; comment/score และ notification บันทึก |
-| TC-041 | FR-026 | มอบหมาย | admin เปลี่ยน advisor; student ถูกห้าม | สูง | งานและ advisor สองคน | POST `/research/{id}/assign-advisors` ด้วย admin แล้ว student | รายการใหม่แทนเดิม; student ได้ 403 |
-| TC-042 | FR-027 | Favorite | บันทึกและยกเลิก favorite | กลาง | token active; งานมีอยู่ | POST สองครั้ง; GET `/favorites/` | ครั้งแรกมีรายการ; ครั้งที่สองหาย; ตรวจรูปแบบ response ตามโค้ดจริง |
-| TC-043 | FR-028 | แจ้งเตือน | อ่านเฉพาะของตนและ mark read | สูง | แจ้งเตือนสองผู้ใช้ | GET, POST read หนึ่งรายการ, POST read-all | ของผู้อื่นไม่ปรากฏ/อ่านไม่ได้; ของตน `is_read=true` |
-| TC-044 | FR-029 | AI | เรียกสี่ API ด้วย token และ schema ที่ถูก/ผิด | กลาง | ตั้ง AI test double | POST สี่ endpoint แล้วส่ง body ขาด required field | ได้ schema response เมื่อถูก; 422 เมื่อขาด field; ไม่มี token ได้ 401 |
-| TC-045 | FR-030 | AI | dashboard insight และ chat | กลาง | AI test double; งาน approved | POST `/ai/dashboard-insights` ด้วย admin/student; POST `/ai/chat` | admin ได้ insight; student 403; chat คืน response/relevant_works |
-| TC-046 | FR-031 | AI ตรวจงาน | สี่ endpoint วิเคราะห์ผลงานและสิทธิ์ | กลาง | งานมีอยู่; AI test double | POST ทั้งสี่ด้วย advisor แล้ว student | advisor ได้ผล; student 403; ID ไม่พบได้ 404 |
-| TC-047 | FR-032 | E2E | เว็บส่งงานแล้ว advisor ตรวจ | สูง | backend/frontend และบัญชีทดสอบพร้อม | login student → `/student/research/new` ส่ง → login advisor → `/advisor/reviews` ตรวจ | งานปรากฏในคิวที่ตรงกันและสถานะเปลี่ยนใน UI/DB |
-| TC-048 | FR-032 | E2E | เว็บ admin จัดการหมวดหมู่/ผู้ใช้ | กลาง | admin พร้อม | login → `/admin/categories` เพิ่ม → `/admin/users` จัดการ | UI แสดงผลที่ backend บันทึก; ผู้ไม่ใช่ admin ถูก API ปฏิเสธ |
+ระบบ UniResearch — คลังและกระบวนการจัดการผลงานวิจัย
 
-สถานะทุก TC-001 ถึง TC-048: `Not Tested` ผลจริง เวลา ผู้ดำเนินการ และหลักฐานการรันให้บันทึกใน [TEST-REPORT.md](TEST-REPORT.md)
+ใช้คู่กับ [FUNCTIONAL-REQUIREMENTS.md](FUNCTIONAL-REQUIREMENTS.md), [SYSTEM-OVERVIEW.md](SYSTEM-OVERVIEW.md) และ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md)
 
-## รายละเอียดรายกรณี
+วันที่จัดทำ: 4 ตุลาคม 2026 · สถานะเอกสาร: ฉบับร่าง · ผลทดสอบทุกกรณี: Not Tested
 
-### ข้อมูลทดสอบร่วม
+## 1. บทนำ
 
-A1 = admin active; S1/S2/S3 = student active; D1/D2 = advisor active; G1 = guest ที่มีบัญชี; U2 = inactive; C1/C2 = category; W1/W4 = งาน approved; W2 = pending หรือ needs_revision ตามกรณี; W3 = งานของผู้อื่น; W5 = งานไม่มีไฟล์; N1/N2 = notification คนละเจ้าของ ใช้ fixture แยกหรือ reset ระหว่างกรณี รหัสผ่านและ token จริงต้องเก็บเฉพาะใน environment ทดสอบ
+เอกสารนี้ระบุ 48 กรณีสำหรับ UniResearch จาก Implementation ใน Repository ปัจจุบัน แต่ละกรณีโยง FR และระบุเงื่อนไขตั้งต้น ขั้นตอน ข้อมูลทดสอบ ผลที่คาดหวัง และช่องบันทึกผลจริง กรณีที่ไม่มีหน้าจอรองรับใช้ API/Integration โดยตรง จึงไม่เรียกทุกกรณีว่า E2E
 
-| Fixture | ค่า/เงื่อนไขที่ต้องเตรียม | ใช้เพื่อ |
-|---|---|---|
-| A1, S1, S2, S3, D1, D2, G1, U2 | email ไม่ซ้ำ; password สร้างในระบบทดสอบ; U2 มี `is_active=false`; S1/S2 มี prefix `student_id` เดียวกันและ S3 ต่าง prefix | ตรวจ login, RBAC และ validation ผู้เกี่ยวข้อง |
-| C1, C2 | `category_name` ไม่ซ้ำกัน; C1 ใช้กับ W1/W2, C2 ใช้กรองหรือสร้างใหม่ตามกรณี | ค้นหาและสร้างงาน |
-| W1, W4 | `status=approved`, วันเผยแพร่/ยอดดู/คำสำคัญต่างกัน; W1 มีไฟล์ PDF ที่ valid | ค้นหา, home, recommendation, ดาวน์โหลด |
-| W2 | งานของ S1, advisor D1; เริ่ม `pending` เว้น TC-031 ที่ต้องตั้ง `needs_revision` และมี PDF เดิม | คิว, review, revision |
-| W3, W5 | W3 เป็นงานของ S2 ไม่เกี่ยวกับ S1; W5 ไม่มี `file_path` | ทดสอบการปฏิเสธและ 404 |
-| N1, N2 | แจ้งเตือนที่ `user_id` เป็น S1/S2 ตามลำดับ | แยกสิทธิ์แจ้งเตือน |
-| ไฟล์ valid/invalid | JPG/PNG/WEBP และ PDF ที่ลายเซ็นตรง MIME/นามสกุล; ไฟล์ปลอมและไฟล์ขนาดขอบเขต | ตรวจชนิดและขนาดไฟล์ |
+ตัวอย่าง SPRS ใช้เป็นแนวทางรูปแบบเท่านั้น UniResearch ไม่มี workflow draft → submitted, role committee, การประเมินสี่ด้าน, ตาราง activity_logs, แท็กหรือรูปโปรไฟล์ตามตัวอย่าง ส่วนที่โค้ดรองรับจริงคือการสร้างผลงาน pending และการตรวจด้วย approved/rejected/needs_revision
 
-ก่อนรันแต่ละกรณี ให้จด commit, endpoint base URL, fixture IDs, ค่าเริ่มต้นของตารางที่ตรวจ และ token แบบปกปิดในหลักฐาน ขั้นตอนที่ระบุ DB ให้ query ฐานทดสอบเท่านั้น หลังรันให้ล้างหรือ reset fixture เพื่อไม่ให้ TC ก่อนหน้าเปลี่ยนผล TC ถัดไป โดยเฉพาะ TC-038–TC-040 ที่เปลี่ยนสถานะงาน
+### 1.1 สภาพแวดล้อมการทดสอบ
 
-ทุกกรณีมีสถานะเริ่มต้น Not Tested หลักฐานการรันต้องปกปิด token และข้อมูลลับ
+| รายการ | รายละเอียดจาก Repository |
+|---|---|
+| แอปพลิเคชัน | Next.js 16.2.12 / React 19.2.4 และ FastAPI; ดู package.json และ requirements.txt |
+| ฐานข้อมูล | PostgreSQL image pgvector/pgvector:pg15; ต้องใช้ฐานทดสอบแยก |
+| การเตรียมระบบ | docker compose up --build ตาม docker-compose.yml; backend ใช้ Base.metadata.create_all เมื่อเริ่ม |
+| URL ค่าเริ่มต้น | Frontend localhost:3000, backend localhost:8000, DB host port 5433; ตรวจค่าจริงก่อนรัน |
+| บัญชีทดสอบ | A1 admin, S1/S2/S3 student, D1/D2 advisor, G1 guest, U2 inactive; สร้างเฉพาะในฐานทดสอบและเก็บรหัสผ่านแยก |
+| Browser | เวอร์ชัน/ชนิดที่ใช้จริง: TBD; Playwright config ใช้ baseURL 127.0.0.1:3000 หากไม่ override |
+| AI | ใช้ test double สำหรับ functional; ผล provider จริงไม่กำหนดเป็นข้อความตายตัว |
 
----
+### 1.2 เกณฑ์การผ่าน
 
-### TC-001 — สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin
+กรณีผ่านเมื่อผลจริงตรงทุกข้อที่คาดหวัง และมีหลักฐานตรวจซ้ำได้ กรณีเชิงลบต้องส่งคำขอตรงถึง API และตรวจว่าไม่มีการเปลี่ยนข้อมูลที่ไม่ควรเปลี่ยน สำหรับหน้าที่มี UI ให้ตรวจ UI/redirect เพิ่มด้วย หาก UI กับ API ให้สิทธิ์ต่างกัน ให้บันทึกตามผลจริงและเปิด defect/ข้อสงสัย ไม่สรุปว่า Passed จากการอ่านโค้ด
+
+### 1.3 ข้อมูลทดสอบร่วม
+
+| รหัส | เงื่อนไข |
+|---|---|
+| A1/S1/S2/S3/D1/D2/G1/U2 | ผู้ใช้ตาม role; U2 inactive; S1/S2 มี prefix student_id เดียวกัน, S3 ต่าง prefix |
+| C1/C2 | หมวดหมู่สองรายการชื่อไม่ซ้ำ |
+| W1/W4 | ผลงาน approved ต่าง category/keywords/view_count; W1 มี PDF valid |
+| W2 | งานของ S1 มอบ D1 เป็น advisor; เริ่ม pending ยกเว้นกรณี revision ที่กำหนด needs_revision |
+| W3/W5 | W3 เป็นงานของ S2 ที่ S1 ไม่เกี่ยว; W5 ไม่มี file_path |
+| N1/N2 | แจ้งเตือนของ S1/S2 ตามลำดับ |
+
+Fixture แต่ละกรณีต้อง reset ก่อนใช้ โดยเฉพาะกรณีเปลี่ยนสถานะ/ลบงาน เก็บ email, ID, รหัสผ่าน และ token จริงในระบบทดสอบแยกจากเอกสารนี้ ห้ามคัดลอกค่าลับลงผลทดสอบ
+
+### 1.4 สรุปรายการกรณีทดสอบ
+
+| รหัส | ชื่อกรณีทดสอบ | กลุ่มฟังก์ชัน | FR | ความสำคัญ | ประเภท |
+|---|---|---|---|---|---|
+| TC-001 | สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin | บัญชี | FR-001 | สูง | Positive / Web/API |
+| TC-002 | สมัคร email ซ้ำ | บัญชี | FR-001 | สูง | Negative / API |
+| TC-003 | ล็อกอินข้อมูลถูก | บัญชี | FR-002 | สูง | Positive / Web/API |
+| TC-004 | รหัสผ่านผิด | บัญชี | FR-002 | สูง | Negative / Web/API |
+| TC-005 | ดู/แก้โปรไฟล์และเปลี่ยนรหัส | บัญชี | FR-003 | สูง | Positive / Web/API |
+| TC-006 | token ไม่ถูก/ผู้ใช้ inactive/email ซ้ำ | บัญชี | FR-003 | สูง | Negative / API |
+| TC-007 | ล็อกอินแล้วออกจากระบบ | เว็บบัญชี | FR-004 | สูง | Positive / Web/API |
+| TC-008 | admin CRUD ผู้ใช้ | ผู้ใช้ | FR-005 | สูง | Positive / Web/API |
+| TC-009 | student เรียก API จัดการผู้ใช้ | ผู้ใช้ | FR-005 | สูง | Negative / API/RBAC |
+| TC-010 | อ่านสาธารณะและเพิ่มโดย admin | หมวดหมู่ | FR-006 | กลาง | Positive / Web/API |
+| TC-011 | ผู้ไม่ใช่ admin เพิ่มหมวดหมู่ | หมวดหมู่ | FR-006 | สูง | Negative / API/RBAC |
+| TC-012 | admin แทนรายการตัวเลือก | ตัวเลือก | FR-007 | กลาง | Positive / Web/API |
+| TC-013 | student เปลี่ยนตัวเลือก | ตัวเลือก | FR-007 | สูง | Negative / API/RBAC |
+| TC-014 | guest/student/admin ค้นงาน approved และ pending | ค้นหา | FR-008 | สูง | Positive / Web/API/RBAC |
+| TC-015 | คำค้นมีหลายคำและบันทึก log | ค้นหา | FR-008 | กลาง | Positive / API/Integration |
+| TC-016 | คำแนะนำไม่เผยงาน pending | ค้นหา | FR-009 | สูง | Negative / Web/API |
+| TC-017 | latest/popular และสถิติ | หน้าหลัก | FR-010 | กลาง | Positive / Web/API |
+| TC-018 | เปิดงานและแนะนำงานที่เกี่ยวข้อง | รายละเอียด | FR-011 | กลาง | Positive / Web/API |
+| TC-019 | ID ไม่มีอยู่ | รายละเอียด | FR-011 | กลาง | Negative / Web/API |
+| TC-020 | ผู้ไม่ล็อกอิน/มี favorite ได้คำแนะนำ | คำแนะนำ | FR-012 | กลาง | Positive / API |
+| TC-021 | รายชื่อผู้เขียน/ที่ปรึกษา | ผู้เกี่ยวข้อง | FR-013 | กลาง | Positive / Web/API |
+| TC-022 | ส่งงานครบข้อมูลและผู้เกี่ยวข้อง | ส่งผลงาน | FR-014 | สูง | Positive / Web/API |
+| TC-023 | ไม่ล็อกอินหรือ role guest ส่งงาน | ส่งผลงาน | FR-014 | สูง | Negative / Web/API/RBAC |
+| TC-024 | IDs ไม่ใช่ JSON array/มี 0/role ผิด | Validation | FR-015 | สูง | Negative / API/Validation |
+| TC-025 | ผู้เขียนคนละ prefix ปี | Validation | FR-015 | กลาง | Negative / Web/API/Validation |
+| TC-026 | อัปโหลดชนิดถูกและทดสอบขนาดขอบเขต | ไฟล์ | FR-016 | สูง | Positive / Web/API/Boundary |
+| TC-027 | นามสกุล/MIME/ลายเซ็นผิด | ไฟล์ | FR-016 | สูง | Negative / API/Validation |
+| TC-028 | ผู้ส่ง/author เห็นงานใน `/my` | ผลงานของฉัน | FR-017 | สูง | Positive / Web/API |
+| TC-029 | ผู้มีสิทธิ์แก้แล้วกลับ pending | แก้ผลงาน | FR-018 | สูง | Positive / Web/API |
+| TC-030 | คนอื่นแก้งาน | แก้ผลงาน | FR-018 | สูง | Negative / API/RBAC |
+| TC-031 | ส่งเอกสารใหม่หลัง `needs_revision` | Revision | FR-019 | สูง | Positive / Web/API/Integration |
+| TC-032 | เจ้าของลบงานพร้อมข้อมูลสัมพันธ์ | ลบผลงาน | FR-020 | สูง | Positive / Web/API |
+| TC-033 | คนอื่นลบงาน | ลบผลงาน | FR-020 | สูง | Negative / API/RBAC |
+| TC-034 | ผู้ใช้ active ดาวน์โหลดงานมีไฟล์ | ดาวน์โหลด | FR-021 | กลาง | Positive / Web/API |
+| TC-035 | ไม่มี token หรือไม่มีไฟล์ | ดาวน์โหลด | FR-021 | กลาง | Negative / API |
+| TC-036 | admin/advisor/student ดู pending | คิวตรวจ | FR-022 | สูง | Positive / Web/API/RBAC |
+| TC-037 | ผู้ตรวจเห็นประวัติของตน | ประวัติตรวจ | FR-023 | กลาง | Positive / Web/API/RBAC |
+| TC-038 | advisor ที่ได้รับมอบหมายอนุมัติ pending | ตรวจงาน | FR-024 | สูง | Positive / Web/API |
+| TC-039 | advisor ไม่ได้รับมอบหมาย/งานไม่ pending/enum ผิด | ตรวจงาน | FR-024 | สูง | Negative / API/RBAC/Validation |
+| TC-040 | อนุมัติพร้อมคะแนนและแจ้งผู้เกี่ยวข้อง | ตรวจงาน | FR-025 | สูง | Positive / Web/API/Integration |
+| TC-041 | admin เปลี่ยน advisor; student ถูกห้าม | มอบหมาย | FR-026 | สูง | Positive / Web/API/RBAC |
+| TC-042 | บันทึกและยกเลิก favorite | Favorite | FR-027 | กลาง | Positive / Web/API |
+| TC-043 | อ่านเฉพาะของตนและ mark read | แจ้งเตือน | FR-028 | สูง | Positive / Web/API/RBAC |
+| TC-044 | เรียกสี่ API ด้วย token และ schema ที่ถูก/ผิด | AI | FR-029 | กลาง | Positive / API/AI |
+| TC-045 | dashboard insight และ chat | AI | FR-030 | กลาง | Positive / API/AI/RBAC |
+| TC-046 | สี่ endpoint วิเคราะห์ผลงานและสิทธิ์ | AI ตรวจงาน | FR-031 | กลาง | Positive / Web/API/AI |
+| TC-047 | เว็บส่งงานแล้ว advisor ตรวจ | E2E | FR-032 | สูง | Positive / E2E |
+| TC-048 | เว็บ admin จัดการหมวดหมู่/ผู้ใช้ | E2E | FR-032 | กลาง | Positive / E2E/RBAC |
+
+รวม 48 กรณี: Positive 32, Negative 16; ประเภทการดำเนินการระบุเพิ่มในแต่ละกรณี ทุกกรณีเริ่มที่ Not Tested
+
+## 2. รายละเอียดกรณีทดสอบ
+
+### 2.1 บัญชีและโปรไฟล์
+
+#### TC-001 — สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-001; บัญชี |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-001 |
+| อ้างอิง | FR-001; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | email ยังไม่มี |
-| ข้อมูลทดสอบ | อีเมลใหม่ U1, role ที่ร้องขอ admin |
-| ประเภท | API, Positive, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | U1 ใช้ email ใหม่ในฐานทดสอบ; ชื่อ ทดสอบ ระบบ; role=admin เฉพาะคำขอ API |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: อีเมลใหม่ U1, role ที่ร้องขอ admin; จด ID และค่าก่อนดำเนินการ
-2. POST `/auth/register` พร้อม role `admin`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิด /register แล้วกรอกชื่อ นามสกุล email และรหัสที่กำหนดใน environment
+2. กด สร้างบัญชี และตรวจ URL หลังส่ง
+3. ใช้ email ใหม่อีกชุดส่ง POST /auth/register พร้อม role=admin แล้วอ่าน users
 
 **ผลที่คาดหวัง**
 
-- สร้างผู้ใช้ role `student`
-- ตรวจ role ใน response และ users เป็น student
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- หน้าเว็บพาไป /login?registered=1 ไม่ล็อกอินอัตโนมัติ
+- ทั้งสองบัญชีมี role=student แม้ API รับค่า role=admin
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-002 — สมัคร email ซ้ำ
+#### TC-002 — สมัคร email ซ้ำ
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-001; บัญชี |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-002 |
+| อ้างอิง | FR-001; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / API |
 | เงื่อนไขตั้งต้น | มีผู้ใช้เดิม |
-| ข้อมูลทดสอบ | อีเมล U1 ที่สมัครแล้ว |
-| ประเภท | API, Negative |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | email ของ U1 ที่มีอยู่แล้ว |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: อีเมล U1 ที่สมัครแล้ว; จด ID และค่าก่อนดำเนินการ
-2. POST `/auth/register` ด้วย email เดิม
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. บันทึกจำนวน users ของ email U1
+2. ส่ง POST /auth/register ด้วย email เดิม
+3. อ่าน status และจำนวนแถวหลังส่ง
 
 **ผลที่คาดหวัง**
 
-- 400; ไม่เพิ่มผู้ใช้
-- จำนวน users ของ U1 คงเป็นหนึ่ง
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- HTTP 400 และ detail ว่า email ถูกใช้แล้ว
+- จำนวนแถวไม่เพิ่ม
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-003 — ล็อกอินข้อมูลถูก
+#### TC-003 — ล็อกอินข้อมูลถูก
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-002; บัญชี |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-003 |
+| อ้างอิง | FR-002; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | มีผู้ใช้ |
-| ข้อมูลทดสอบ | S1 active และข้อมูลล็อกอินทดสอบ |
-| ประเภท | API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1 active; email/password อยู่ในชุดข้อมูลทดสอบแยก |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1 active และข้อมูลล็อกอินทดสอบ; จด ID และค่าก่อนดำเนินการ
-2. POST `/auth/login` แบบ form
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิด /login แล้วกรอกข้อมูล S1
+2. กด เข้าสู่ระบบ และตรวจเส้นทาง
+3. เรียก /auth/me ด้วย token ที่ออกโดย backend
 
 **ผลที่คาดหวัง**
 
-- ได้ `access_token` และ `token_type=bearer`
-- ใช้ access_token เรียก /auth/me ได้ S1
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- เว็บไป /account/saved ตาม route login
+- backend คืน token_type=bearer และ /auth/me คืน S1
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-004 — รหัสผ่านผิด
+#### TC-004 — รหัสผ่านผิด
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-002; บัญชี |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-004 |
+| อ้างอิง | FR-002; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / Web/API |
 | เงื่อนไขตั้งต้น | มีผู้ใช้ |
-| ข้อมูลทดสอบ | email S1 กับรหัสผิด |
-| ประเภท | API, Negative |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | email ของ S1 และรหัสผิดที่ไม่ใช่รหัสจริง |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: email S1 กับรหัสผิด; จด ID และค่าก่อนดำเนินการ
-2. POST `/auth/login` ด้วยรหัสผิด
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิด /login กรอก email ถูกแต่รหัสผิดแล้วส่ง
+2. ตรวจข้อความและ URL
+3. ส่ง POST /auth/login ด้วยข้อมูลเดียวกันโดยตรง
 
 **ผลที่คาดหวัง**
 
-- 400; ไม่มี token
-- ไม่มี access_token ใน response
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- เว็บยังอยู่หน้า login และไม่เกิด session
+- backend ตอบ 400 ไม่มี access_token
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-005 — ดู/แก้โปรไฟล์และเปลี่ยนรหัส
+#### TC-005 — ดู/แก้โปรไฟล์และเปลี่ยนรหัส
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-003; บัญชี |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-005 |
+| อ้างอิง | FR-003; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | token ผู้ใช้ active |
-| ข้อมูลทดสอบ | S1, email ใหม่, ชื่อและ department ใหม่ |
-| ประเภท | Integration/API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1; ชื่อ ภาควิชา และรหัสใหม่เฉพาะฐานทดสอบ |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1, email ใหม่, ชื่อและ department ใหม่; จด ID และค่าก่อนดำเนินการ
-2. GET และ PUT `/auth/me`; ล็อกอินใหม่
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ล็อกอิน S1 เปิด /student/profile
+2. เปลี่ยนชื่อ ภาควิชา และรหัสผ่านแล้วบันทึก
+3. โหลดหน้าใหม่และล็อกอินด้วยรหัสใหม่
 
 **ผลที่คาดหวัง**
 
-- ข้อมูลที่แก้บันทึกและรหัสใหม่ใช้ได้
-- ข้อมูลใหม่คงอยู่หลัง GET และรหัสใหม่ใช้ล็อกอินได้
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- GET /auth/me และหน้าโปรไฟล์แสดงค่าใหม่
+- รหัสใหม่ใช้ได้และรหัสถูกเก็บเป็น hash
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-006 — token ไม่ถูก/ผู้ใช้ inactive/email ซ้ำ
+#### TC-006 — token ไม่ถูก/ผู้ใช้ inactive/email ซ้ำ
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-003; บัญชี |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-006 |
+| อ้างอิง | FR-003; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / API |
 | เงื่อนไขตั้งต้น | มีผู้ใช้สองราย |
-| ข้อมูลทดสอบ | token ปลอม, U2 inactive, email ซ้ำ |
-| ประเภท | API, Negative, Authentication/Authorization/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | token ปลอม; U2 inactive; email ของ S1 |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: token ปลอม, U2 inactive, email ซ้ำ; จด ID และค่าก่อนดำเนินการ
-2. GET/PUT `/auth/me` ด้วยแต่ละเงื่อนไข
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. GET /auth/me ด้วย token ปลอม
+2. GET ด้วย token ของ U2
+3. PUT /auth/me ของผู้ใช้อื่นให้ email ซ้ำกับ S1
 
 **ผลที่คาดหวัง**
 
-- token ผิดได้ 401, inactive ถูกปฏิเสธ, email ซ้ำได้ 400
-- ไม่มีข้อมูลผู้ใช้ถูกแก้ไข
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ได้ 401, 400, 400 ตามลำดับ
+- email ใน users ไม่เปลี่ยน
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-007 — ล็อกอินแล้วออกจากระบบ
+#### TC-007 — ล็อกอินแล้วออกจากระบบ
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-004; เว็บบัญชี |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-007 |
+| อ้างอิง | FR-004; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | backend พร้อม |
-| ข้อมูลทดสอบ | S1, browser ใหม่ |
-| ประเภท | E2E, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1; browser profile ใหม่ |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1, browser ใหม่; จด ID และค่าก่อนดำเนินการ
-2. POST `/api/auth/login`; ดู Set-Cookie; POST logout
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ล็อกอิน S1 ผ่าน /login
+2. ตรวจ cookie ของ /api/auth/login ว่า HttpOnly และเปิด /account/saved
+3. กดออกจากระบบหรือ POST /api/auth/logout แล้วเปิด /account/saved อีกครั้ง
 
 **ผลที่คาดหวัง**
 
-- cookie มี HttpOnly; หลัง logout session หาย
-- cookie เป็น HttpOnly และหลัง logout หน้า protected redirect
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- มี session cookie ระหว่างล็อกอิน
+- หลัง logout cookie ถูกลบและหน้า protected พาไป /login
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-008 — admin CRUD ผู้ใช้
+### 2.2 ผู้ใช้ หมวดหมู่ และตัวเลือก
+
+#### TC-008 — admin CRUD ผู้ใช้
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-005; ผู้ใช้ |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-008 |
+| อ้างอิง | FR-005; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | token admin |
-| ข้อมูลทดสอบ | A1 และ U3 ใหม่ |
-| ประเภท | API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | A1; U3 email ใหม่และ role=advisor |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: A1 และ U3 ใหม่; จด ID และค่าก่อนดำเนินการ
-2. GET/POST/GET id/PUT/DELETE `/users`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ล็อกอิน A1 เปิด /admin/users และเพิ่ม U3
+2. GET /users/{id} แล้วแก้ชื่อ/role จากหน้าเว็บหรือ PUT
+3. ลบ U3 แล้ว GET ID เดิม
 
 **ผลที่คาดหวัง**
 
-- ข้อมูลเปลี่ยนตามคำขอ; หลังลบหาไม่พบ
-- POST 201, DELETE 204, GET หลังลบ 404
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- POST สร้างได้ 201
+- แก้ไขคงอยู่
+- ลบได้ 204 และ GET หลังลบ 404
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-009 — student เรียก API จัดการผู้ใช้
+#### TC-009 — student เรียก API จัดการผู้ใช้
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-005; ผู้ใช้ |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-009 |
+| อ้างอิง | FR-005; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC |
 | เงื่อนไขตั้งต้น | token student |
-| ข้อมูลทดสอบ | S1 และ U3 |
-| ประเภท | API, Negative, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1; U3 ที่มีอยู่ |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1 และ U3; จด ID และค่าก่อนดำเนินการ
-2. GET/POST/PUT/DELETE `/users`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ใช้ token S1 ส่ง GET/POST /users/
+2. ส่ง GET/PUT/DELETE /users/{id}
+3. ใช้ A1 ตรวจ U3 หลังคำขอ
 
 **ผลที่คาดหวัง**
 
-- ทุกคำขอได้ 403
-- ข้อมูล U3 ไม่เปลี่ยน
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ทุกคำขอ S1 ตอบ 403
+- U3 ไม่ถูกเปลี่ยนหรือลบ
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-010 — อ่านสาธารณะและเพิ่มโดย admin
+#### TC-010 — อ่านสาธารณะและเพิ่มโดย admin
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-006; หมวดหมู่ |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-010 |
+| อ้างอิง | FR-006; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | token admin |
-| ข้อมูลทดสอบ | A1 และ C2 ใหม่ |
-| ประเภท | API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | A1; category ใหม่ C2 ชื่อไม่ซ้ำ |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: A1 และ C2 ใหม่; จด ID และค่าก่อนดำเนินการ
-2. GET แล้ว POST `/categories/`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิด /admin/categories และกรอกชื่อ/คำอธิบาย C2
+2. กด เพิ่มหมวดหมู่
+3. เปิดหน้าใหม่และ GET /categories/ แบบไม่มี token
 
 **ผลที่คาดหวัง**
 
-- รายการใหม่ปรากฏใน GET
-- C2 มี id ในรายการ GET
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- C2 ปรากฏพร้อม id
+- GET สาธารณะคืน C2
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-011 — ผู้ไม่ใช่ admin เพิ่มหมวดหมู่
+#### TC-011 — ผู้ไม่ใช่ admin เพิ่มหมวดหมู่
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-006; หมวดหมู่ |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-011 |
+| อ้างอิง | FR-006; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC |
 | เงื่อนไขตั้งต้น | token student |
-| ข้อมูลทดสอบ | S1 และ C2 ใหม่ |
-| ประเภท | API, Negative, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1; ชื่อ category ใหม่ไม่ซ้ำ |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1 และ C2 ใหม่; จด ID และค่าก่อนดำเนินการ
-2. POST `/categories/`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ส่ง POST /categories/ ด้วย token S1
+2. GET /categories/ อีกครั้ง
 
 **ผลที่คาดหวัง**
 
-- 403
-- C2 ไม่ถูกบันทึก
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- POST ตอบ 403
+- ไม่พบ category ใหม่
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-012 — admin แทนรายการตัวเลือก
+#### TC-012 — admin แทนรายการตัวเลือก
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-007; ตัวเลือก |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-012 |
+| อ้างอิง | FR-007; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | token admin |
-| ข้อมูลทดสอบ | A1, รายการ departments และ work_types ใหม่ |
-| ประเภท | Integration/API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | A1; departments และ work_types ชุดใหม่ มี whitespace และช่องว่าง |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: A1, รายการ departments และ work_types ใหม่; จด ID และค่าก่อนดำเนินการ
-2. GET; POST `/options/` พร้อมสอง array; GET อีกครั้ง
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิด /admin/options หรือส่ง POST /options/ พร้อมสอง array
+2. GET /options/ หลังบันทึก
+3. ตรวจตาราง departments/work_types
 
 **ผลที่คาดหวัง**
 
-- คืนเฉพาะรายการใหม่ที่ไม่ว่าง
-- ชื่อถูก trim, ค่าว่างไม่ถูกเก็บ
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ค่าก่อนหน้าถูกแทน
+- ชื่อถูก trim และรายการว่างไม่ถูกเก็บ
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-013 — student เปลี่ยนตัวเลือก
+#### TC-013 — student เปลี่ยนตัวเลือก
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-007; ตัวเลือก |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-013 |
+| อ้างอิง | FR-007; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC |
 | เงื่อนไขตั้งต้น | token student |
-| ข้อมูลทดสอบ | S1 และ snapshot options เดิม |
-| ประเภท | API, Negative, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1; snapshot ของ GET /options/ |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1 และ snapshot options เดิม; จด ID และค่าก่อนดำเนินการ
-2. POST `/options/`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ส่ง POST /options/ ด้วย token S1
+2. GET /options/ เทียบ snapshot
 
 **ผลที่คาดหวัง**
 
-- 403; รายการเดิมคงอยู่
-- options หลังคำขอตรง snapshot
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- POST ตอบ 403
+- รายการเดิมคงอยู่
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-014 — guest/student/admin ค้นงาน approved และ pending
+### 2.3 ค้นหา รายละเอียด และคำแนะนำ
+
+#### TC-014 — guest/student/admin ค้นงาน approved และ pending
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-008; ค้นหา |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-014 |
+| อ้างอิง | FR-008; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API/RBAC |
 | เงื่อนไขตั้งต้น | งานสองสถานะ หลายเจ้าของ |
-| ข้อมูลทดสอบ | W1 approved, W2 pending ของ S1, W3 pending คนอื่น, C1/C2 |
-| ประเภท | API, Positive, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1 approved; W2 pending ของ S1; W3 pending ของ S2; C1/C2 |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1 approved, W2 pending ของ S1, W3 pending คนอื่น, C1/C2; จด ID และค่าก่อนดำเนินการ
-2. GET `/research/search?q=...&category_id=...` ด้วยแต่ละสิทธิ์
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิด /research เป็น guest และค้นคำ/หมวด
+2. เรียก /research/search ด้วย guest, S1 และ A1
+3. เทียบ ID ผลแต่ละสิทธิ์
 
 **ผลที่คาดหวัง**
 
-- guest เห็น approved; student เห็น approved และงานเกี่ยวข้อง; admin เห็นทั้งหมด; filter ถูกต้อง
-- เทียบชุด ID ตาม guest, student, admin และ category_id
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- guest เห็น approved เท่านั้น
+- S1 เห็น approved และงานที่เกี่ยวข้อง
+- A1 เห็นทั้งหมดตามตัวกรอง
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-015 — คำค้นมีหลายคำและบันทึก log
+#### TC-015 — คำค้นมีหลายคำและบันทึก log
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-008; ค้นหา |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-015 |
+| อ้างอิง | FR-008; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / API/Integration |
 | เงื่อนไขตั้งต้น | งานตัวอย่าง |
-| ข้อมูลทดสอบ | W1 ที่คำค้นอยู่ในชื่อและ abstract |
-| ประเภท | API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1 มีคำทดสอบใน title_th และ abstract; query สองคำ |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1 ที่คำค้นอยู่ในชื่อและ abstract; จด ID และค่าก่อนดำเนินการ
-2. ค้นหลายคำ; ตรวจ `search_logs`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ส่ง GET /research/search?q=สองคำ
+2. ตรวจ ID/อันดับผล
+3. อ่าน search_logs ก่อนและหลัง
 
 **ผลที่คาดหวัง**
 
-- ผลตรงอย่างน้อยหนึ่งเงื่อนไข OR ตามโค้ด; มี log
-- มี search_logs ที่ keyword ตรง q
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- งานที่ตรงเงื่อนไข OR ปรากฏ
+- มี search_log keyword ตรง q
+- ชื่อเรื่องได้รับคะแนนสูงกว่า abstract ตามโค้ด
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-016 — คำแนะนำไม่เผยงาน pending
+#### TC-016 — คำแนะนำไม่เผยงาน pending
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-009; ค้นหา |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-016 |
+| อ้างอิง | FR-009; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / Web/API |
 | เงื่อนไขตั้งต้น | ชื่อ/คำสำคัญเฉพาะใน pending |
-| ข้อมูลทดสอบ | W1 approved และ W2 pending มีคำเฉพาะ |
-| ประเภท | API, Negative |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1 approved และ W2 pending มี keyword ไม่ซ้ำ |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1 approved และ W2 pending มีคำเฉพาะ; จด ID และค่าก่อนดำเนินการ
-2. GET `/research/search/suggestions?q=...`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิด /research และพิมพ์ keyword เฉพาะเพื่อดู suggestions
+2. เรียก /research/search/suggestions?q=...
+3. เทียบ titles/keywords กับ W1/W2
 
 **ผลที่คาดหวัง**
 
-- ไม่มีชื่อ/คำสำคัญจาก pending
-- ไม่คืนคำหรือชื่อจาก W2
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ไม่มีข้อมูลจาก W2 pending ใน suggestions
+- ข้อมูล approved ที่ตรงค้นปรากฏ
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-017 — latest/popular และสถิติ
+#### TC-017 — latest/popular และสถิติ
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-010; หน้าหลัก |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-017 |
+| อ้างอิง | FR-010; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | งาน approved/pending และ count |
-| ข้อมูลทดสอบ | W1/W4 approved, W2 pending, limit=1 |
-| ประเภท | API, Positive, Boundary |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1/W4 approved มีวันเผยแพร่และ view_count ต่างกัน; W2 pending |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1/W4 approved, W2 pending, limit=1; จด ID และค่าก่อนดำเนินการ
-2. GET `/home/latest`, `/home/popular`, `/stats/`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. GET /home/latest?limit=1 และ /home/popular?limit=1
+2. GET /stats/
+3. เทียบตัวเลข/ลำดับกับ research_works และ users
 
 **ผลที่คาดหวัง**
 
-- สองรายการแรกมี approved เท่านั้นและเรียงถูก; ยอดรวมตรงฐานข้อมูล
-- latest/popular ไม่เกินหนึ่งรายการและไม่มี pending
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- latest/popular มี approved ไม่เกินหนึ่งรายการและเรียงตามฟิลด์ที่โค้ดใช้
+- stats ตรง count/sum ของ DB
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-018 — เปิดงานและแนะนำงานที่เกี่ยวข้อง
+#### TC-018 — เปิดงานและแนะนำงานที่เกี่ยวข้อง
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-011; รายละเอียด |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-018 |
+| อ้างอิง | FR-011; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | งานที่มี category/keywords |
-| ข้อมูลทดสอบ | W1, W4 related, W2 pending |
-| ประเภท | Integration/API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1 approved; W4 related approved; W2 pending |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1, W4 related, W2 pending; จด ID และค่าก่อนดำเนินการ
-2. GET `/research/{id}` และ `/recommendations`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. อ่าน view_count ของ W1
+2. เปิด /research/{id} ของ W1 และเรียก /research/{id}/recommendations
+3. เรียก GET /research/{id} ของ W2 pending โดยไม่มี token เพื่อบันทึกการเข้าถึง URL ตรง
+4. ตรวจ view_count และ download_view_logs
 
 **ผลที่คาดหวัง**
 
-- รายละเอียดตรง; view_count เพิ่ม 1; คำแนะนำเป็น approved อื่น
-- view_count เพิ่ม 1 และมี view log
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- รายละเอียด W1 แสดง
+- view_count เพิ่ม 1 พร้อม view log
+- คำแนะนำไม่มี W1/W2
+- API ปัจจุบันคืนรายละเอียด W2 pending ให้คำขอไม่มี token; ให้บันทึกผลนี้เป็นความเสี่ยงด้านการมองเห็นงาน
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-019 — ID ไม่มีอยู่
+#### TC-019 — ID ไม่มีอยู่
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-011; รายละเอียด |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-019 |
+| อ้างอิง | FR-011; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Negative / Web/API |
 | เงื่อนไขตั้งต้น | ไม่มี ID |
-| ข้อมูลทดสอบ | ID บวกที่ไม่มีใน research_works |
-| ประเภท | API, Negative |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | ID จำนวนเต็มบวกที่ไม่มีใน research_works |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: ID บวกที่ไม่มีใน research_works; จด ID และค่าก่อนดำเนินการ
-2. GET `/research/{id}`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิด /research/{id} ของ ID ไม่มี
+2. เรียก GET /research/{id} โดยตรง
+3. ตรวจ view log
 
 **ผลที่คาดหวัง**
 
-- 404
-- ไม่สร้าง view log
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- API ตอบ 404
+- หน้าเว็บแสดงสถานะไม่พบ
+- ไม่มี view log ใหม่
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-020 — ผู้ไม่ล็อกอิน/มี favorite ได้คำแนะนำ
+#### TC-020 — ผู้ไม่ล็อกอิน/มี favorite ได้คำแนะนำ
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-012; คำแนะนำ |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-020 |
+| อ้างอิง | FR-012; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / API |
 | เงื่อนไขตั้งต้น | approved หลายหมวด |
-| ข้อมูลทดสอบ | W1/W4 approved และ S1 favorite W1 |
-| ประเภท | API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1/W4 approved; S1 มี favorite W1 |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1/W4 approved และ S1 favorite W1; จด ID และค่าก่อนดำเนินการ
-2. GET `/recommendations/personalized` สองสภาพ
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. GET /research/recommendations/personalized ไม่มี token
+2. GET ด้วย token S1
+3. ตรวจ status/จำนวน/ลำดับผล
 
 **ผลที่คาดหวัง**
 
-- คืน approved สูงสุด 5 รายการตามคะแนนที่โค้ดใช้
-- ผลไม่เกิน 5 รายการและทุกงาน approved
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ผลมีเฉพาะ approved ไม่เกิน 5
+- ไม่มี interaction ใช้ความนิยม และมี interaction ใช้ profile category/keyword
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-021 — รายชื่อผู้เขียน/ที่ปรึกษา
+### 2.4 ส่งผลงานและตรวจข้อมูล
+
+#### TC-021 — รายชื่อผู้เขียน/ที่ปรึกษา
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-013; ผู้เกี่ยวข้อง |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-021 |
+| อ้างอิง | FR-013; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | student/advisor active/inactive |
-| ข้อมูลทดสอบ | S1/S2 student, D1/D2 advisor, U2 inactive |
-| ประเภท | API, Positive, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1/S2 active student; D1/D2 active advisor; U2 inactive |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1/S2 student, D1/D2 advisor, U2 inactive; จด ID และค่าก่อนดำเนินการ
-2. GET `/research/participants` ด้วย token
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ล็อกอิน S1 เปิด /student/research/new และดูตัวเลือกผู้เกี่ยวข้อง
+2. GET /research/participants
+3. เรียกโดยไม่มี token
 
 **ผลที่คาดหวัง**
 
-- แยก active ตาม role และระบุ `is_current`
-- แยก authors/advisors และไม่รวม U2
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- authors/advisors แยก role และไม่รวม U2
+- S1 มี is_current=true
+- ไม่มี token 401
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-022 — ส่งงานครบข้อมูลและผู้เกี่ยวข้อง
+#### TC-022 — ส่งงานครบข้อมูลและผู้เกี่ยวข้อง
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-014; ส่งผลงาน |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-022 |
+| อ้างอิง | FR-014; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | token student; category/IDs ถูก |
-| ข้อมูลทดสอบ | S1, C1, D1, title_th/title_en, PDF/ภาพ valid |
-| ประเภท | Integration/API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1, C1, D1; ชื่อไทย งานวิจัยทดสอบ; ชื่ออังกฤษ Research Test; PDF/ภาพ valid |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1, C1, D1, title_th/title_en, PDF/ภาพ valid; จด ID และค่าก่อนดำเนินการ
-2. POST multipart `/research/`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ล็อกอิน S1 เปิด /student/research/new
+2. กรอกห้าขั้น เลือก author/advisor แนบไฟล์ แล้วยืนยัน
+3. อ่านหน้าสำเร็จและ query research_works/research_authors/research_advisors
 
 **ผลที่คาดหวัง**
 
-- ได้งาน `pending`; relations และ submitter บันทึก
-- submitted_by_id, research_authors และ research_advisors ถูกต้อง
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- สร้างงาน status=pending และ submitted_by_id=S1
+- ผู้เกี่ยวข้องและ path ไฟล์ตรง input
+- ไม่มี draft
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-023 — ไม่ล็อกอินหรือ role guest ส่งงาน
+#### TC-023 — ไม่ล็อกอินหรือ role guest ส่งงาน
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-014; ส่งผลงาน |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-023 |
+| อ้างอิง | FR-014; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / Web/API/RBAC |
 | เงื่อนไขตั้งต้น | guest token หรือไม่มี token |
-| ข้อมูลทดสอบ | body แบบ TC-022 และ G1 role guest |
-| ประเภท | API, Negative, Authentication/Authorization/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | ไม่มี session และ G1 role guest; multipart body แบบ TC-022 |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: body แบบ TC-022 และ G1 role guest; จด ID และค่าก่อนดำเนินการ
-2. POST `/research/`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิด /student/research/new โดยไม่ล็อกอิน
+2. ส่ง POST /research/ ไม่มี token
+3. ส่งอีกครั้งด้วย G1
 
 **ผลที่คาดหวัง**
 
-- ไม่มี token ได้ 401; guest ได้ 403
-- research_works ไม่เพิ่ม
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- หน้าเว็บพาไป /login
+- API ตอบ 401 และ 403
+- ไม่มีงานใหม่
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-024 — IDs ไม่ใช่ JSON array/มี 0/role ผิด
+#### TC-024 — IDs ไม่ใช่ JSON array/มี 0/role ผิด
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-015; Validation |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-024 |
+| อ้างอิง | FR-015; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / API/Validation |
 | เงื่อนไขตั้งต้น | category ถูก |
-| ข้อมูลทดสอบ | author_ids ไม่ใช่ JSON, [0], advisor_ids เป็น student, category_id ไม่มี |
-| ประเภท | API, Negative, Authentication/Authorization/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | C1; author_ids เป็นข้อความผิดรูปแบบ, [0], advisor_ids เป็น student, category_id ไม่มี |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: author_ids ไม่ใช่ JSON, [0], advisor_ids เป็น student, category_id ไม่มี; จด ID และค่าก่อนดำเนินการ
-2. POST `/research/` หลายชุดข้อมูล
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ส่ง POST /research/ ทีละชุดด้วย S1
+2. บันทึก status/detail
+3. เทียบจำนวน research_works
 
 **ผลที่คาดหวัง**
 
-- 422 หรือ 404 ตามเงื่อนไข; ไม่สร้างงาน
-- ไม่มี research_works ใหม่ในแต่ละกรณี
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- รูปแบบ/role ผิดตอบ 422
+- ID ที่ไม่มีตอบ 404
+- ไม่มีงานถูกสร้าง
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-025 — ผู้เขียนคนละ prefix ปี
+#### TC-025 — ผู้เขียนคนละ prefix ปี
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-015; Validation |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-025 |
+| อ้างอิง | FR-015; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Negative / Web/API/Validation |
 | เงื่อนไขตั้งต้น | student สองคนมี student_id ต่าง prefix |
-| ข้อมูลทดสอบ | S1/S3 มี student_id prefix ต่างกัน |
-| ประเภท | API, Negative |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1/S3 มี student_id สองตัวแรกต่างกัน |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1/S3 มี student_id prefix ต่างกัน; จด ID และค่าก่อนดำเนินการ
-2. POST `/research/` พร้อมทั้งคู่
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ตรวจตัวเลือก author ในฟอร์ม S1
+2. ส่ง POST /research/ โดยตรงพร้อม author_ids สองคน
+3. เทียบ DB
 
 **ผลที่คาดหวัง**
 
-- 422; ไม่สร้างงาน
-- ไม่มี research_works ใหม่
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- frontend กรองผู้เขียนต่าง prefix
+- backend ตอบ 422 และไม่สร้างงาน
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-026 — อัปโหลดชนิดถูกและทดสอบขนาดขอบเขต
+#### TC-026 — อัปโหลดชนิดถูกและทดสอบขนาดขอบเขต
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-016; ไฟล์ |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-026 |
+| อ้างอิง | FR-016; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API/Boundary |
 | เงื่อนไขตั้งต้น | ไฟล์ภาพ/PDF ถูกต้อง |
-| ข้อมูลทดสอบ | ภาพ valid 5 MiB/5 MiB+1, PDF valid 25 MiB/25 MiB+1 |
-| ประเภท | API, Positive, Boundary |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | ภาพที่ลายเซ็นถูก ขนาดเท่าขีดจำกัดและเกิน 1 byte; PDF เช่นเดียวกัน |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: ภาพ valid 5 MiB/5 MiB+1, PDF valid 25 MiB/25 MiB+1; จด ID และค่าก่อนดำเนินการ
-2. ส่งไฟล์ที่ขนาดเท่าขีดจำกัดและเกิน 1 byte
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ตรวจค่า MAX_COVER_IMAGE_BYTES/MAX_DOCUMENT_BYTES ของรอบทดสอบ
+2. ส่ง POST multipart แยกสี่ไฟล์ด้วย S1
+3. ตรวจ status และไฟล์ใน STATIC_DIR
 
 **ผลที่คาดหวัง**
 
-- เท่าขีดจำกัดรับ; เกินได้ 413
-- ไฟล์เกินขนาดไม่ค้างใน storage
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ไฟล์เท่าขีดจำกัดรับ
+- เกิน 1 byte ตอบ 413
+- ไฟล์เกินขนาดไม่ค้าง
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-027 — นามสกุล/MIME/ลายเซ็นผิด
+#### TC-027 — นามสกุล/MIME/ลายเซ็นผิด
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-016; ไฟล์ |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-027 |
+| อ้างอิง | FR-016; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / API/Validation |
 | เงื่อนไขตั้งต้น | เตรียมไฟล์ปลอม |
-| ข้อมูลทดสอบ | ไฟล์ MIME/นามสกุลไม่ตรง, PDF ปลอม, cover valid กับ document invalid |
-| ประเภท | API, Negative |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | MIME/นามสกุลไม่เข้าคู่; PDF ปลอม; cover valid กับ document invalid |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: ไฟล์ MIME/นามสกุลไม่ตรง, PDF ปลอม, cover valid กับ document invalid; จด ID และค่าก่อนดำเนินการ
-2. POST multipart พร้อมไฟล์ปลอม
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ส่ง POST multipart แต่ละแบบ
+2. ตรวจ status
+3. เทียบ research_works และโฟลเดอร์ upload ก่อน/หลัง
 
 **ผลที่คาดหวัง**
 
-- 415; ไม่มีไฟล์ค้างเมื่อเกิดข้อผิดพลาด
-- ไม่มีงานหรือ partial cover ค้าง
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ตอบ 415
+- ไม่มีงานหรือ partial cover ใหม่ค้าง
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-028 — ผู้ส่ง/author เห็นงานใน `/my`
+### 2.5 ผลงานของฉัน การแก้ไข และไฟล์
+
+#### TC-028 — ผู้ส่ง/author เห็นงานใน `/my`
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-017; ผลงานของฉัน |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-028 |
+| อ้างอิง | FR-017; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | งานที่เกี่ยวข้องและไม่เกี่ยวข้อง |
-| ข้อมูลทดสอบ | W1 ส่งโดย S1, W4 มี S1 เป็น author, W3 ไม่เกี่ยว |
-| ประเภท | API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1 ส่งโดย S1; W4 มี S1 เป็น author; W3 ไม่เกี่ยว |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1 ส่งโดย S1, W4 มี S1 เป็น author, W3 ไม่เกี่ยว; จด ID และค่าก่อนดำเนินการ
-2. GET `/research/my`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ล็อกอิน S1 เปิด /student/research
+2. GET /research/my
+3. เทียบ ID ใน UI/API
 
 **ผลที่คาดหวัง**
 
-- ได้เฉพาะงานที่ส่งหรือเป็น author
-- คืน W1/W4 แต่ไม่คืน W3
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- เห็น W1 และ W4 เท่านั้น
+- ไม่เห็น W3
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-029 — ผู้มีสิทธิ์แก้แล้วกลับ pending
+#### TC-029 — ผู้มีสิทธิ์แก้แล้วกลับ pending
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-018; แก้ผลงาน |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-029 |
+| อ้างอิง | FR-018; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | งาน approved ของตน |
-| ข้อมูลทดสอบ | W1 approved ของ S1, title/abstract ใหม่ |
-| ประเภท | API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1 approved ของ S1; ชื่อและบทคัดย่อใหม่; C1 |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1 approved ของ S1, title/abstract ใหม่; จด ID และค่าก่อนดำเนินการ
-2. PUT `/research/{id}`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิด /student/research/edit/{id} แล้วแก้ฟิลด์
+2. บันทึกและ GET /research/{id}
+3. ตรวจ status ใน DB
 
 **ผลที่คาดหวัง**
 
-- ข้อมูลแก้แล้ว; `status=pending`
-- status กลับ pending และข้อมูลใหม่คงอยู่
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ข้อมูลใหม่คงอยู่
+- status กลับ pending
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-030 — คนอื่นแก้งาน
+#### TC-030 — คนอื่นแก้งาน
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-018; แก้ผลงาน |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-030 |
+| อ้างอิง | FR-018; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC |
 | เงื่อนไขตั้งต้น | งานของผู้อื่น |
-| ข้อมูลทดสอบ | W3 ของ S2 และ S1 ไม่ใช่ author |
-| ประเภท | API, Negative, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W3 เป็นของ S2 และ S1 ไม่ใช่ author |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W3 ของ S2 และ S1 ไม่ใช่ author; จด ID และค่าก่อนดำเนินการ
-2. PUT `/research/{id}`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ส่ง PUT /research/{id} ของ W3 ด้วย S1
+2. GET W3 โดย A1
+3. เทียบ fields/relations
 
 **ผลที่คาดหวัง**
 
-- 403; งานไม่เปลี่ยน
-- ชื่อ, status, relations ของ W3 ไม่เปลี่ยน
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- PUT ตอบ 403
+- W3 ไม่เปลี่ยน
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-031 — ส่งเอกสารใหม่หลัง `needs_revision`
+#### TC-031 — ส่งเอกสารใหม่หลัง `needs_revision`
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-019; Revision |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-031 |
+| อ้างอิง | FR-019; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API/Integration |
 | เงื่อนไขตั้งต้น | งาน needs_revision มีเอกสารเดิม |
-| ข้อมูลทดสอบ | W2 needs_revision มี PDF เดิมและ PDF ใหม่ valid |
-| ประเภท | Integration/API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W2 status=needs_revision มี PDF เดิม; PDF ใหม่ valid |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W2 needs_revision มี PDF เดิมและ PDF ใหม่ valid; จด ID และค่าก่อนดำเนินการ
-2. PUT พร้อม PDF ใหม่
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิดหน้าแก้งานที่มีสิทธิ์และแนบ PDF ใหม่
+2. ส่ง PUT /research/{id}
+3. ตรวจ file_revisions และ research_works
 
 **ผลที่คาดหวัง**
 
-- `file_revisions` เก็บ path เดิมและ version เพิ่ม; งานกลับ pending
-- file_revisions เก็บ path เดิม, version_no เพิ่ม
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- file_revisions เก็บ path เดิมกับ version_no เพิ่ม
+- งานชี้ไฟล์ใหม่และ status=pending
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-032 — เจ้าของลบงานพร้อมข้อมูลสัมพันธ์
+#### TC-032 — เจ้าของลบงานพร้อมข้อมูลสัมพันธ์
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-020; ลบผลงาน |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-032 |
+| อ้างอิง | FR-020; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | งานที่มี authors/advisors/favorites |
-| ข้อมูลทดสอบ | W1 ของ S1 มี relations, favorite, log, file |
-| ประเภท | Integration/API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1 ของ S1 มี authors/advisors/reviews/favorite/log และไฟล์ |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1 ของ S1 มี relations, favorite, log, file; จด ID และค่าก่อนดำเนินการ
-2. DELETE `/research/{id}`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิดรายการงานของ S1 แล้วสั่งลบ
+2. GET ID เดิม
+3. ตรวจตารางสัมพันธ์และไฟล์หลัก
 
 **ผลที่คาดหวัง**
 
-- งานและ relation ที่ service ลบหาย; GET ได้ 404
-- GET W1 หลังลบ 404 และ relation หลักถูกลบ
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- DELETE สำเร็จและ GET 404
+- รายการสัมพันธ์ที่ service ลบหาย
+- ไฟล์หลักถูกลบ
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-033 — คนอื่นลบงาน
+#### TC-033 — คนอื่นลบงาน
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-020; ลบผลงาน |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-033 |
+| อ้างอิง | FR-020; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC |
 | เงื่อนไขตั้งต้น | งานของผู้อื่น |
 | ข้อมูลทดสอบ | W3 ของ S2 |
-| ประเภท | API, Negative, RBAC/Validation |
-| สถานะ | Not Tested |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W3 ของ S2; จด ID และค่าก่อนดำเนินการ
-2. DELETE `/research/{id}`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ส่ง DELETE /research/{id} ของ W3 ด้วย S1
+2. GET W3 และ relations ด้วย A1
 
 **ผลที่คาดหวัง**
 
-- 403; งานคงอยู่
-- W3 ยังอยู่ครบ
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- DELETE ตอบ 403
+- W3 คงอยู่
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-034 — ผู้ใช้ active ดาวน์โหลดงานมีไฟล์
+#### TC-034 — ผู้ใช้ active ดาวน์โหลดงานมีไฟล์
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-021; ดาวน์โหลด |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-034 |
+| อ้างอิง | FR-021; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | งานมี PDF |
-| ข้อมูลทดสอบ | W1 มี PDF และ S1 active |
-| ประเภท | Integration/API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1 มี PDF; S1 active |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1 มี PDF และ S1 active; จด ID และค่าก่อนดำเนินการ
-2. POST `/research/{id}/download`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ล็อกอิน S1 เปิดรายละเอียดและกดดาวน์โหลดหรือ POST endpoint
+2. ตรวจ file_url และเปิด URL ด้วย session ของ S1
+3. เปิด file_url เดิมใน browser ที่ไม่มี session เพื่อบันทึกพฤติกรรม static file ตามโค้ดปัจจุบัน
+4. ตรวจ counter/log
 
 **ผลที่คาดหวัง**
 
-- ได้ `file_url`; counter/log เพิ่ม
-- download_count เพิ่มหนึ่ง, log มี action_type=download
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ได้ file_url
+- download_count เพิ่ม 1 และ log ระบุ S1/action_type=download
+- URL ใต้ /static เปิดตรงได้โดยไม่เรียก endpoint download; การเปิดตรงไม่เพิ่ม download_count ให้บันทึกเป็นความเสี่ยงที่ต้องยืนยันนโยบาย
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-035 — ไม่มี token หรือไม่มีไฟล์
+#### TC-035 — ไม่มี token หรือไม่มีไฟล์
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-021; ดาวน์โหลด |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-035 |
+| อ้างอิง | FR-021; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Negative / API |
 | เงื่อนไขตั้งต้น | งานไม่มีไฟล์ |
-| ข้อมูลทดสอบ | W1 มีไฟล์, W5 ไม่มีไฟล์ |
-| ประเภท | API, Negative |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1 มีไฟล์; W5 ไม่มีไฟล์ |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1 มีไฟล์, W5 ไม่มีไฟล์; จด ID และค่าก่อนดำเนินการ
-2. POST endpoint
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. POST /research/{id}/download โดยไม่มี token
+2. POST W5 ด้วย S1
+3. ตรวจ counters ก่อน/หลัง
 
 **ผลที่คาดหวัง**
 
-- ไม่ล็อกอินได้ 401; ไม่มีไฟล์ได้ 404
-- ไม่มี counter เพิ่มเมื่อถูกปฏิเสธ
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ตอบ 401 และ 404 ตามลำดับ
+- counter ไม่เพิ่ม
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-036 — admin/advisor/student ดู pending
+### 2.6 คิวและผลการตรวจ
+
+#### TC-036 — admin/advisor/student ดู pending
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-022; คิวตรวจ |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-036 |
+| อ้างอิง | FR-022; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API/RBAC |
 | เงื่อนไขตั้งต้น | งานมอบหมายหลาย advisor |
-| ข้อมูลทดสอบ | W2 assigned D1, W3 assigned D2, A1/S1 |
-| ประเภท | API, Positive, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W2 pending assigned D1; W3 pending assigned D2; A1/S1 |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W2 assigned D1, W3 assigned D2, A1/S1; จด ID และค่าก่อนดำเนินการ
-2. GET `/research/pending` ด้วยสาม role
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิดคิว /advisor/reviews ด้วย D1 และ /admin/reviews ด้วย A1
+2. GET /research/pending ด้วย A1/D1/S1 แล้วเทียบกับรายการบนหน้าเว็บ
 
 **ผลที่คาดหวัง**
 
-- admin เห็นทั้งหมด; advisor เฉพาะงานตน; student ได้ 403
-- A1 เห็นสองงาน, D1 เห็น W2, S1 ได้ 403
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- API admin เห็นทั้งสอง, D1 เห็น W2, S1 ตอบ 403
+- หน้า /advisor/reviews โหลดผ่าน searchResearch ซึ่ง backend อนุญาตให้ advisor เห็นงานทั้งหมด; หาก UI แสดง W3 ให้บันทึกความต่างจาก /research/pending และเปิดข้อสงสัยด้านการมองเห็นคิว
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-037 — ผู้ตรวจเห็นประวัติของตน
+#### TC-037 — ผู้ตรวจเห็นประวัติของตน
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-023; ประวัติตรวจ |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-037 |
+| อ้างอิง | FR-023; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / Web/API/RBAC |
 | เงื่อนไขตั้งต้น | มี ReviewComment หลาย reviewer |
-| ข้อมูลทดสอบ | D1/A1 เคย review คนละงานและ S1 |
-| ประเภท | API, Positive, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | D1/A1 มี review ของคนละงาน; S1 |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: D1/A1 เคย review คนละงานและ S1; จด ID และค่าก่อนดำเนินการ
-2. GET `/research/history`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิด /advisor/history ด้วย D1
+2. GET /research/history ด้วย D1/A1/S1
+3. เทียบ reviewer_id ใน review_comments
 
 **ผลที่คาดหวัง**
 
-- ผลตรง query สำหรับ role ที่เรียก; student ได้ 403
-- ผลแต่ละคนมีเฉพาะ review ที่ reviewer_id ตรง
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- D1/A1 เห็นเฉพาะงานที่ตนตรวจ
+- S1 ตอบ 403
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-038 — advisor ที่ได้รับมอบหมายอนุมัติ pending
+#### TC-038 — advisor ที่ได้รับมอบหมายอนุมัติ pending
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-024; ตรวจงาน |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-038 |
+| อ้างอิง | FR-024; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | งาน pending มอบหมาย advisor |
-| ข้อมูลทดสอบ | W2 pending assigned D1 |
-| ประเภท | API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W2 pending assigned D1; comment และ score 80 |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W2 pending assigned D1; จด ID และค่าก่อนดำเนินการ
-2. POST `/research/{id}/review` สถานะ approved
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ล็อกอิน D1 เปิด /advisor/reviews/{id}
+2. เลือก approved กรอกคะแนน/ความคิดเห็นและยืนยัน modal
+3. GET งานและ review_comments
 
 **ผลที่คาดหวัง**
 
-- สร้าง review; status approved
-- review row เพิ่มและ status เป็น approved
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- status=approved
+- review ใหม่มี reviewer_id=D1, comment และ score ตรง
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-039 — advisor ไม่ได้รับมอบหมาย/งานไม่ pending/enum ผิด
+#### TC-039 — advisor ไม่ได้รับมอบหมาย/งานไม่ pending/enum ผิด
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-024; ตรวจงาน |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-039 |
+| อ้างอิง | FR-024; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC/Validation |
 | เงื่อนไขตั้งต้น | มีงานตามเงื่อนไข |
-| ข้อมูลทดสอบ | W2 ไม่ assigned D2, W1 approved, enum ผิด |
-| ประเภท | API, Negative, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W2 pending ไม่ assigned D2; W1 approved; status_result=unknown |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W2 ไม่ assigned D2, W1 approved, enum ผิด; จด ID และค่าก่อนดำเนินการ
-2. POST review สามกรณี
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. POST review W2 ด้วย D2
+2. POST review W1 ด้วย D1
+3. POST enum ผิดกับ W2
 
 **ผลที่คาดหวัง**
 
-- ได้ 403/400/422 ตามลำดับ; ไม่มี review ใหม่
-- จำนวน review row ไม่เพิ่ม
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ตอบ 403, 400, 422 ตามกรณี
+- ไม่มี review เพิ่ม
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-040 — อนุมัติพร้อมคะแนนและแจ้งผู้เกี่ยวข้อง
+#### TC-040 — อนุมัติพร้อมคะแนนและแจ้งผู้เกี่ยวข้อง
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-025; ตรวจงาน |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-040 |
+| อ้างอิง | FR-025; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API/Integration |
 | เงื่อนไขตั้งต้น | งาน pending มี submitter/author |
-| ข้อมูลทดสอบ | W2 pending มี submitter กับ co-author |
-| ประเภท | Integration/API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W2 pending มี submitter S1 และ co-author S2 |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W2 pending มี submitter กับ co-author; จด ID และค่าก่อนดำเนินการ
-2. POST review approved พร้อม score
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. POST review approved โดย D1 พร้อม comment/score
+2. อ่าน research_works, review_comments, notifications
+3. เปิดรายการแจ้งเตือนของ S1/S2
 
 **ผลที่คาดหวัง**
 
-- `published_at` ถูกตั้ง; comment/score และ notification บันทึก
-- published_at ตั้งค่า, review comment/score และ notification บันทึก
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- published_at ไม่ null
+- comment/score บันทึก
+- ผู้ส่งและ co-author มี notification
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-041 — admin เปลี่ยน advisor; student ถูกห้าม
+#### TC-041 — admin เปลี่ยน advisor; student ถูกห้าม
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-026; มอบหมาย |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-041 |
+| อ้างอิง | FR-026; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API/RBAC |
 | เงื่อนไขตั้งต้น | งานและ advisor สองคน |
-| ข้อมูลทดสอบ | W2 assigned D1, D2 ใหม่, A1/S1 |
-| ประเภท | API, Positive, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W2 assigned D1; D2 active; A1/S1 |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W2 assigned D1, D2 ใหม่, A1/S1; จด ID และค่าก่อนดำเนินการ
-2. POST `/research/{id}/assign-advisors` ด้วย admin แล้ว student
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. POST /research/{id}/assign-advisors ด้วย A1 ให้ [D2]
+2. GET pending ด้วย D1/D2
+3. POST เดิมด้วย S1
 
 **ผลที่คาดหวัง**
 
-- รายการใหม่แทนเดิม; student ได้ 403
-- advisor relation ถูกแทน, S1 ได้ 403
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- relation เปลี่ยนเป็น D2
+- D2 เห็นงานในคิว, D1 ไม่เห็น
+- S1 ตอบ 403
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-042 — บันทึกและยกเลิก favorite
+### 2.7 Favorite และการแจ้งเตือน
+
+#### TC-042 — บันทึกและยกเลิก favorite
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-027; Favorite |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-042 |
+| อ้างอิง | FR-027; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
 | เงื่อนไขตั้งต้น | token active; งานมีอยู่ |
-| ข้อมูลทดสอบ | S1, W1 และไม่มี favorite เริ่มต้น |
-| ประเภท | API, Positive, Boundary |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1; W1; เริ่มไม่มี favorite |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1, W1 และไม่มี favorite เริ่มต้น; จด ID และค่าก่อนดำเนินการ
-2. POST สองครั้ง; GET `/favorites/`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. เปิดรายละเอียด W1 กดบันทึก
+2. GET /favorites/ และเปิด /account/saved
+3. กดยกเลิกหรือ POST ซ้ำ แล้ว GET อีกครั้ง
 
 **ผลที่คาดหวัง**
 
-- ครั้งแรกมีรายการ; ครั้งที่สองหาย; ตรวจรูปแบบ response ตามโค้ดจริง
-- ครั้งแรกเพิ่ม, ครั้งที่สองหาย; ตรวจ body HTTP 200 ตามโค้ด
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- ครั้งแรกมี favorite ของ S1
+- ครั้งที่สองหาย
+- response ยกเลิกเป็น HTTP 200 กับ detail ตาม implementation
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-043 — อ่านเฉพาะของตนและ mark read
+#### TC-043 — อ่านเฉพาะของตนและ mark read
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-028; แจ้งเตือน |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-043 |
+| อ้างอิง | FR-028; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / Web/API/RBAC |
 | เงื่อนไขตั้งต้น | แจ้งเตือนสองผู้ใช้ |
 | ข้อมูลทดสอบ | N1 ของ S1 และ N2 ของ S2 |
-| ประเภท | Integration/API, Positive, RBAC/Validation |
-| สถานะ | Not Tested |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: N1 ของ S1 และ N2 ของ S2; จด ID และค่าก่อนดำเนินการ
-2. GET, POST read หนึ่งรายการ, POST read-all
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ล็อกอิน S1 เปิดรายการแจ้งเตือน
+2. GET /notifications/
+3. POST read N1/N2 และ read-all
 
 **ผลที่คาดหวัง**
 
-- ของผู้อื่นไม่ปรากฏ/อ่านไม่ได้; ของตน `is_read=true`
-- S1 อ่าน N2 ไม่ได้และ N1 is_read=true
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- S1 เห็นเฉพาะ N1
+- N2 ตอบ 404
+- N1 เป็น is_read=true
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-044 — เรียกสี่ API ด้วย token และ schema ที่ถูก/ผิด
+### 2.8 AI
+
+#### TC-044 — เรียกสี่ API ด้วย token และ schema ที่ถูก/ผิด
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-029; AI |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-044 |
+| อ้างอิง | FR-029; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / API/AI |
 | เงื่อนไขตั้งต้น | ตั้ง AI test double |
-| ข้อมูลทดสอบ | S1, AI test double, body ถูกและขาด required field |
-| ประเภท | AI/API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1; AI test double; body ถูกและขาด required field |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1, AI test double, body ถูกและขาด required field; จด ID และค่าก่อนดำเนินการ
-2. POST สี่ endpoint แล้วส่ง body ขาด required field
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. POST generate-abstract, suggest-titles, suggest-keywords, check-writing ด้วย S1
+2. ตรวจ response schema
+3. ส่ง body ขาด field และไม่มี token
 
 **ผลที่คาดหวัง**
 
-- ได้ schema response เมื่อถูก; 422 เมื่อขาด field; ไม่มี token ได้ 401
-- body ถูกตรง schema, body ผิด 422, ไม่มี token 401
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- body ถูกคืนฟิลด์ตาม schema
+- body ผิดตอบ 422
+- ไม่มี token ตอบ 401
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-045 — dashboard insight และ chat
+#### TC-045 — dashboard insight และ chat
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-030; AI |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-045 |
+| อ้างอิง | FR-030; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / API/AI/RBAC |
 | เงื่อนไขตั้งต้น | AI test double; งาน approved |
-| ข้อมูลทดสอบ | A1/S1, AI test double, W1 approved |
-| ประเภท | AI/API, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | A1/S1; AI test double; W1 approved |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: A1/S1, AI test double, W1 approved; จด ID และค่าก่อนดำเนินการ
-2. POST `/ai/dashboard-insights` ด้วย admin/student; POST `/ai/chat`
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. POST /ai/dashboard-insights ด้วย A1 และ S1
+2. POST /ai/chat แบบไม่มี token
+3. ตรวจ response/relevant_works
 
 **ผลที่คาดหวัง**
 
-- admin ได้ insight; student 403; chat คืน response/relevant_works
-- A1 ได้ insight, S1 403, chat คืน response/relevant_works
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- A1 ได้ insight, S1 403
+- chat คืน response และ relevant_works array
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-046 — สี่ endpoint วิเคราะห์ผลงานและสิทธิ์
+#### TC-046 — สี่ endpoint วิเคราะห์ผลงานและสิทธิ์
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-031; AI ตรวจงาน |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-046 |
+| อ้างอิง | FR-031; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / Web/API/AI |
 | เงื่อนไขตั้งต้น | งานมีอยู่; AI test double |
-| ข้อมูลทดสอบ | W1, D1/S1, AI test double |
-| ประเภท | AI/API, Positive, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | W1; D1/S1; AI test double |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: W1, D1/S1, AI test double; จด ID และค่าก่อนดำเนินการ
-2. POST ทั้งสี่ด้วย advisor แล้ว student
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. POST ai-pre-review, ai-plagiarism, ai-reviewer-match, ai-review-summary ของ W1 ด้วย D1
+2. ทำซ้ำด้วย S1 และ ID ไม่มี
 
 **ผลที่คาดหวัง**
 
-- advisor ได้ผล; student 403; ID ไม่พบได้ 404
-- D1 ได้ผล, S1 403, ID ไม่มี 404
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- D1 ได้ผลตาม service
+- S1 403
+- ID ไม่มี 404
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-047 — เว็บส่งงานแล้ว advisor ตรวจ
+### 2.9 กระบวนการข้ามบทบาทแบบ E2E
+
+#### TC-047 — เว็บส่งงานแล้ว advisor ตรวจ
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-032; E2E |
-| ความสำคัญ | สูง |
+| รหัส Test Case | TC-047 |
+| อ้างอิง | FR-032; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | สูง / Positive / E2E |
 | เงื่อนไขตั้งต้น | backend/frontend และบัญชีทดสอบพร้อม |
-| ข้อมูลทดสอบ | S1/D1, C1, browser กับระบบทดสอบ |
-| ประเภท | E2E, Positive |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | S1, D1, C1; browser แยก session; PDF valid |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: S1/D1, C1, browser กับระบบทดสอบ; จด ID และค่าก่อนดำเนินการ
-2. login student → `/student/research/new` ส่ง → login advisor → `/advisor/reviews` ตรวจ
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ล็อกอิน S1 ส่งงานผ่าน /student/research/new
+2. บันทึก ID และตรวจ /student/research
+3. ล็อกอิน D1 เปิด /advisor/reviews/{id} และส่งผลตรวจ
 
 **ผลที่คาดหวัง**
 
-- งานปรากฏในคิวที่ตรงกันและสถานะเปลี่ยนใน UI/DB
-- งานขึ้นคิว D1 และสถานะหลังตรวจตรง UI/DB
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- งานเริ่ม pending และอยู่ในคิว D1
+- หลังตรวจ review/status ตรง UI และ DB
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
 
 
-### TC-048 — เว็บ admin จัดการหมวดหมู่/ผู้ใช้
+#### TC-048 — เว็บ admin จัดการหมวดหมู่/ผู้ใช้
 
 | รายการ | รายละเอียด |
 |---|---|
-| อ้างอิง | FR-032; E2E |
-| ความสำคัญ | กลาง |
+| รหัส Test Case | TC-048 |
+| อ้างอิง | FR-032; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
+| ความสำคัญ / ประเภท | กลาง / Positive / E2E/RBAC |
 | เงื่อนไขตั้งต้น | admin พร้อม |
-| ข้อมูลทดสอบ | A1/S1, category/user ใหม่, browser กับระบบทดสอบ |
-| ประเภท | E2E, Positive, RBAC/Validation |
-| สถานะ | Not Tested |
+| ข้อมูลทดสอบ | A1, S1, C2 และ U3 ใหม่ |
+| สถานะเริ่มต้น | Not Tested |
 
 **ขั้นตอนการทดสอบ**
 
-1. เตรียมข้อมูลทดสอบ: A1/S1, category/user ใหม่, browser กับระบบทดสอบ; จด ID และค่าก่อนดำเนินการ
-2. login → `/admin/categories` เพิ่ม → `/admin/users` จัดการ
-3. ตรวจ HTTP response หรือผลบนหน้าเว็บ และอ่านข้อมูลหลังดำเนินการตามจุดตรวจด้านล่าง
+1. ล็อกอิน A1 เพิ่ม C2 ที่ /admin/categories และ U3 ที่ /admin/users
+2. ตรวจ GET API/DB
+3. ล็อกอิน S1 เปิด /admin และส่งคำขอ admin โดยตรง
 
 **ผลที่คาดหวัง**
 
-- UI แสดงผลที่ backend บันทึก; ผู้ไม่ใช่ admin ถูก API ปฏิเสธ
-- ข้อมูล admin บันทึกจริง; S1 ส่งคำขอตรงได้ 403
-- กรณีถูกปฏิเสธต้องไม่มีผลข้างเคียงที่ระบุให้คงเดิม
+- C2/U3 บันทึกจริง
+- คำขอ API ของ S1 ตอบ 403
+- การเปิด /admin ของ S1 ให้บันทึกพฤติกรรมจริงเพราะ layout ตรวจเพียง session
 
-**บันทึกผลจริง:** TBD · **หลักฐาน:** TBD · **ผู้ทดสอบ/วันที่:** TBD · **Defect:** TBD
+**ผลการทดสอบจริง:** TBD
+
+**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
+
+**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
+
+## 3. สรุปผลและการลงนาม
+
+| รายการ | จำนวน |
+|---|---:|
+| กรณีทดสอบทั้งหมด | 48 |
+| Not Tested | 48 |
+| ผ่าน | 0 |
+| ไม่ผ่าน | 0 |
+| ข้าม/Blocked | 0 |
+
+ตัวเลขข้างต้นเป็นสถานะตั้งต้น ยังไม่มีการ execute จริง รายงานผลรายกรณีและการประเมิน exit criteria อยู่ใน TEST-PLAN-AND-REPORT.md
+
+| บทบาท | ชื่อ-นามสกุล | วันที่ | สถานะรับรอง |
+|---|---|---|---|
+| ผู้ทดสอบ | TBD | TBD | รอ |
+| ผู้พัฒนา | TBD | TBD | รอ |
+| ผู้อนุมัติ | TBD | TBD | รอ |
