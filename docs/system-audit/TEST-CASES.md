@@ -100,1431 +100,1098 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 
 ## 2. รายละเอียดกรณีทดสอบ
 
+ชื่อผู้ทดสอบและวันที่ 1–4 ตุลาคม 2026 ในแต่ละกรณีเป็นการจัดสรรงานตามแผน ยังไม่ใช่หลักฐานว่าดำเนินการทดสอบแล้ว สถานะและผลการทดสอบจริงจึงเว้นไว้ให้ผู้ทดสอบกรอกหลังทดสอบ
+
 ### 2.1 บัญชีและโปรไฟล์
 
 #### TC-001 — สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-001 |
-| อ้างอิง | FR-001; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | email ยังไม่มี |
-| ข้อมูลทดสอบ | U1 ใช้ email ใหม่ในฐานทดสอบ; ชื่อ ทดสอบ ระบบ; role=admin เฉพาะคำขอ API |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิด /register แล้วกรอกชื่อ นามสกุล email และรหัสที่กำหนดใน environment
-2. กด สร้างบัญชี และตรวจ URL หลังส่ง
-3. ใช้ email ใหม่อีกชุดส่ง POST /auth/register พร้อม role=admin แล้วอ่าน users
-
-**ผลที่คาดหวัง**
-
-- หน้าเว็บพาไป /login?registered=1 ไม่ล็อกอินอัตโนมัติ
-- ทั้งสองบัญชีมี role=student แม้ API รับค่า role=admin
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-001</td><th>ชื่อ Test Case</th><td>สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-001; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">email ยังไม่มี</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิด /register แล้วกรอกชื่อ นามสกุล email และรหัสที่กำหนดใน environment</li>
+<li>กด สร้างบัญชี และตรวจ URL หลังส่ง</li>
+<li>ใช้ email ใหม่อีกชุดส่ง POST /auth/register พร้อม role=admin แล้วอ่าน users</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">U1 ใช้ email ใหม่ในฐานทดสอบ; ชื่อ ทดสอบ ระบบ; role=admin เฉพาะคำขอ API</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>หน้าเว็บพาไป /login?registered=1 ไม่ล็อกอินอัตโนมัติ</li>
+<li>ทั้งสองบัญชีมี role=student แม้ API รับค่า role=admin</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-002 — สมัคร email ซ้ำ
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-002 |
-| อ้างอิง | FR-001; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / API |
-| เงื่อนไขตั้งต้น | มีผู้ใช้เดิม |
-| ข้อมูลทดสอบ | email ของ U1 ที่มีอยู่แล้ว |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. บันทึกจำนวน users ของ email U1
-2. ส่ง POST /auth/register ด้วย email เดิม
-3. อ่าน status และจำนวนแถวหลังส่ง
-
-**ผลที่คาดหวัง**
-
-- HTTP 400 และ detail ว่า email ถูกใช้แล้ว
-- จำนวนแถวไม่เพิ่ม
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-002</td><th>ชื่อ Test Case</th><td>สมัคร email ซ้ำ</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-001; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">มีผู้ใช้เดิม</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>บันทึกจำนวน users ของ email U1</li>
+<li>ส่ง POST /auth/register ด้วย email เดิม</li>
+<li>อ่าน status และจำนวนแถวหลังส่ง</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">email ของ U1 ที่มีอยู่แล้ว</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>HTTP 400 และ detail ว่า email ถูกใช้แล้ว</li>
+<li>จำนวนแถวไม่เพิ่ม</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-003 — ล็อกอินข้อมูลถูก
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-003 |
-| อ้างอิง | FR-002; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | มีผู้ใช้ |
-| ข้อมูลทดสอบ | S1 active; email/password อยู่ในชุดข้อมูลทดสอบแยก |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิด /login แล้วกรอกข้อมูล S1
-2. กด เข้าสู่ระบบ และตรวจเส้นทาง
-3. เรียก /auth/me ด้วย token ที่ออกโดย backend
-
-**ผลที่คาดหวัง**
-
-- เว็บไป /account/saved ตาม route login
-- backend คืน token_type=bearer และ /auth/me คืน S1
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-003</td><th>ชื่อ Test Case</th><td>ล็อกอินข้อมูลถูก</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-002; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">มีผู้ใช้</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิด /login แล้วกรอกข้อมูล S1</li>
+<li>กด เข้าสู่ระบบ และตรวจเส้นทาง</li>
+<li>เรียก /auth/me ด้วย token ที่ออกโดย backend</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1 active; email/password อยู่ในชุดข้อมูลทดสอบแยก</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>เว็บไป /account/saved ตาม route login</li>
+<li>backend คืน token_type=bearer และ /auth/me คืน S1</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-004 — รหัสผ่านผิด
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-004 |
-| อ้างอิง | FR-002; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / Web/API |
-| เงื่อนไขตั้งต้น | มีผู้ใช้ |
-| ข้อมูลทดสอบ | email ของ S1 และรหัสผิดที่ไม่ใช่รหัสจริง |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิด /login กรอก email ถูกแต่รหัสผิดแล้วส่ง
-2. ตรวจข้อความและ URL
-3. ส่ง POST /auth/login ด้วยข้อมูลเดียวกันโดยตรง
-
-**ผลที่คาดหวัง**
-
-- เว็บยังอยู่หน้า login และไม่เกิด session
-- backend ตอบ 400 ไม่มี access_token
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-004</td><th>ชื่อ Test Case</th><td>รหัสผ่านผิด</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-002; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">มีผู้ใช้</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิด /login กรอก email ถูกแต่รหัสผิดแล้วส่ง</li>
+<li>ตรวจข้อความและ URL</li>
+<li>ส่ง POST /auth/login ด้วยข้อมูลเดียวกันโดยตรง</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">email ของ S1 และรหัสผิดที่ไม่ใช่รหัสจริง</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>เว็บยังอยู่หน้า login และไม่เกิด session</li>
+<li>backend ตอบ 400 ไม่มี access_token</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-005 — ดู/แก้โปรไฟล์และเปลี่ยนรหัส
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-005 |
-| อ้างอิง | FR-003; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | token ผู้ใช้ active |
-| ข้อมูลทดสอบ | S1; ชื่อ ภาควิชา และรหัสใหม่เฉพาะฐานทดสอบ |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ล็อกอิน S1 เปิด /student/profile
-2. เปลี่ยนชื่อ ภาควิชา และรหัสผ่านแล้วบันทึก
-3. โหลดหน้าใหม่และล็อกอินด้วยรหัสใหม่
-
-**ผลที่คาดหวัง**
-
-- GET /auth/me และหน้าโปรไฟล์แสดงค่าใหม่
-- รหัสใหม่ใช้ได้และรหัสถูกเก็บเป็น hash
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-005</td><th>ชื่อ Test Case</th><td>ดู/แก้โปรไฟล์และเปลี่ยนรหัส</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-003; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">token ผู้ใช้ active</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ล็อกอิน S1 เปิด /student/profile</li>
+<li>เปลี่ยนชื่อ ภาควิชา และรหัสผ่านแล้วบันทึก</li>
+<li>โหลดหน้าใหม่และล็อกอินด้วยรหัสใหม่</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1; ชื่อ ภาควิชา และรหัสใหม่เฉพาะฐานทดสอบ</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>GET /auth/me และหน้าโปรไฟล์แสดงค่าใหม่</li>
+<li>รหัสใหม่ใช้ได้และรหัสถูกเก็บเป็น hash</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-006 — token ไม่ถูก/ผู้ใช้ inactive/email ซ้ำ
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-006 |
-| อ้างอิง | FR-003; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / API |
-| เงื่อนไขตั้งต้น | มีผู้ใช้สองราย |
-| ข้อมูลทดสอบ | token ปลอม; U2 inactive; email ของ S1 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. GET /auth/me ด้วย token ปลอม
-2. GET ด้วย token ของ U2
-3. PUT /auth/me ของผู้ใช้อื่นให้ email ซ้ำกับ S1
-
-**ผลที่คาดหวัง**
-
-- ได้ 401, 400, 400 ตามลำดับ
-- email ใน users ไม่เปลี่ยน
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-006</td><th>ชื่อ Test Case</th><td>token ไม่ถูก/ผู้ใช้ inactive/email ซ้ำ</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-003; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">มีผู้ใช้สองราย</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>GET /auth/me ด้วย token ปลอม</li>
+<li>GET ด้วย token ของ U2</li>
+<li>PUT /auth/me ของผู้ใช้อื่นให้ email ซ้ำกับ S1</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">token ปลอม; U2 inactive; email ของ S1</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ได้ 401, 400, 400 ตามลำดับ</li>
+<li>email ใน users ไม่เปลี่ยน</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-007 — ล็อกอินแล้วออกจากระบบ
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-007 |
-| อ้างอิง | FR-004; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | backend พร้อม |
-| ข้อมูลทดสอบ | S1; browser profile ใหม่ |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ล็อกอิน S1 ผ่าน /login
-2. ตรวจ cookie ของ /api/auth/login ว่า HttpOnly และเปิด /account/saved
-3. กดออกจากระบบหรือ POST /api/auth/logout แล้วเปิด /account/saved อีกครั้ง
-
-**ผลที่คาดหวัง**
-
-- มี session cookie ระหว่างล็อกอิน
-- หลัง logout cookie ถูกลบและหน้า protected พาไป /login
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-007</td><th>ชื่อ Test Case</th><td>ล็อกอินแล้วออกจากระบบ</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-004; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">backend พร้อม</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ล็อกอิน S1 ผ่าน /login</li>
+<li>ตรวจ cookie ของ /api/auth/login ว่า HttpOnly และเปิด /account/saved</li>
+<li>กดออกจากระบบหรือ POST /api/auth/logout แล้วเปิด /account/saved อีกครั้ง</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1; browser profile ใหม่</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>มี session cookie ระหว่างล็อกอิน</li>
+<li>หลัง logout cookie ถูกลบและหน้า protected พาไป /login</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 ### 2.2 ผู้ใช้ หมวดหมู่ และตัวเลือก
 
 #### TC-008 — admin CRUD ผู้ใช้
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-008 |
-| อ้างอิง | FR-005; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | token admin |
-| ข้อมูลทดสอบ | A1; U3 email ใหม่และ role=advisor |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ล็อกอิน A1 เปิด /admin/users และเพิ่ม U3
-2. GET /users/{id} แล้วแก้ชื่อ/role จากหน้าเว็บหรือ PUT
-3. ลบ U3 แล้ว GET ID เดิม
-
-**ผลที่คาดหวัง**
-
-- POST สร้างได้ 201
-- แก้ไขคงอยู่
-- ลบได้ 204 และ GET หลังลบ 404
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-008</td><th>ชื่อ Test Case</th><td>admin CRUD ผู้ใช้</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-005; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">token admin</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ล็อกอิน A1 เปิด /admin/users และเพิ่ม U3</li>
+<li>GET /users/{id} แล้วแก้ชื่อ/role จากหน้าเว็บหรือ PUT</li>
+<li>ลบ U3 แล้ว GET ID เดิม</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">A1; U3 email ใหม่และ role=advisor</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>POST สร้างได้ 201</li>
+<li>แก้ไขคงอยู่</li>
+<li>ลบได้ 204 และ GET หลังลบ 404</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-009 — student เรียก API จัดการผู้ใช้
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-009 |
-| อ้างอิง | FR-005; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC |
-| เงื่อนไขตั้งต้น | token student |
-| ข้อมูลทดสอบ | S1; U3 ที่มีอยู่ |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ใช้ token S1 ส่ง GET/POST /users/
-2. ส่ง GET/PUT/DELETE /users/{id}
-3. ใช้ A1 ตรวจ U3 หลังคำขอ
-
-**ผลที่คาดหวัง**
-
-- ทุกคำขอ S1 ตอบ 403
-- U3 ไม่ถูกเปลี่ยนหรือลบ
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-009</td><th>ชื่อ Test Case</th><td>student เรียก API จัดการผู้ใช้</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-005; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / API/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">token student</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ใช้ token S1 ส่ง GET/POST /users/</li>
+<li>ส่ง GET/PUT/DELETE /users/{id}</li>
+<li>ใช้ A1 ตรวจ U3 หลังคำขอ</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1; U3 ที่มีอยู่</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ทุกคำขอ S1 ตอบ 403</li>
+<li>U3 ไม่ถูกเปลี่ยนหรือลบ</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-010 — อ่านสาธารณะและเพิ่มโดย admin
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-010 |
-| อ้างอิง | FR-006; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | token admin |
-| ข้อมูลทดสอบ | A1; category ใหม่ C2 ชื่อไม่ซ้ำ |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิด /admin/categories และกรอกชื่อ/คำอธิบาย C2
-2. กด เพิ่มหมวดหมู่
-3. เปิดหน้าใหม่และ GET /categories/ แบบไม่มี token
-
-**ผลที่คาดหวัง**
-
-- C2 ปรากฏพร้อม id
-- GET สาธารณะคืน C2
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-010</td><th>ชื่อ Test Case</th><td>อ่านสาธารณะและเพิ่มโดย admin</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-006; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">token admin</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิด /admin/categories และกรอกชื่อ/คำอธิบาย C2</li>
+<li>กด เพิ่มหมวดหมู่</li>
+<li>เปิดหน้าใหม่และ GET /categories/ แบบไม่มี token</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">A1; category ใหม่ C2 ชื่อไม่ซ้ำ</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>C2 ปรากฏพร้อม id</li>
+<li>GET สาธารณะคืน C2</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-011 — ผู้ไม่ใช่ admin เพิ่มหมวดหมู่
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-011 |
-| อ้างอิง | FR-006; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC |
-| เงื่อนไขตั้งต้น | token student |
-| ข้อมูลทดสอบ | S1; ชื่อ category ใหม่ไม่ซ้ำ |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ส่ง POST /categories/ ด้วย token S1
-2. GET /categories/ อีกครั้ง
-
-**ผลที่คาดหวัง**
-
-- POST ตอบ 403
-- ไม่พบ category ใหม่
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-011</td><th>ชื่อ Test Case</th><td>ผู้ไม่ใช่ admin เพิ่มหมวดหมู่</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-006; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / API/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">token student</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ส่ง POST /categories/ ด้วย token S1</li>
+<li>GET /categories/ อีกครั้ง</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1; ชื่อ category ใหม่ไม่ซ้ำ</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>POST ตอบ 403</li>
+<li>ไม่พบ category ใหม่</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-012 — admin แทนรายการตัวเลือก
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-012 |
-| อ้างอิง | FR-007; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | token admin |
-| ข้อมูลทดสอบ | A1; departments และ work_types ชุดใหม่ มี whitespace และช่องว่าง |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิด /admin/options หรือส่ง POST /options/ พร้อมสอง array
-2. GET /options/ หลังบันทึก
-3. ตรวจตาราง departments/work_types
-
-**ผลที่คาดหวัง**
-
-- ค่าก่อนหน้าถูกแทน
-- ชื่อถูก trim และรายการว่างไม่ถูกเก็บ
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-012</td><th>ชื่อ Test Case</th><td>admin แทนรายการตัวเลือก</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-007; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">token admin</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิด /admin/options หรือส่ง POST /options/ พร้อมสอง array</li>
+<li>GET /options/ หลังบันทึก</li>
+<li>ตรวจตาราง departments/work_types</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">A1; departments และ work_types ชุดใหม่ มี whitespace และช่องว่าง</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ค่าก่อนหน้าถูกแทน</li>
+<li>ชื่อถูก trim และรายการว่างไม่ถูกเก็บ</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-013 — student เปลี่ยนตัวเลือก
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-013 |
-| อ้างอิง | FR-007; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC |
-| เงื่อนไขตั้งต้น | token student |
-| ข้อมูลทดสอบ | S1; snapshot ของ GET /options/ |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ส่ง POST /options/ ด้วย token S1
-2. GET /options/ เทียบ snapshot
-
-**ผลที่คาดหวัง**
-
-- POST ตอบ 403
-- รายการเดิมคงอยู่
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-013</td><th>ชื่อ Test Case</th><td>student เปลี่ยนตัวเลือก</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-007; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / API/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">token student</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ส่ง POST /options/ ด้วย token S1</li>
+<li>GET /options/ เทียบ snapshot</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1; snapshot ของ GET /options/</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>POST ตอบ 403</li>
+<li>รายการเดิมคงอยู่</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 ### 2.3 ค้นหา รายละเอียด และคำแนะนำ
 
 #### TC-014 — guest/student/admin ค้นงาน approved และ pending
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-014 |
-| อ้างอิง | FR-008; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API/RBAC |
-| เงื่อนไขตั้งต้น | งานสองสถานะ หลายเจ้าของ |
-| ข้อมูลทดสอบ | W1 approved; W2 pending ของ S1; W3 pending ของ S2; C1/C2 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิด /research เป็น guest และค้นคำ/หมวด
-2. เรียก /research/search ด้วย guest, S1 และ A1
-3. เทียบ ID ผลแต่ละสิทธิ์
-
-**ผลที่คาดหวัง**
-
-- guest เห็น approved เท่านั้น
-- S1 เห็น approved และงานที่เกี่ยวข้อง
-- A1 เห็นทั้งหมดตามตัวกรอง
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-014</td><th>ชื่อ Test Case</th><td>guest/student/admin ค้นงาน approved และ pending</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-008; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานสองสถานะ หลายเจ้าของ</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิด /research เป็น guest และค้นคำ/หมวด</li>
+<li>เรียก /research/search ด้วย guest, S1 และ A1</li>
+<li>เทียบ ID ผลแต่ละสิทธิ์</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1 approved; W2 pending ของ S1; W3 pending ของ S2; C1/C2</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>guest เห็น approved เท่านั้น</li>
+<li>S1 เห็น approved และงานที่เกี่ยวข้อง</li>
+<li>A1 เห็นทั้งหมดตามตัวกรอง</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-015 — คำค้นมีหลายคำและบันทึก log
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-015 |
-| อ้างอิง | FR-008; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / API/Integration |
-| เงื่อนไขตั้งต้น | งานตัวอย่าง |
-| ข้อมูลทดสอบ | W1 มีคำทดสอบใน title_th และ abstract; query สองคำ |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ส่ง GET /research/search?q=สองคำ
-2. ตรวจ ID/อันดับผล
-3. อ่าน search_logs ก่อนและหลัง
-
-**ผลที่คาดหวัง**
-
-- งานที่ตรงเงื่อนไข OR ปรากฏ
-- มี search_log keyword ตรง q
-- ชื่อเรื่องได้รับคะแนนสูงกว่า abstract ตามโค้ด
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-015</td><th>ชื่อ Test Case</th><td>คำค้นมีหลายคำและบันทึก log</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-008; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / API/Integration</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานตัวอย่าง</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ส่ง GET /research/search?q=สองคำ</li>
+<li>ตรวจ ID/อันดับผล</li>
+<li>อ่าน search_logs ก่อนและหลัง</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1 มีคำทดสอบใน title_th และ abstract; query สองคำ</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>งานที่ตรงเงื่อนไข OR ปรากฏ</li>
+<li>มี search_log keyword ตรง q</li>
+<li>ชื่อเรื่องได้รับคะแนนสูงกว่า abstract ตามโค้ด</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-016 — คำแนะนำไม่เผยงาน pending
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-016 |
-| อ้างอิง | FR-009; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / Web/API |
-| เงื่อนไขตั้งต้น | ชื่อ/คำสำคัญเฉพาะใน pending |
-| ข้อมูลทดสอบ | W1 approved และ W2 pending มี keyword ไม่ซ้ำ |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิด /research และพิมพ์ keyword เฉพาะเพื่อดู suggestions
-2. เรียก /research/search/suggestions?q=...
-3. เทียบ titles/keywords กับ W1/W2
-
-**ผลที่คาดหวัง**
-
-- ไม่มีข้อมูลจาก W2 pending ใน suggestions
-- ข้อมูล approved ที่ตรงค้นปรากฏ
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-016</td><th>ชื่อ Test Case</th><td>คำแนะนำไม่เผยงาน pending</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-009; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">ชื่อ/คำสำคัญเฉพาะใน pending</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิด /research และพิมพ์ keyword เฉพาะเพื่อดู suggestions</li>
+<li>เรียก /research/search/suggestions?q=...</li>
+<li>เทียบ titles/keywords กับ W1/W2</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1 approved และ W2 pending มี keyword ไม่ซ้ำ</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ไม่มีข้อมูลจาก W2 pending ใน suggestions</li>
+<li>ข้อมูล approved ที่ตรงค้นปรากฏ</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-017 — latest/popular และสถิติ
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-017 |
-| อ้างอิง | FR-010; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | งาน approved/pending และ count |
-| ข้อมูลทดสอบ | W1/W4 approved มีวันเผยแพร่และ view_count ต่างกัน; W2 pending |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. GET /home/latest?limit=1 และ /home/popular?limit=1
-2. GET /stats/
-3. เทียบตัวเลข/ลำดับกับ research_works และ users
-
-**ผลที่คาดหวัง**
-
-- latest/popular มี approved ไม่เกินหนึ่งรายการและเรียงตามฟิลด์ที่โค้ดใช้
-- stats ตรง count/sum ของ DB
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-017</td><th>ชื่อ Test Case</th><td>latest/popular และสถิติ</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-010; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งาน approved/pending และ count</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>GET /home/latest?limit=1 และ /home/popular?limit=1</li>
+<li>GET /stats/</li>
+<li>เทียบตัวเลข/ลำดับกับ research_works และ users</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1/W4 approved มีวันเผยแพร่และ view_count ต่างกัน; W2 pending</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>latest/popular มี approved ไม่เกินหนึ่งรายการและเรียงตามฟิลด์ที่โค้ดใช้</li>
+<li>stats ตรง count/sum ของ DB</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-018 — เปิดงานและแนะนำงานที่เกี่ยวข้อง
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-018 |
-| อ้างอิง | FR-011; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | งานที่มี category/keywords |
-| ข้อมูลทดสอบ | W1 approved; W4 related approved; W2 pending |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. อ่าน view_count ของ W1
-2. เปิด /research/{id} ของ W1 และเรียก /research/{id}/recommendations
-3. เรียก GET /research/{id} ของ W2 pending โดยไม่มี token เพื่อบันทึกการเข้าถึง URL ตรง
-4. ตรวจ view_count และ download_view_logs
-
-**ผลที่คาดหวัง**
-
-- รายละเอียด W1 แสดง
-- view_count เพิ่ม 1 พร้อม view log
-- คำแนะนำไม่มี W1/W2
-- API ปัจจุบันคืนรายละเอียด W2 pending ให้คำขอไม่มี token; ให้บันทึกผลนี้เป็นความเสี่ยงด้านการมองเห็นงาน
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-018</td><th>ชื่อ Test Case</th><td>เปิดงานและแนะนำงานที่เกี่ยวข้อง</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-011; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานที่มี category/keywords</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>อ่าน view_count ของ W1</li>
+<li>เปิด /research/{id} ของ W1 และเรียก /research/{id}/recommendations</li>
+<li>เรียก GET /research/{id} ของ W2 pending โดยไม่มี token เพื่อบันทึกการเข้าถึง URL ตรง</li>
+<li>ตรวจ view_count และ download_view_logs</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1 approved; W4 related approved; W2 pending</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>รายละเอียด W1 แสดง</li>
+<li>view_count เพิ่ม 1 พร้อม view log</li>
+<li>คำแนะนำไม่มี W1/W2</li>
+<li>API ปัจจุบันคืนรายละเอียด W2 pending ให้คำขอไม่มี token; ให้บันทึกผลนี้เป็นความเสี่ยงด้านการมองเห็นงาน</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-019 — ID ไม่มีอยู่
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-019 |
-| อ้างอิง | FR-011; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Negative / Web/API |
-| เงื่อนไขตั้งต้น | ไม่มี ID |
-| ข้อมูลทดสอบ | ID จำนวนเต็มบวกที่ไม่มีใน research_works |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิด /research/{id} ของ ID ไม่มี
-2. เรียก GET /research/{id} โดยตรง
-3. ตรวจ view log
-
-**ผลที่คาดหวัง**
-
-- API ตอบ 404
-- หน้าเว็บแสดงสถานะไม่พบ
-- ไม่มี view log ใหม่
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-019</td><th>ชื่อ Test Case</th><td>ID ไม่มีอยู่</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-011; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Negative / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">ไม่มี ID</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิด /research/{id} ของ ID ไม่มี</li>
+<li>เรียก GET /research/{id} โดยตรง</li>
+<li>ตรวจ view log</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">ID จำนวนเต็มบวกที่ไม่มีใน research_works</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>API ตอบ 404</li>
+<li>หน้าเว็บแสดงสถานะไม่พบ</li>
+<li>ไม่มี view log ใหม่</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-020 — ผู้ไม่ล็อกอิน/มี favorite ได้คำแนะนำ
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-020 |
-| อ้างอิง | FR-012; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / API |
-| เงื่อนไขตั้งต้น | approved หลายหมวด |
-| ข้อมูลทดสอบ | W1/W4 approved; S1 มี favorite W1 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. GET /research/recommendations/personalized ไม่มี token
-2. GET ด้วย token S1
-3. ตรวจ status/จำนวน/ลำดับผล
-
-**ผลที่คาดหวัง**
-
-- ผลมีเฉพาะ approved ไม่เกิน 5
-- ไม่มี interaction ใช้ความนิยม และมี interaction ใช้ profile category/keyword
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-020</td><th>ชื่อ Test Case</th><td>ผู้ไม่ล็อกอิน/มี favorite ได้คำแนะนำ</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-012; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">approved หลายหมวด</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>GET /research/recommendations/personalized ไม่มี token</li>
+<li>GET ด้วย token S1</li>
+<li>ตรวจ status/จำนวน/ลำดับผล</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1/W4 approved; S1 มี favorite W1</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ผลมีเฉพาะ approved ไม่เกิน 5</li>
+<li>ไม่มี interaction ใช้ความนิยม และมี interaction ใช้ profile category/keyword</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 ### 2.4 ส่งผลงานและตรวจข้อมูล
 
 #### TC-021 — รายชื่อผู้เขียน/ที่ปรึกษา
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-021 |
-| อ้างอิง | FR-013; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | student/advisor active/inactive |
-| ข้อมูลทดสอบ | S1/S2 active student; D1/D2 active advisor; U2 inactive |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ล็อกอิน S1 เปิด /student/research/new และดูตัวเลือกผู้เกี่ยวข้อง
-2. GET /research/participants
-3. เรียกโดยไม่มี token
-
-**ผลที่คาดหวัง**
-
-- authors/advisors แยก role และไม่รวม U2
-- S1 มี is_current=true
-- ไม่มี token 401
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-021</td><th>ชื่อ Test Case</th><td>รายชื่อผู้เขียน/ที่ปรึกษา</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-013; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">student/advisor active/inactive</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ล็อกอิน S1 เปิด /student/research/new และดูตัวเลือกผู้เกี่ยวข้อง</li>
+<li>GET /research/participants</li>
+<li>เรียกโดยไม่มี token</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1/S2 active student; D1/D2 active advisor; U2 inactive</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>authors/advisors แยก role และไม่รวม U2</li>
+<li>S1 มี is_current=true</li>
+<li>ไม่มี token 401</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-022 — ส่งงานครบข้อมูลและผู้เกี่ยวข้อง
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-022 |
-| อ้างอิง | FR-014; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | token student; category/IDs ถูก |
-| ข้อมูลทดสอบ | S1, C1, D1; ชื่อไทย งานวิจัยทดสอบ; ชื่ออังกฤษ Research Test; PDF/ภาพ valid |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ล็อกอิน S1 เปิด /student/research/new
-2. กรอกห้าขั้น เลือก author/advisor แนบไฟล์ แล้วยืนยัน
-3. อ่านหน้าสำเร็จและ query research_works/research_authors/research_advisors
-
-**ผลที่คาดหวัง**
-
-- สร้างงาน status=pending และ submitted_by_id=S1
-- ผู้เกี่ยวข้องและ path ไฟล์ตรง input
-- ไม่มี draft
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-022</td><th>ชื่อ Test Case</th><td>ส่งงานครบข้อมูลและผู้เกี่ยวข้อง</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-014; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">token student; category/IDs ถูก</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ล็อกอิน S1 เปิด /student/research/new</li>
+<li>กรอกห้าขั้น เลือก author/advisor แนบไฟล์ แล้วยืนยัน</li>
+<li>อ่านหน้าสำเร็จและ query research_works/research_authors/research_advisors</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1, C1, D1; ชื่อไทย งานวิจัยทดสอบ; ชื่ออังกฤษ Research Test; PDF/ภาพ valid</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>สร้างงาน status=pending และ submitted_by_id=S1</li>
+<li>ผู้เกี่ยวข้องและ path ไฟล์ตรง input</li>
+<li>ไม่มี draft</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak และ Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-023 — ไม่ล็อกอินหรือ role guest ส่งงาน
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-023 |
-| อ้างอิง | FR-014; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / Web/API/RBAC |
-| เงื่อนไขตั้งต้น | guest token หรือไม่มี token |
-| ข้อมูลทดสอบ | ไม่มี session และ G1 role guest; multipart body แบบ TC-022 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิด /student/research/new โดยไม่ล็อกอิน
-2. ส่ง POST /research/ ไม่มี token
-3. ส่งอีกครั้งด้วย G1
-
-**ผลที่คาดหวัง**
-
-- หน้าเว็บพาไป /login
-- API ตอบ 401 และ 403
-- ไม่มีงานใหม่
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-023</td><th>ชื่อ Test Case</th><td>ไม่ล็อกอินหรือ role guest ส่งงาน</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-014; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / Web/API/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">guest token หรือไม่มี token</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิด /student/research/new โดยไม่ล็อกอิน</li>
+<li>ส่ง POST /research/ ไม่มี token</li>
+<li>ส่งอีกครั้งด้วย G1</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">ไม่มี session และ G1 role guest; multipart body แบบ TC-022</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>หน้าเว็บพาไป /login</li>
+<li>API ตอบ 401 และ 403</li>
+<li>ไม่มีงานใหม่</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-024 — IDs ไม่ใช่ JSON array/มี 0/role ผิด
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-024 |
-| อ้างอิง | FR-015; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / API/Validation |
-| เงื่อนไขตั้งต้น | category ถูก |
-| ข้อมูลทดสอบ | C1; author_ids เป็นข้อความผิดรูปแบบ, [0], advisor_ids เป็น student, category_id ไม่มี |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ส่ง POST /research/ ทีละชุดด้วย S1
-2. บันทึก status/detail
-3. เทียบจำนวน research_works
-
-**ผลที่คาดหวัง**
-
-- รูปแบบ/role ผิดตอบ 422
-- ID ที่ไม่มีตอบ 404
-- ไม่มีงานถูกสร้าง
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-024</td><th>ชื่อ Test Case</th><td>IDs ไม่ใช่ JSON array/มี 0/role ผิด</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-015; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / API/Validation</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">category ถูก</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ส่ง POST /research/ ทีละชุดด้วย S1</li>
+<li>บันทึก status/detail</li>
+<li>เทียบจำนวน research_works</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">C1; author_ids เป็นข้อความผิดรูปแบบ, [0], advisor_ids เป็น student, category_id ไม่มี</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>รูปแบบ/role ผิดตอบ 422</li>
+<li>ID ที่ไม่มีตอบ 404</li>
+<li>ไม่มีงานถูกสร้าง</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-025 — ผู้เขียนคนละ prefix ปี
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-025 |
-| อ้างอิง | FR-015; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Negative / Web/API/Validation |
-| เงื่อนไขตั้งต้น | student สองคนมี student_id ต่าง prefix |
-| ข้อมูลทดสอบ | S1/S3 มี student_id สองตัวแรกต่างกัน |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ตรวจตัวเลือก author ในฟอร์ม S1
-2. ส่ง POST /research/ โดยตรงพร้อม author_ids สองคน
-3. เทียบ DB
-
-**ผลที่คาดหวัง**
-
-- frontend กรองผู้เขียนต่าง prefix
-- backend ตอบ 422 และไม่สร้างงาน
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-025</td><th>ชื่อ Test Case</th><td>ผู้เขียนคนละ prefix ปี</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-015; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Negative / Web/API/Validation</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">student สองคนมี student_id ต่าง prefix</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ตรวจตัวเลือก author ในฟอร์ม S1</li>
+<li>ส่ง POST /research/ โดยตรงพร้อม author_ids สองคน</li>
+<li>เทียบ DB</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1/S3 มี student_id สองตัวแรกต่างกัน</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>frontend กรองผู้เขียนต่าง prefix</li>
+<li>backend ตอบ 422 และไม่สร้างงาน</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-026 — อัปโหลดชนิดถูกและทดสอบขนาดขอบเขต
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-026 |
-| อ้างอิง | FR-016; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API/Boundary |
-| เงื่อนไขตั้งต้น | ไฟล์ภาพ/PDF ถูกต้อง |
-| ข้อมูลทดสอบ | ภาพที่ลายเซ็นถูก ขนาดเท่าขีดจำกัดและเกิน 1 byte; PDF เช่นเดียวกัน |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ตรวจค่า MAX_COVER_IMAGE_BYTES/MAX_DOCUMENT_BYTES ของรอบทดสอบ
-2. ส่ง POST multipart แยกสี่ไฟล์ด้วย S1
-3. ตรวจ status และไฟล์ใน STATIC_DIR
-
-**ผลที่คาดหวัง**
-
-- ไฟล์เท่าขีดจำกัดรับ
-- เกิน 1 byte ตอบ 413
-- ไฟล์เกินขนาดไม่ค้าง
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-026</td><th>ชื่อ Test Case</th><td>อัปโหลดชนิดถูกและทดสอบขนาดขอบเขต</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-016; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API/Boundary</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">ไฟล์ภาพ/PDF ถูกต้อง</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ตรวจค่า MAX_COVER_IMAGE_BYTES/MAX_DOCUMENT_BYTES ของรอบทดสอบ</li>
+<li>ส่ง POST multipart แยกสี่ไฟล์ด้วย S1</li>
+<li>ตรวจ status และไฟล์ใน STATIC_DIR</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">ภาพที่ลายเซ็นถูก ขนาดเท่าขีดจำกัดและเกิน 1 byte; PDF เช่นเดียวกัน</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ไฟล์เท่าขีดจำกัดรับ</li>
+<li>เกิน 1 byte ตอบ 413</li>
+<li>ไฟล์เกินขนาดไม่ค้าง</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-027 — นามสกุล/MIME/ลายเซ็นผิด
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-027 |
-| อ้างอิง | FR-016; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / API/Validation |
-| เงื่อนไขตั้งต้น | เตรียมไฟล์ปลอม |
-| ข้อมูลทดสอบ | MIME/นามสกุลไม่เข้าคู่; PDF ปลอม; cover valid กับ document invalid |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ส่ง POST multipart แต่ละแบบ
-2. ตรวจ status
-3. เทียบ research_works และโฟลเดอร์ upload ก่อน/หลัง
-
-**ผลที่คาดหวัง**
-
-- ตอบ 415
-- ไม่มีงานหรือ partial cover ใหม่ค้าง
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-027</td><th>ชื่อ Test Case</th><td>นามสกุล/MIME/ลายเซ็นผิด</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-016; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / API/Validation</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">เตรียมไฟล์ปลอม</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ส่ง POST multipart แต่ละแบบ</li>
+<li>ตรวจ status</li>
+<li>เทียบ research_works และโฟลเดอร์ upload ก่อน/หลัง</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">MIME/นามสกุลไม่เข้าคู่; PDF ปลอม; cover valid กับ document invalid</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ตอบ 415</li>
+<li>ไม่มีงานหรือ partial cover ใหม่ค้าง</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 ### 2.5 ผลงานของฉัน การแก้ไข และไฟล์
 
 #### TC-028 — ผู้ส่ง/author เห็นงานใน `/my`
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-028 |
-| อ้างอิง | FR-017; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | งานที่เกี่ยวข้องและไม่เกี่ยวข้อง |
-| ข้อมูลทดสอบ | W1 ส่งโดย S1; W4 มี S1 เป็น author; W3 ไม่เกี่ยว |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ล็อกอิน S1 เปิด /student/research
-2. GET /research/my
-3. เทียบ ID ใน UI/API
-
-**ผลที่คาดหวัง**
-
-- เห็น W1 และ W4 เท่านั้น
-- ไม่เห็น W3
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-028</td><th>ชื่อ Test Case</th><td>ผู้ส่ง/author เห็นงานใน <code>/my</code></td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-017; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานที่เกี่ยวข้องและไม่เกี่ยวข้อง</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ล็อกอิน S1 เปิด /student/research</li>
+<li>GET /research/my</li>
+<li>เทียบ ID ใน UI/API</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1 ส่งโดย S1; W4 มี S1 เป็น author; W3 ไม่เกี่ยว</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>เห็น W1 และ W4 เท่านั้น</li>
+<li>ไม่เห็น W3</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-029 — ผู้มีสิทธิ์แก้แล้วกลับ pending
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-029 |
-| อ้างอิง | FR-018; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | งาน approved ของตน |
-| ข้อมูลทดสอบ | W1 approved ของ S1; ชื่อและบทคัดย่อใหม่; C1 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิด /student/research/edit/{id} แล้วแก้ฟิลด์
-2. บันทึกและ GET /research/{id}
-3. ตรวจ status ใน DB
-
-**ผลที่คาดหวัง**
-
-- ข้อมูลใหม่คงอยู่
-- status กลับ pending
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-029</td><th>ชื่อ Test Case</th><td>ผู้มีสิทธิ์แก้แล้วกลับ pending</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-018; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งาน approved ของตน</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิด /student/research/edit/{id} แล้วแก้ฟิลด์</li>
+<li>บันทึกและ GET /research/{id}</li>
+<li>ตรวจ status ใน DB</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1 approved ของ S1; ชื่อและบทคัดย่อใหม่; C1</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ข้อมูลใหม่คงอยู่</li>
+<li>status กลับ pending</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-030 — คนอื่นแก้งาน
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-030 |
-| อ้างอิง | FR-018; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC |
-| เงื่อนไขตั้งต้น | งานของผู้อื่น |
-| ข้อมูลทดสอบ | W3 เป็นของ S2 และ S1 ไม่ใช่ author |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ส่ง PUT /research/{id} ของ W3 ด้วย S1
-2. GET W3 โดย A1
-3. เทียบ fields/relations
-
-**ผลที่คาดหวัง**
-
-- PUT ตอบ 403
-- W3 ไม่เปลี่ยน
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-030</td><th>ชื่อ Test Case</th><td>คนอื่นแก้งาน</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-018; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / API/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานของผู้อื่น</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ส่ง PUT /research/{id} ของ W3 ด้วย S1</li>
+<li>GET W3 โดย A1</li>
+<li>เทียบ fields/relations</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W3 เป็นของ S2 และ S1 ไม่ใช่ author</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>PUT ตอบ 403</li>
+<li>W3 ไม่เปลี่ยน</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-031 — ส่งเอกสารใหม่หลัง `needs_revision`
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-031 |
-| อ้างอิง | FR-019; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API/Integration |
-| เงื่อนไขตั้งต้น | งาน needs_revision มีเอกสารเดิม |
-| ข้อมูลทดสอบ | W2 status=needs_revision มี PDF เดิม; PDF ใหม่ valid |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิดหน้าแก้งานที่มีสิทธิ์และแนบ PDF ใหม่
-2. ส่ง PUT /research/{id}
-3. ตรวจ file_revisions และ research_works
-
-**ผลที่คาดหวัง**
-
-- file_revisions เก็บ path เดิมกับ version_no เพิ่ม
-- งานชี้ไฟล์ใหม่และ status=pending
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-031</td><th>ชื่อ Test Case</th><td>ส่งเอกสารใหม่หลัง <code>needs_revision</code></td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-019; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API/Integration</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งาน needs_revision มีเอกสารเดิม</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิดหน้าแก้งานที่มีสิทธิ์และแนบ PDF ใหม่</li>
+<li>ส่ง PUT /research/{id}</li>
+<li>ตรวจ file_revisions และ research_works</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W2 status=needs_revision มี PDF เดิม; PDF ใหม่ valid</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>file_revisions เก็บ path เดิมกับ version_no เพิ่ม</li>
+<li>งานชี้ไฟล์ใหม่และ status=pending</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-032 — เจ้าของลบงานพร้อมข้อมูลสัมพันธ์
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-032 |
-| อ้างอิง | FR-020; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | งานที่มี authors/advisors/favorites |
-| ข้อมูลทดสอบ | W1 ของ S1 มี authors/advisors/reviews/favorite/log และไฟล์ |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิดรายการงานของ S1 แล้วสั่งลบ
-2. GET ID เดิม
-3. ตรวจตารางสัมพันธ์และไฟล์หลัก
-
-**ผลที่คาดหวัง**
-
-- DELETE สำเร็จและ GET 404
-- รายการสัมพันธ์ที่ service ลบหาย
-- ไฟล์หลักถูกลบ
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-032</td><th>ชื่อ Test Case</th><td>เจ้าของลบงานพร้อมข้อมูลสัมพันธ์</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-020; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานที่มี authors/advisors/favorites</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิดรายการงานของ S1 แล้วสั่งลบ</li>
+<li>GET ID เดิม</li>
+<li>ตรวจตารางสัมพันธ์และไฟล์หลัก</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1 ของ S1 มี authors/advisors/reviews/favorite/log และไฟล์</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>DELETE สำเร็จและ GET 404</li>
+<li>รายการสัมพันธ์ที่ service ลบหาย</li>
+<li>ไฟล์หลักถูกลบ</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-033 — คนอื่นลบงาน
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-033 |
-| อ้างอิง | FR-020; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC |
-| เงื่อนไขตั้งต้น | งานของผู้อื่น |
-| ข้อมูลทดสอบ | W3 ของ S2 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ส่ง DELETE /research/{id} ของ W3 ด้วย S1
-2. GET W3 และ relations ด้วย A1
-
-**ผลที่คาดหวัง**
-
-- DELETE ตอบ 403
-- W3 คงอยู่
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-033</td><th>ชื่อ Test Case</th><td>คนอื่นลบงาน</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-020; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / API/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานของผู้อื่น</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ส่ง DELETE /research/{id} ของ W3 ด้วย S1</li>
+<li>GET W3 และ relations ด้วย A1</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W3 ของ S2</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>DELETE ตอบ 403</li>
+<li>W3 คงอยู่</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-034 — ผู้ใช้ active ดาวน์โหลดงานมีไฟล์
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-034 |
-| อ้างอิง | FR-021; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | งานมี PDF |
-| ข้อมูลทดสอบ | W1 มี PDF; S1 active |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ล็อกอิน S1 เปิดรายละเอียดและกดดาวน์โหลดหรือ POST endpoint
-2. ตรวจ file_url และเปิด URL ด้วย session ของ S1
-3. เปิด file_url เดิมใน browser ที่ไม่มี session เพื่อบันทึกพฤติกรรม static file ตามโค้ดปัจจุบัน
-4. ตรวจ counter/log
-
-**ผลที่คาดหวัง**
-
-- ได้ file_url
-- download_count เพิ่ม 1 และ log ระบุ S1/action_type=download
-- URL ใต้ /static เปิดตรงได้โดยไม่เรียก endpoint download; การเปิดตรงไม่เพิ่ม download_count ให้บันทึกเป็นความเสี่ยงที่ต้องยืนยันนโยบาย
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-034</td><th>ชื่อ Test Case</th><td>ผู้ใช้ active ดาวน์โหลดงานมีไฟล์</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-021; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานมี PDF</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ล็อกอิน S1 เปิดรายละเอียดและกดดาวน์โหลดหรือ POST endpoint</li>
+<li>ตรวจ file_url และเปิด URL ด้วย session ของ S1</li>
+<li>เปิด file_url เดิมใน browser ที่ไม่มี session เพื่อบันทึกพฤติกรรม static file ตามโค้ดปัจจุบัน</li>
+<li>ตรวจ counter/log</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1 มี PDF; S1 active</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ได้ file_url</li>
+<li>download_count เพิ่ม 1 และ log ระบุ S1/action_type=download</li>
+<li>URL ใต้ /static เปิดตรงได้โดยไม่เรียก endpoint download; การเปิดตรงไม่เพิ่ม download_count ให้บันทึกเป็นความเสี่ยงที่ต้องยืนยันนโยบาย</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-035 — ไม่มี token หรือไม่มีไฟล์
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-035 |
-| อ้างอิง | FR-021; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Negative / API |
-| เงื่อนไขตั้งต้น | งานไม่มีไฟล์ |
-| ข้อมูลทดสอบ | W1 มีไฟล์; W5 ไม่มีไฟล์ |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. POST /research/{id}/download โดยไม่มี token
-2. POST W5 ด้วย S1
-3. ตรวจ counters ก่อน/หลัง
-
-**ผลที่คาดหวัง**
-
-- ตอบ 401 และ 404 ตามลำดับ
-- counter ไม่เพิ่ม
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-035</td><th>ชื่อ Test Case</th><td>ไม่มี token หรือไม่มีไฟล์</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-021; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Negative / API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานไม่มีไฟล์</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>POST /research/{id}/download โดยไม่มี token</li>
+<li>POST W5 ด้วย S1</li>
+<li>ตรวจ counters ก่อน/หลัง</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1 มีไฟล์; W5 ไม่มีไฟล์</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ตอบ 401 และ 404 ตามลำดับ</li>
+<li>counter ไม่เพิ่ม</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 ### 2.6 คิวและผลการตรวจ
 
 #### TC-036 — admin/advisor/student ดู pending
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-036 |
-| อ้างอิง | FR-022; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API/RBAC |
-| เงื่อนไขตั้งต้น | งานมอบหมายหลาย advisor |
-| ข้อมูลทดสอบ | W2 pending assigned D1; W3 pending assigned D2; A1/S1 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิดคิว /advisor/reviews ด้วย D1 และ /admin/reviews ด้วย A1
-2. GET /research/pending ด้วย A1/D1/S1 แล้วเทียบกับรายการบนหน้าเว็บ
-
-**ผลที่คาดหวัง**
-
-- API admin เห็นทั้งสอง, D1 เห็น W2, S1 ตอบ 403
-- หน้า /advisor/reviews โหลดผ่าน searchResearch ซึ่ง backend อนุญาตให้ advisor เห็นงานทั้งหมด; หาก UI แสดง W3 ให้บันทึกความต่างจาก /research/pending และเปิดข้อสงสัยด้านการมองเห็นคิว
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-036</td><th>ชื่อ Test Case</th><td>admin/advisor/student ดู pending</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-022; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานมอบหมายหลาย advisor</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิดคิว /advisor/reviews ด้วย D1 และ /admin/reviews ด้วย A1</li>
+<li>GET /research/pending ด้วย A1/D1/S1 แล้วเทียบกับรายการบนหน้าเว็บ</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W2 pending assigned D1; W3 pending assigned D2; A1/S1</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>API admin เห็นทั้งสอง, D1 เห็น W2, S1 ตอบ 403</li>
+<li>หน้า /advisor/reviews โหลดผ่าน searchResearch ซึ่ง backend อนุญาตให้ advisor เห็นงานทั้งหมด; หาก UI แสดง W3 ให้บันทึกความต่างจาก /research/pending และเปิดข้อสงสัยด้านการมองเห็นคิว</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-037 — ผู้ตรวจเห็นประวัติของตน
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-037 |
-| อ้างอิง | FR-023; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / Web/API/RBAC |
-| เงื่อนไขตั้งต้น | มี ReviewComment หลาย reviewer |
-| ข้อมูลทดสอบ | D1/A1 มี review ของคนละงาน; S1 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิด /advisor/history ด้วย D1
-2. GET /research/history ด้วย D1/A1/S1
-3. เทียบ reviewer_id ใน review_comments
-
-**ผลที่คาดหวัง**
-
-- D1/A1 เห็นเฉพาะงานที่ตนตรวจ
-- S1 ตอบ 403
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-037</td><th>ชื่อ Test Case</th><td>ผู้ตรวจเห็นประวัติของตน</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-023; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / Web/API/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">มี ReviewComment หลาย reviewer</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิด /advisor/history ด้วย D1</li>
+<li>GET /research/history ด้วย D1/A1/S1</li>
+<li>เทียบ reviewer_id ใน review_comments</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">D1/A1 มี review ของคนละงาน; S1</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>D1/A1 เห็นเฉพาะงานที่ตนตรวจ</li>
+<li>S1 ตอบ 403</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-038 — advisor ที่ได้รับมอบหมายอนุมัติ pending
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-038 |
-| อ้างอิง | FR-024; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | งาน pending มอบหมาย advisor |
-| ข้อมูลทดสอบ | W2 pending assigned D1; comment และ score 80 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ล็อกอิน D1 เปิด /advisor/reviews/{id}
-2. เลือก approved กรอกคะแนน/ความคิดเห็นและยืนยัน modal
-3. GET งานและ review_comments
-
-**ผลที่คาดหวัง**
-
-- status=approved
-- review ใหม่มี reviewer_id=D1, comment และ score ตรง
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-038</td><th>ชื่อ Test Case</th><td>advisor ที่ได้รับมอบหมายอนุมัติ pending</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-024; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งาน pending มอบหมาย advisor</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ล็อกอิน D1 เปิด /advisor/reviews/{id}</li>
+<li>เลือก approved กรอกคะแนน/ความคิดเห็นและยืนยัน modal</li>
+<li>GET งานและ review_comments</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W2 pending assigned D1; comment และ score 80</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>status=approved</li>
+<li>review ใหม่มี reviewer_id=D1, comment และ score ตรง</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak และ Sommai Kitikorn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-039 — advisor ไม่ได้รับมอบหมาย/งานไม่ pending/enum ผิด
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-039 |
-| อ้างอิง | FR-024; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Negative / API/RBAC/Validation |
-| เงื่อนไขตั้งต้น | มีงานตามเงื่อนไข |
-| ข้อมูลทดสอบ | W2 pending ไม่ assigned D2; W1 approved; status_result=unknown |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. POST review W2 ด้วย D2
-2. POST review W1 ด้วย D1
-3. POST enum ผิดกับ W2
-
-**ผลที่คาดหวัง**
-
-- ตอบ 403, 400, 422 ตามกรณี
-- ไม่มี review เพิ่ม
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-039</td><th>ชื่อ Test Case</th><td>advisor ไม่ได้รับมอบหมาย/งานไม่ pending/enum ผิด</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-024; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Negative / API/RBAC/Validation</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">มีงานตามเงื่อนไข</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>POST review W2 ด้วย D2</li>
+<li>POST review W1 ด้วย D1</li>
+<li>POST enum ผิดกับ W2</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W2 pending ไม่ assigned D2; W1 approved; status_result=unknown</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ตอบ 403, 400, 422 ตามกรณี</li>
+<li>ไม่มี review เพิ่ม</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-040 — อนุมัติพร้อมคะแนนและแจ้งผู้เกี่ยวข้อง
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-040 |
-| อ้างอิง | FR-025; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API/Integration |
-| เงื่อนไขตั้งต้น | งาน pending มี submitter/author |
-| ข้อมูลทดสอบ | W2 pending มี submitter S1 และ co-author S2 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. POST review approved โดย D1 พร้อม comment/score
-2. อ่าน research_works, review_comments, notifications
-3. เปิดรายการแจ้งเตือนของ S1/S2
-
-**ผลที่คาดหวัง**
-
-- published_at ไม่ null
-- comment/score บันทึก
-- ผู้ส่งและ co-author มี notification
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-040</td><th>ชื่อ Test Case</th><td>อนุมัติพร้อมคะแนนและแจ้งผู้เกี่ยวข้อง</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-025; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API/Integration</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งาน pending มี submitter/author</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>POST review approved โดย D1 พร้อม comment/score</li>
+<li>อ่าน research_works, review_comments, notifications</li>
+<li>เปิดรายการแจ้งเตือนของ S1/S2</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W2 pending มี submitter S1 และ co-author S2</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>published_at ไม่ null</li>
+<li>comment/score บันทึก</li>
+<li>ผู้ส่งและ co-author มี notification</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn และ Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-041 — admin เปลี่ยน advisor; student ถูกห้าม
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-041 |
-| อ้างอิง | FR-026; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API/RBAC |
-| เงื่อนไขตั้งต้น | งานและ advisor สองคน |
-| ข้อมูลทดสอบ | W2 assigned D1; D2 active; A1/S1 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. POST /research/{id}/assign-advisors ด้วย A1 ให้ [D2]
-2. GET pending ด้วย D1/D2
-3. POST เดิมด้วย S1
-
-**ผลที่คาดหวัง**
-
-- relation เปลี่ยนเป็น D2
-- D2 เห็นงานในคิว, D1 ไม่เห็น
-- S1 ตอบ 403
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-041</td><th>ชื่อ Test Case</th><td>admin เปลี่ยน advisor; student ถูกห้าม</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-026; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานและ advisor สองคน</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>POST /research/{id}/assign-advisors ด้วย A1 ให้ [D2]</li>
+<li>GET pending ด้วย D1/D2</li>
+<li>POST เดิมด้วย S1</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W2 assigned D1; D2 active; A1/S1</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>relation เปลี่ยนเป็น D2</li>
+<li>D2 เห็นงานในคิว, D1 ไม่เห็น</li>
+<li>S1 ตอบ 403</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 ### 2.7 Favorite และการแจ้งเตือน
 
 #### TC-042 — บันทึกและยกเลิก favorite
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-042 |
-| อ้างอิง | FR-027; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / Web/API |
-| เงื่อนไขตั้งต้น | token active; งานมีอยู่ |
-| ข้อมูลทดสอบ | S1; W1; เริ่มไม่มี favorite |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. เปิดรายละเอียด W1 กดบันทึก
-2. GET /favorites/ และเปิด /account/saved
-3. กดยกเลิกหรือ POST ซ้ำ แล้ว GET อีกครั้ง
-
-**ผลที่คาดหวัง**
-
-- ครั้งแรกมี favorite ของ S1
-- ครั้งที่สองหาย
-- response ยกเลิกเป็น HTTP 200 กับ detail ตาม implementation
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-042</td><th>ชื่อ Test Case</th><td>บันทึกและยกเลิก favorite</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-027; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / Web/API</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">token active; งานมีอยู่</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>เปิดรายละเอียด W1 กดบันทึก</li>
+<li>GET /favorites/ และเปิด /account/saved</li>
+<li>กดยกเลิกหรือ POST ซ้ำ แล้ว GET อีกครั้ง</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1; W1; เริ่มไม่มี favorite</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>ครั้งแรกมี favorite ของ S1</li>
+<li>ครั้งที่สองหาย</li>
+<li>response ยกเลิกเป็น HTTP 200 กับ detail ตาม implementation</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-043 — อ่านเฉพาะของตนและ mark read
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-043 |
-| อ้างอิง | FR-028; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / Web/API/RBAC |
-| เงื่อนไขตั้งต้น | แจ้งเตือนสองผู้ใช้ |
-| ข้อมูลทดสอบ | N1 ของ S1 และ N2 ของ S2 |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ล็อกอิน S1 เปิดรายการแจ้งเตือน
-2. GET /notifications/
-3. POST read N1/N2 และ read-all
-
-**ผลที่คาดหวัง**
-
-- S1 เห็นเฉพาะ N1
-- N2 ตอบ 404
-- N1 เป็น is_read=true
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-043</td><th>ชื่อ Test Case</th><td>อ่านเฉพาะของตนและ mark read</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-028; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / Web/API/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">แจ้งเตือนสองผู้ใช้</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ล็อกอิน S1 เปิดรายการแจ้งเตือน</li>
+<li>GET /notifications/</li>
+<li>POST read N1/N2 และ read-all</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">N1 ของ S1 และ N2 ของ S2</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>S1 เห็นเฉพาะ N1</li>
+<li>N2 ตอบ 404</li>
+<li>N1 เป็น is_read=true</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 ### 2.8 AI
 
 #### TC-044 — เรียกสี่ API ด้วย token และ schema ที่ถูก/ผิด
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-044 |
-| อ้างอิง | FR-029; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / API/AI |
-| เงื่อนไขตั้งต้น | ตั้ง AI test double |
-| ข้อมูลทดสอบ | S1; AI test double; body ถูกและขาด required field |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. POST generate-abstract, suggest-titles, suggest-keywords, check-writing ด้วย S1
-2. ตรวจ response schema
-3. ส่ง body ขาด field และไม่มี token
-
-**ผลที่คาดหวัง**
-
-- body ถูกคืนฟิลด์ตาม schema
-- body ผิดตอบ 422
-- ไม่มี token ตอบ 401
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-044</td><th>ชื่อ Test Case</th><td>เรียกสี่ API ด้วย token และ schema ที่ถูก/ผิด</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-029; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / API/AI</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">ตั้ง AI test double</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>POST generate-abstract, suggest-titles, suggest-keywords, check-writing ด้วย S1</li>
+<li>ตรวจ response schema</li>
+<li>ส่ง body ขาด field และไม่มี token</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1; AI test double; body ถูกและขาด required field</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>body ถูกคืนฟิลด์ตาม schema</li>
+<li>body ผิดตอบ 422</li>
+<li>ไม่มี token ตอบ 401</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-045 — dashboard insight และ chat
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-045 |
-| อ้างอิง | FR-030; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / API/AI/RBAC |
-| เงื่อนไขตั้งต้น | AI test double; งาน approved |
-| ข้อมูลทดสอบ | A1/S1; AI test double; W1 approved |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. POST /ai/dashboard-insights ด้วย A1 และ S1
-2. POST /ai/chat แบบไม่มี token
-3. ตรวจ response/relevant_works
-
-**ผลที่คาดหวัง**
-
-- A1 ได้ insight, S1 403
-- chat คืน response และ relevant_works array
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-045</td><th>ชื่อ Test Case</th><td>dashboard insight และ chat</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-030; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / API/AI/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">AI test double; งาน approved</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>POST /ai/dashboard-insights ด้วย A1 และ S1</li>
+<li>POST /ai/chat แบบไม่มี token</li>
+<li>ตรวจ response/relevant_works</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">A1/S1; AI test double; W1 approved</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>A1 ได้ insight, S1 403</li>
+<li>chat คืน response และ relevant_works array</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-046 — สี่ endpoint วิเคราะห์ผลงานและสิทธิ์
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-046 |
-| อ้างอิง | FR-031; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / Web/API/AI |
-| เงื่อนไขตั้งต้น | งานมีอยู่; AI test double |
-| ข้อมูลทดสอบ | W1; D1/S1; AI test double |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. POST ai-pre-review, ai-plagiarism, ai-reviewer-match, ai-review-summary ของ W1 ด้วย D1
-2. ทำซ้ำด้วย S1 และ ID ไม่มี
-
-**ผลที่คาดหวัง**
-
-- D1 ได้ผลตาม service
-- S1 403
-- ID ไม่มี 404
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-046</td><th>ชื่อ Test Case</th><td>สี่ endpoint วิเคราะห์ผลงานและสิทธิ์</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-031; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / Web/API/AI</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">งานมีอยู่; AI test double</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>POST ai-pre-review, ai-plagiarism, ai-reviewer-match, ai-review-summary ของ W1 ด้วย D1</li>
+<li>ทำซ้ำด้วย S1 และ ID ไม่มี</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">W1; D1/S1; AI test double</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>D1 ได้ผลตาม service</li>
+<li>S1 403</li>
+<li>ID ไม่มี 404</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 ### 2.9 กระบวนการข้ามบทบาทแบบ E2E
 
 #### TC-047 — เว็บส่งงานแล้ว advisor ตรวจ
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-047 |
-| อ้างอิง | FR-032; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | สูง / Positive / E2E |
-| เงื่อนไขตั้งต้น | backend/frontend และบัญชีทดสอบพร้อม |
-| ข้อมูลทดสอบ | S1, D1, C1; browser แยก session; PDF valid |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ล็อกอิน S1 ส่งงานผ่าน /student/research/new
-2. บันทึก ID และตรวจ /student/research
-3. ล็อกอิน D1 เปิด /advisor/reviews/{id} และส่งผลตรวจ
-
-**ผลที่คาดหวัง**
-
-- งานเริ่ม pending และอยู่ในคิว D1
-- หลังตรวจ review/status ตรง UI และ DB
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
-
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-047</td><th>ชื่อ Test Case</th><td>เว็บส่งงานแล้ว advisor ตรวจ</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-032; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>สูง / Positive / E2E</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">backend/frontend และบัญชีทดสอบพร้อม</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ล็อกอิน S1 ส่งงานผ่าน /student/research/new</li>
+<li>บันทึก ID และตรวจ /student/research</li>
+<li>ล็อกอิน D1 เปิด /advisor/reviews/{id} และส่งผลตรวจ</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">S1, D1, C1; browser แยก session; PDF valid</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>งานเริ่ม pending และอยู่ในคิว D1</li>
+<li>หลังตรวจ review/status ตรง UI และ DB</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak, Sommai Kitikorn และ Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 #### TC-048 — เว็บ admin จัดการหมวดหมู่/ผู้ใช้
 
-| รายการ | รายละเอียด |
-|---|---|
-| รหัส Test Case | TC-048 |
-| อ้างอิง | FR-032; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md |
-| ความสำคัญ / ประเภท | กลาง / Positive / E2E/RBAC |
-| เงื่อนไขตั้งต้น | admin พร้อม |
-| ข้อมูลทดสอบ | A1, S1, C2 และ U3 ใหม่ |
-| สถานะเริ่มต้น | Not Tested |
-
-**ขั้นตอนการทดสอบ**
-
-1. ล็อกอิน A1 เพิ่ม C2 ที่ /admin/categories และ U3 ที่ /admin/users
-2. ตรวจ GET API/DB
-3. ล็อกอิน S1 เปิด /admin และส่งคำขอ admin โดยตรง
-
-**ผลที่คาดหวัง**
-
-- C2/U3 บันทึกจริง
-- คำขอ API ของ S1 ตอบ 403
-- การเปิด /admin ของ S1 ให้บันทึกพฤติกรรมจริงเพราะ layout ตรวจเพียง session
-
-**ผลการทดสอบจริง:** TBD
-
-**สถานะ:** ☐ ผ่าน  ☐ ไม่ผ่าน  ☐ ข้าม/Blocked  ☑ Not Tested
-
-**ผู้ทดสอบ / วันที่:** TBD  ·  **หลักฐาน:** TBD  ·  **Defect:** TBD
+<table>
+<tbody>
+<tr><th>รหัส Test Case</th><td>TC-048</td><th>ชื่อ Test Case</th><td>เว็บ admin จัดการหมวดหมู่/ผู้ใช้</td></tr>
+<tr><th>อ้างอิง (US/FR)</th><td>FR-032; หลักฐาน Source Code ใน FUNCTIONAL-REQUIREMENTS.md</td><th>ความสำคัญ / ประเภท</th><td>กลาง / Positive / E2E/RBAC</td></tr>
+<tr><th>เงื่อนไขตั้งต้น (Precondition)</th><td colspan="3">admin พร้อม</td></tr>
+<tr><th>ขั้นตอนการทดสอบ (Test Steps)</th><td colspan="3"><ol>
+<li>ล็อกอิน A1 เพิ่ม C2 ที่ /admin/categories และ U3 ที่ /admin/users</li>
+<li>ตรวจ GET API/DB</li>
+<li>ล็อกอิน S1 เปิด /admin และส่งคำขอ admin โดยตรง</li>
+</ol></td></tr>
+<tr><th>ข้อมูลทดสอบ (Test Data)</th><td colspan="3">A1, S1, C2 และ U3 ใหม่</td></tr>
+<tr><th>ผลที่คาดหวัง (Expected Result)</th><td colspan="3"><ul>
+<li>C2/U3 บันทึกจริง</li>
+<li>คำขอ API ของ S1 ตอบ 403</li>
+<li>การเปิด /admin ของ S1 ให้บันทึกพฤติกรรมจริงเพราะ layout ตรวจเพียง session</li>
+</ul></td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak, Sommai Kitikorn และ Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+</tbody>
+</table>
 
 ## 3. สรุปผลและการลงนาม
 
