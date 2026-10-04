@@ -1,6 +1,6 @@
 # แผนการทดสอบ UniResearch
 
-เนื้อหาส่วนที่ 1 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md)
+เนื้อหาส่วนที่ 1 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md) ค่าจริงของรอบ Docker วันที่ 4 ตุลาคม 2026 อ้างอิง [หลักฐาน Docker](DOCKER-TEST-EVIDENCE-2026-10-04.md)
 
 ## 1.1 วัตถุประสงค์ของการทดสอบ
 
@@ -68,23 +68,23 @@
 
 | รายการ | ค่าอ้างอิงจาก Repository | ค่าจริงในรอบทดสอบ |
 |---|---|---|
-| แอปพลิเคชัน | Next.js 16.2.12, React 19.2.4, FastAPI | TBD |
-| Runtime | Node 22 / pnpm 9 / Python 3.11 ตาม CI | TBD |
-| ฐานข้อมูล | pgvector/pgvector:pg15 ตาม docker-compose.yml | TBD |
-| การเริ่มระบบ | docker compose up --build; backend เรียก Base.metadata.create_all ระหว่าง startup | TBD |
-| URL/Port ค่าเริ่มต้น | Frontend 3000, Backend 8000, DB host 5433 | TBD |
-| เวอร์ชัน/Commit | ต้องบันทึกก่อนรัน | TBD |
-| Browser/OS | Repository ไม่ระบุรุ่นที่ต้องรับรอง | TBD |
-| บัญชีทดสอบ | สร้างบนฐานทดสอบตาม role; ไม่ใช้ข้อมูลจริง | TBD |
-| AI | test double สำหรับ Functional; smoke จริงแยก | TBD |
-| ขนาดไฟล์ค่าเริ่มต้น | cover 5 MiB, document 25 MiB; environment override ได้ | TBD |
+| แอปพลิเคชัน | Next.js 16.2.12, React 19.2.4, FastAPI | frontend production image และ backend development image จาก Docker build |
+| Runtime | Node 22 / pnpm 9 / Python 3.11 ตาม CI | Node 22, pnpm 12.9.1 ใน image, Python 3.11 |
+| ฐานข้อมูล | pgvector/pgvector:pg15 ตาม docker-compose.yml | SQLite ชั่วคราวสำหรับ API/E2E; PostgreSQL/pgvector:pg15 บน tmpfs สำหรับ smoke test |
+| การเริ่มระบบ | docker compose up --build; backend เรียก Base.metadata.create_all ระหว่าง startup | `docker build` และ `docker run` แยก network ชั่วคราว; ไม่มีการใช้ Compose volume ปกติ |
+| URL/Port ค่าเริ่มต้น | Frontend 3000, Backend 8000, DB host 5433 | localhost:13000 frontend, localhost:18080 backend/SQLite, localhost:18081 backend/PostgreSQL |
+| เวอร์ชัน/Commit | ต้องบันทึกก่อนรัน | `67dfab6` พร้อมการปรับ E2E specs ใน working tree |
+| Browser/OS | Repository ไม่ระบุรุ่นที่ต้องรับรอง | Chromium จาก Playwright 1.62.1 บน Docker; โฮสต์ macOS |
+| บัญชีทดสอบ | สร้างบนฐานทดสอบตาม role; ไม่ใช้ข้อมูลจริง | admin, student 2 ราย, advisor, guest และ inactive ใน SQLite ชั่วคราว; fixture TC อื่นยังไม่ครบ |
+| AI | test double สำหรับ Functional; smoke จริงแยก | ยังไม่มี AI test double ในรอบนี้; TC ที่ต้องใช้ข้าม |
+| ขนาดไฟล์ค่าเริ่มต้น | cover 5 MiB, document 25 MiB; environment override ได้ | ใช้ไฟล์ PNG/PDF ขนาดเล็ก; ยังไม่ได้ทดสอบขอบเขตขนาด |
 
 ## 1.6 บทบาทหน้าที่และผู้รับผิดชอบ
 
 | บทบาท | หน้าที่ | ผู้รับผิดชอบ |
 |---|---|---|
 | Test Manager | กำหนดรอบ ติดตาม entry/exit และสรุปผล | TBD |
-| Tester | เตรียม fixture, execute TC, เก็บหลักฐานและเปิด defect | TBD |
+| Tester | เตรียม fixture, execute TC, เก็บหลักฐานและเปิด defect | Narongsak, Sommai Kitikorn, Natthaporn (กำหนดตามแผน); Codex รัน Docker รอบ 4 ตุลาคม 2026 |
 | ผู้ดูแลสภาพแวดล้อม | ดูแลฐานทดสอบและ AI test double | TBD |
 | Developer | วิเคราะห์/แก้ defect และส่ง commit สำหรับ retest | TBD |
 | Approver | รับรองผลหรือรับความเสี่ยงคงค้าง | TBD |
@@ -93,12 +93,12 @@
 
 | กิจกรรม | วันที่เริ่ม | วันที่สิ้นสุด | ผู้รับผิดชอบ |
 |---|---|---|---|
-| เตรียมสภาพแวดล้อมและข้อมูลทดสอบ | TBD | TBD | TBD |
-| ทดสอบรอบที่ 1: API/RBAC/Validation | TBD | TBD | TBD |
-| ทดสอบรอบที่ 1: UI/Integration/E2E | TBD | TBD | TBD |
+| เตรียมสภาพแวดล้อมและข้อมูลทดสอบ | 4 ตุลาคม 2026 | 4 ตุลาคม 2026 | Codex (Docker; fixture บางส่วน) |
+| ทดสอบรอบที่ 1: API/RBAC/Validation | 4 ตุลาคม 2026 | 4 ตุลาคม 2026 | Codex (17 TC ที่มีหลักฐานครบรวม Web/API) |
+| ทดสอบรอบที่ 1: UI/Integration/E2E | 4 ตุลาคม 2026 | 4 ตุลาคม 2026 | Codex (Playwright 10 รายการ; TC อื่นยังข้าม) |
 | แก้ไขข้อบกพร่อง | TBD | TBD | TBD |
 | ทดสอบซ้ำและ Regression | TBD | TBD | TBD |
-| จัดทำรายงานและสรุปผล | TBD | TBD | TBD |
+| จัดทำรายงานและสรุปผล | 4 ตุลาคม 2026 | 4 ตุลาคม 2026 | Codex; รอผู้รับผิดชอบทบทวน |
 
 ## 1.8 ความเสี่ยงและแผนรองรับ (Risks & Mitigation)
 
@@ -119,7 +119,7 @@
 
 - แผนการทดสอบที่อนุมัติแล้วและ [TEST-CASES.md](TEST-CASES.md)
 - ข้อมูล fixture บนฐานทดสอบพร้อมวิธี reset โดยไม่รวม credential ในเอกสาร
-- Test Execution Log พร้อมหลักฐานที่ปกปิดข้อมูลลับ
+- Test Execution Log พร้อม [หลักฐาน Docker รอบ 4 ตุลาคม 2026](DOCKER-TEST-EVIDENCE-2026-10-04.md) ที่ไม่รวม credential
 - Defect Log, หลักฐาน retest และรายงานสรุปผลตามส่วนที่ 2
 
 ## 1.10 การอนุมัติแผนการทดสอบ

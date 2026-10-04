@@ -6,7 +6,7 @@
 
 ใช้คู่กับ [FUNCTIONAL-REQUIREMENTS.md](FUNCTIONAL-REQUIREMENTS.md), [SYSTEM-OVERVIEW.md](SYSTEM-OVERVIEW.md) และ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md)
 
-วันที่จัดทำ: 4 ตุลาคม 2026 · สถานะเอกสาร: ฉบับร่าง · ผลทดสอบทุกกรณี: Not Tested
+วันที่จัดทำ: 4 ตุลาคม 2026 · รอบตรวจ Docker: ผ่าน 17 / ไม่ผ่าน 0 / ข้าม 31
 
 ## 1. บทนำ
 
@@ -96,11 +96,11 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 | TC-047 | เว็บส่งงานแล้ว advisor ตรวจ | E2E | FR-032 | สูง | Positive / E2E |
 | TC-048 | เว็บ admin จัดการหมวดหมู่/ผู้ใช้ | E2E | FR-032 | กลาง | Positive / E2E/RBAC |
 
-รวม 48 กรณี: Positive 32, Negative 16; ประเภทการดำเนินการระบุเพิ่มในแต่ละกรณี ทุกกรณีเริ่มที่ Not Tested
+รวม 48 กรณี: Positive 32, Negative 16; รอบตรวจ Docker วันที่ 4 ตุลาคม 2026 ผ่าน 17 ไม่ผ่าน 0 ข้าม 31
 
 ## 2. รายละเอียดกรณีทดสอบ
 
-ชื่อผู้ทดสอบและวันที่ 1–4 ตุลาคม 2026 ในแต่ละกรณีเป็นการจัดสรรงานตามแผน ยังไม่ใช่หลักฐานว่าดำเนินการทดสอบแล้ว สถานะและผลการทดสอบจริงจึงเว้นไว้ให้ผู้ทดสอบกรอกหลังทดสอบ
+ชื่อ Narongsak, Sommai Kitikorn และ Natthaporn กับวันที่ 1–4 ตุลาคม 2026 ในแต่ละกรณีเป็นการจัดสรรตามแผน ผู้รันชุดอัตโนมัติและ API รอบนี้คือ Codex วันที่ 4 ตุลาคม 2026; ไม่ถือว่าผู้ที่ระบุในแผนได้ทดสอบเอง ดู [หลักฐาน Docker](DOCKER-TEST-EVIDENCE-2026-10-04.md)
 
 ### 2.1 บัญชีและโปรไฟล์
 
@@ -121,8 +121,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>หน้าเว็บพาไป /login?registered=1 ไม่ล็อกอินอัตโนมัติ</li>
 <li>ทั้งสองบัญชีมี role=student แม้ API รับค่า role=admin</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">เว็บสมัครสำเร็จและไป /login?registered=1 โดยไม่มี session; ตรวจ /auth/me ของบัญชีเว็บและ API ที่ขอ role=admin แล้วทั้งสองบัญชีเป็น student (Playwright)</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -143,8 +143,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>HTTP 400 และ detail ว่า email ถูกใช้แล้ว</li>
 <li>จำนวนแถวไม่เพิ่ม</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">POST /auth/register ด้วย email ซ้ำตอบ 400; จำนวนแถว users ก่อนและหลังเท่ากัน</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -165,8 +165,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>เว็บไป /account/saved ตาม route login</li>
 <li>backend คืน token_type=bearer และ /auth/me คืน S1</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">เว็บล็อกอิน S1 ไป /account/saved; backend คืน bearer token และ /auth/me คืนบัญชี S1</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -187,8 +187,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>เว็บยังอยู่หน้า login และไม่เกิด session</li>
 <li>backend ตอบ 400 ไม่มี access_token</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">เว็บแสดงข้อความอีเมลหรือรหัสผ่านไม่ถูกต้อง คงอยู่หน้า /login และไม่มี session; backend ตอบ 400</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -209,8 +209,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>GET /auth/me และหน้าโปรไฟล์แสดงค่าใหม่</li>
 <li>รหัสใหม่ใช้ได้และรหัสถูกเก็บเป็น hash</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -231,8 +231,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ได้ 401, 400, 400 ตามลำดับ</li>
 <li>email ใน users ไม่เปลี่ยน</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">token ปลอมตอบ 401, ผู้ใช้ inactive ตอบ 400, เปลี่ยนเป็น email ซ้ำตอบ 400; email เดิมไม่เปลี่ยน</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -253,8 +253,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>มี session cookie ระหว่างล็อกอิน</li>
 <li>หลัง logout cookie ถูกลบและหน้า protected พาไป /login</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">หลังล็อกอินมี HttpOnly session; POST /api/auth/logout ตอบ 200 และลบ cookie; เปิด /account/saved แล้วไป /login</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -278,8 +278,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>แก้ไขคงอยู่</li>
 <li>ลบได้ 204 และ GET หลังลบ 404</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -300,8 +300,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ทุกคำขอ S1 ตอบ 403</li>
 <li>U3 ไม่ถูกเปลี่ยนหรือลบ</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">student เรียก GET/POST /users/ และ GET/PUT/DELETE /users/{id} ได้ 403 ทั้ง 5 คำขอ; ข้อมูลเป้าหมายไม่เปลี่ยน</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -322,8 +322,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>C2 ปรากฏพร้อม id</li>
 <li>GET สาธารณะคืน C2</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -343,8 +343,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>POST ตอบ 403</li>
 <li>ไม่พบ category ใหม่</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">student เพิ่มหมวดหมู่ตอบ 403; รายการหมวดหมู่ก่อนและหลังเท่ากัน</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -365,8 +365,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ค่าก่อนหน้าถูกแทน</li>
 <li>ชื่อถูก trim และรายการว่างไม่ถูกเก็บ</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">admin แทน options ตอบ 200; GET และตารางฐานข้อมูลมีชื่อที่ trim แล้ว ไม่มีรายการว่างหรือค่าเก่า</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>1 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -386,8 +386,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>POST ตอบ 403</li>
 <li>รายการเดิมคงอยู่</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">student แทน options ตอบ 403; รายการก่อนและหลังเท่ากัน</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -411,8 +411,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>S1 เห็น approved และงานที่เกี่ยวข้อง</li>
 <li>A1 เห็นทั้งหมดตามตัวกรอง</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -434,8 +434,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>มี search_log keyword ตรง q</li>
 <li>ชื่อเรื่องได้รับคะแนนสูงกว่า abstract ตามโค้ด</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -456,8 +456,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ไม่มีข้อมูลจาก W2 pending ใน suggestions</li>
 <li>ข้อมูล approved ที่ตรงค้นปรากฏ</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -478,8 +478,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>latest/popular มี approved ไม่เกินหนึ่งรายการและเรียงตามฟิลด์ที่โค้ดใช้</li>
 <li>stats ตรง count/sum ของ DB</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -503,8 +503,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>คำแนะนำไม่มี W1/W2</li>
 <li>API ปัจจุบันคืนรายละเอียด W2 pending ให้คำขอไม่มี token; ให้บันทึกผลนี้เป็นความเสี่ยงด้านการมองเห็นงาน</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -526,8 +526,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>หน้าเว็บแสดงสถานะไม่พบ</li>
 <li>ไม่มี view log ใหม่</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">API ของ ID ที่ไม่มีตอบ 404; หน้าเว็บแสดงข้อความไม่พบงาน; view log ของ ID นั้นมี 0 แถว</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -548,8 +548,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ผลมีเฉพาะ approved ไม่เกิน 5</li>
 <li>ไม่มี interaction ใช้ความนิยม และมี interaction ใช้ profile category/keyword</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -573,8 +573,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>S1 มี is_current=true</li>
 <li>ไม่มี token 401</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -596,8 +596,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ผู้เกี่ยวข้องและ path ไฟล์ตรง input</li>
 <li>ไม่มี draft</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak และ Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">เว็บส่งงานห้าขั้นสำเร็จ; DB มีงาน pending ของ S1 พร้อม author/advisor ตามที่เลือก; ไฟล์ PNG/PDF มีอยู่และลายเซ็นถูกต้อง ไม่มี draft</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak และ Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -619,8 +619,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>API ตอบ 401 และ 403</li>
 <li>ไม่มีงานใหม่</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ไม่มี session เปิดหน้าส่งงานแล้วไป /login; POST ไม่มี token ตอบ 401 และ guest ตอบ 403; จำนวนงานไม่เพิ่ม</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -642,8 +642,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ID ที่ไม่มีตอบ 404</li>
 <li>ไม่มีงานถูกสร้าง</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>2 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -664,8 +664,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>frontend กรองผู้เขียนต่าง prefix</li>
 <li>backend ตอบ 422 และไม่สร้างงาน</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -687,8 +687,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>เกิน 1 byte ตอบ 413</li>
 <li>ไฟล์เกินขนาดไม่ค้าง</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -709,8 +709,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ตอบ 415</li>
 <li>ไม่มีงานหรือ partial cover ใหม่ค้าง</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -733,8 +733,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>เห็น W1 และ W4 เท่านั้น</li>
 <li>ไม่เห็น W3</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -755,8 +755,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ข้อมูลใหม่คงอยู่</li>
 <li>status กลับ pending</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -777,8 +777,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>PUT ตอบ 403</li>
 <li>W3 ไม่เปลี่ยน</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">student คนอื่น PUT งานของ S2 ตอบ 403; ชื่อผลงานเดิมคงอยู่</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -799,8 +799,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>file_revisions เก็บ path เดิมกับ version_no เพิ่ม</li>
 <li>งานชี้ไฟล์ใหม่และ status=pending</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -822,8 +822,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>รายการสัมพันธ์ที่ service ลบหาย</li>
 <li>ไฟล์หลักถูกลบ</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -843,8 +843,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>DELETE ตอบ 403</li>
 <li>W3 คงอยู่</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">student คนอื่น DELETE งานของ S2 ตอบ 403; แถวยังคงอยู่</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -867,8 +867,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>download_count เพิ่ม 1 และ log ระบุ S1/action_type=download</li>
 <li>URL ใต้ /static เปิดตรงได้โดยไม่เรียก endpoint download; การเปิดตรงไม่เพิ่ม download_count ให้บันทึกเป็นความเสี่ยงที่ต้องยืนยันนโยบาย</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -889,8 +889,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ตอบ 401 และ 404 ตามลำดับ</li>
 <li>counter ไม่เพิ่ม</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">download ไม่มี token ตอบ 401; งานไม่มีไฟล์ตอบ 404; download_count ไม่เพิ่ม</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -912,8 +912,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>API admin เห็นทั้งสอง, D1 เห็น W2, S1 ตอบ 403</li>
 <li>หน้า /advisor/reviews โหลดผ่าน searchResearch ซึ่ง backend อนุญาตให้ advisor เห็นงานทั้งหมด; หาก UI แสดง W3 ให้บันทึกความต่างจาก /research/pending และเปิดข้อสงสัยด้านการมองเห็นคิว</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>3 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -934,8 +934,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>D1/A1 เห็นเฉพาะงานที่ตนตรวจ</li>
 <li>S1 ตอบ 403</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -956,8 +956,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>status=approved</li>
 <li>review ใหม่มี reviewer_id=D1, comment และ score ตรง</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak และ Sommai Kitikorn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">advisor ส่ง approved ผ่านหน้าเว็บพร้อม modal; DB บันทึก status=approved, reviewer_id=D1, score=80 และ comment ตรงที่กรอก</td></tr>
+<tr><th>สถานะ</th><td>☑ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak และ Sommai Kitikorn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -978,8 +978,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ตอบ 403, 400, 422 ตามกรณี</li>
 <li>ไม่มี review เพิ่ม</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -1001,8 +1001,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>comment/score บันทึก</li>
 <li>ผู้ส่งและ co-author มี notification</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn และ Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn และ Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -1024,8 +1024,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>D2 เห็นงานในคิว, D1 ไม่เห็น</li>
 <li>S1 ตอบ 403</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -1049,8 +1049,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>ครั้งที่สองหาย</li>
 <li>response ยกเลิกเป็น HTTP 200 กับ detail ตาม implementation</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -1072,8 +1072,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>N2 ตอบ 404</li>
 <li>N1 เป็น is_read=true</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -1097,8 +1097,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>body ผิดตอบ 422</li>
 <li>ไม่มี token ตอบ 401</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Sommai Kitikorn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -1119,8 +1119,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>A1 ได้ insight, S1 403</li>
 <li>chat คืน response และ relevant_works array</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -1141,8 +1141,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>S1 403</li>
 <li>ID ไม่มี 404</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -1165,8 +1165,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>งานเริ่ม pending และอยู่ในคิว D1</li>
 <li>หลังตรวจ review/status ตรง UI และ DB</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak, Sommai Kitikorn และ Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak, Sommai Kitikorn และ Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -1188,8 +1188,8 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 <li>คำขอ API ของ S1 ตอบ 403</li>
 <li>การเปิด /admin ของ S1 ให้บันทึกพฤติกรรมจริงเพราะ layout ตรวจเพียง session</li>
 </ul></td></tr>
-<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3"></td></tr>
-<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☐ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak, Sommai Kitikorn และ Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
+<tr><th>ผลการทดสอบจริง (Actual Result)</th><td colspan="3">ข้ามในรอบ Docker: ยังไม่ได้ทำครบทุกขั้นตอนหรือเตรียม fixture ตาม TC นี้; ผลชุดย่อยยังไม่พอให้ตัดสินผ่าน/ไม่ผ่าน</td></tr>
+<tr><th>สถานะ</th><td>☐ ผ่าน &nbsp; ☐ ไม่ผ่าน &nbsp; ☑ ข้าม</td><th>ผู้ทดสอบ / วันที่</th><td>Narongsak, Sommai Kitikorn และ Natthaporn<br>4 ตุลาคม 2026 (กำหนด)</td></tr>
 </tbody>
 </table>
 
@@ -1198,12 +1198,12 @@ Fixture แต่ละกรณีต้อง reset ก่อนใช้ โ�
 | รายการ | จำนวน |
 |---|---:|
 | กรณีทดสอบทั้งหมด | 48 |
-| Not Tested | 48 |
-| ผ่าน | 0 |
+| Not Tested | 0 |
+| ผ่าน | 17 |
 | ไม่ผ่าน | 0 |
-| ข้าม/Blocked | 0 |
+| ข้าม/Blocked | 31 |
 
-ตัวเลขข้างต้นเป็นสถานะตั้งต้น ยังไม่มีการ execute จริง รายงานผลรายกรณีและการประเมิน exit criteria อยู่ใน TEST-PLAN-AND-REPORT.md
+ตัวเลขข้างต้นเป็นผลรอบ Docker วันที่ 4 ตุลาคม 2026; กรณีข้ามยังไม่มีหลักฐานตามขั้นตอนครบ ดูรายละเอียดและข้อจำกัดใน [หลักฐาน Docker](DOCKER-TEST-EVIDENCE-2026-10-04.md) และรายงานผล
 
 | บทบาท | ชื่อ-นามสกุล | วันที่ | สถานะรับรอง |
 |---|---|---|---|
