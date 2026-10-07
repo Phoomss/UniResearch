@@ -187,3 +187,80 @@ Configure existing GEMINI_API_KEY/AI_ENABLED/AI_MODEL and optional ResearchFlow 
 from backend/research-flow.env.example. Open /research-flow after signing in.
 No MockProvider fallback is exposed in production; missing provider configuration
 produces recoverable task failure/human review, never fabricated research.
+
+## Thai content update — 2026-10-07
+
+IMPLEMENTED: ResearchFlow input, controls, workflow/task status, agent names, report
+sections, evidence labels, confidence metrics, system progress messages, default
+limitations and Thai date formatting. New generated plans, claims, interpretations,
+review reasons and reports are instructed to use Thai. Original source titles,
+quotations, schema enums and citation identifiers remain unchanged. Existing saved
+research narrative is not automatically translated.
+
+VERIFIED: Frontend TypeScript check, scoped ESLint, production build, 32 frontend
+unit tests and all 4 ResearchFlow Playwright cases passed. Desktop and mobile
+screenshots were inspected and updated in `evidence/`. Backend regression tests
+passed with 78 passed and 1 optional PostgreSQL test skipped. The sandboxed backend
+run was interrupted after stalling; the complete rerun outside the sandbox passed.
+
+NOT VERIFIED: Thai narrative generation with a live paid LLM and its linguistic
+quality; regression tests use mock providers. No schema changes or migrations were
+needed for localization.
+
+BLOCKED: None for this update.
+
+FUTURE IMPROVEMENTS: Human review of Thai terminology and a bilingual language
+switch if required.
+
+## Notification CORS and Docker Origin fix — 2026-10-07
+
+IMPLEMENTED: The notification browser client now calls the existing same-origin
+Next API proxy, which forwards the HttpOnly session to the backend. Individual and
+all-read actions use the available `/api/notifications` route; the all-read request
+is forwarded to the backend's `/notifications/read-all`. Positive integer IDs are
+validated. ResearchFlow validates the browser Origin against the request Host and
+protocol, allowing Docker's internal hostname to differ from the public address.
+Cross-site requests and mismatched Origins remain rejected; forwarded Host alone
+cannot authorize a command.
+
+VERIFIED: Reproduced the same-origin 403 on the running Docker frontend before the
+fix. Afterward, an invalid diagnostic token reaches backend authentication and
+returns 401 rather than the Origin rejection; a malicious Origin still returns 403.
+The notification proxy likewise reaches backend authentication. TypeScript, scoped
+ESLint, production build, 32 frontend unit tests and 5 browser tests passed. Browser
+regressions exercise public/internal hostname differences, spoofed forwarded Host,
+cross-site rejection and notification list/single-read/all-read requests with no
+browser requests to port 8000.
+
+NOT VERIFIED: Notification changes against a real signed-in user's records; browser
+notification data and mutations use explicit fixtures. No backend code or database
+schema changed in this fix.
+
+BLOCKED: None. FUTURE IMPROVEMENTS: Centralize browser-side API request helpers if
+more feature clients require the same adapter.
+
+## Legacy submission development timing error — 2026-10-07
+
+IMPLEMENTED: Submission links in the homepage and shared shells now target the
+canonical `/student/research/new` route directly. The old
+`/dashboard/student/submit` URL has a temporary Next config redirect, applied before
+Server Component rendering, preserving query parameters and existing bookmarked
+URLs. The original redirect component remains as a compatibility fallback.
+This avoids the reported `LegacySubmissionPage` path through React development
+performance measurement, whose bundled rejected-component branch clamps its start
+time but passes its end time to `performance.measure` without a negative-time guard.
+No React internals or global Performance APIs were patched.
+
+VERIFIED: Restarted the Docker frontend to load config. Normal and RSC requests to
+the old URL return 307 with the canonical destination and query intact. On the actual
+Docker Turbopack development server, browser navigation via the homepage submission
+link and three visits to the old URL reached the expected login page with no uncaught
+page errors. TypeScript, scoped ESLint, production build, 32 frontend unit tests and
+all 6 browser cases passed, including a new HTTP/RSC redirect regression.
+
+NOT VERIFIED: The original intermittent negative timestamp was not independently
+reproduced before the fix. The development browser check covered unauthenticated
+navigation; no real user's submission was created.
+
+BLOCKED: None. FUTURE IMPROVEMENTS: Adopt an upstream React/Next timing fix when
+available if similar errors appear on other redirect components.

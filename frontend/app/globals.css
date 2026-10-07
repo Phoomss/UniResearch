@@ -1,5 +1,7 @@
-@import "tailwindcss";
-@source not "../design";
+@import "tailwindcss" source(none);
+/* Scan application code only; generated artifacts can fail on Docker bind mounts. */
+@source "./";
+@source "../src";
 
 :root {
   --paper: #fcf8ff;

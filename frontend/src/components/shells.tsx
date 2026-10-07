@@ -27,7 +27,7 @@ export async function SiteHeader(
                     <LanguageSwitch />
                     {authenticated && <NotificationBellDropdown />}
                     {authenticated ? <LogoutButton /> : <ButtonLink href="/login" variant="secondary">{t.login}</ButtonLink>}
-                    <ButtonLink href="/dashboard/student/submit">{t.submitResearch}</ButtonLink>
+                    <ButtonLink href="/student/research/new">{t.submitResearch}</ButtonLink>
                     <details className="mobile-nav">
                         <summary aria-label="เปิดเมนูหลัก">
                             <span aria-hidden="true">☰</span>
@@ -45,7 +45,7 @@ export async function SiteHeader(
                                     {t.login}
                                 </ButtonLink>
                             )}
-                            <ButtonLink href="/dashboard/student/submit">
+                            <ButtonLink href="/student/research/new">
                                 {t.submitResearch}
                             </ButtonLink>
                         </nav>
@@ -65,7 +65,7 @@ export async function SiteFooter() {
             <div className="container footer-grid">
                 <div><Brand /><p>คลังรวบรวมและเผยแพร่ผลงานวิจัยระดับอุดมศึกษา เพื่อสร้างสรรค์สังคมแห่งการเรียนรู้ที่ยั่งยืน</p></div>
                 <div><h3>{t.quickLinks}</h3><p><Link href="/research">{t.searchWorks}</Link>
-                    <Link href="/research-flow">ResearchFlow AI</Link></p><p><Link href="/#categories">{t.exploreCategories}</Link></p><p><Link href="/dashboard/student/submit">{t.submitResearch}</Link></p></div>
+                    <Link href="/research-flow">ResearchFlow AI</Link></p><p><Link href="/#categories">{t.exploreCategories}</Link></p><p><Link href="/student/research/new">{t.submitResearch}</Link></p></div>
                 <div><h3>{t.support}</h3><p>support@uniresearch.ac.th</p><p>02–123–4567</p></div>
                 <div><LanguageSwitch /><p className="latin">{t.rightsReserved}</p></div>
             </div>

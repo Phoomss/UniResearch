@@ -183,7 +183,7 @@ export default async function Home() {
 
         <section className="discovery-cta container home-container" id="about">
           <div><p className="eyebrow">[ {t.contribute} ]</p><h2 className="eyebrow-h2">{t.ctaTitle}</h2><p>{t.ctaSubtitle}</p></div>
-          <Link href="/dashboard/student/submit" className="btn btn-primary">{t.submitResearch}  <FileUp size={18} /></Link>
+          <Link href="/student/research/new" className="btn btn-primary">{t.submitResearch}  <FileUp size={18} /></Link>
         </section>
       </main>
       <SiteFooter />

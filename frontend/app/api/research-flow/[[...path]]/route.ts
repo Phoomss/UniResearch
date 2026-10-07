@@ -19,8 +19,11 @@ async function proxy(request: NextRequest, context: Context) {
   if (!allowed) return NextResponse.json({ error: { message: "Unknown ResearchFlow route" } }, { status: 404 });
   let body: string | undefined;
   if (!isGet) {
+    // Next's internal URL can use the container hostname. The browser's public
+    // address is the request Host; do not trust Origin or X-Forwarded-Host alone.
+    const publicOrigin = new URL(request.nextUrl.protocol + "//" + (request.headers.get("host") ?? request.nextUrl.host)).origin;
     if (request.headers.get("sec-fetch-site") === "cross-site" ||
-        (request.headers.get("origin") && request.headers.get("origin") !== request.nextUrl.origin)) {
+        (request.headers.get("origin") && request.headers.get("origin") !== publicOrigin)) {
       return NextResponse.json({ error: { message: "Invalid request origin" } }, { status: 403 });
     }
     const raw = await request.text();
