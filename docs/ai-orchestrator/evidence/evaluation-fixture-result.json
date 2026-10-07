@@ -1,0 +1,35 @@
+{
+  "cases": [
+    {
+      "citation_correctness": 1.0,
+      "citation_label_coverage": 1.0,
+      "citation_completeness": 0.5,
+      "evidence_coverage": 0.5,
+      "source_relevance": 1.0,
+      "source_label_coverage": 1.0,
+      "contradiction_detection_recall": null,
+      "contradiction_detection_precision": null,
+      "unsupported_claim_rate": 0.5,
+      "unjudged_factual_sentences": 0,
+      "workflow_success": 1,
+      "research_iterations": 1,
+      "workflow_duration_seconds": 10.0
+    }
+  ],
+  "averages": {
+    "citation_correctness": 1.0,
+    "citation_label_coverage": 1.0,
+    "citation_completeness": 0.5,
+    "evidence_coverage": 0.5,
+    "source_relevance": 1.0,
+    "source_label_coverage": 1.0,
+    "contradiction_detection_recall": null,
+    "contradiction_detection_precision": null,
+    "unsupported_claim_rate": 0.5,
+    "unjudged_factual_sentences": 0,
+    "workflow_success": 1,
+    "research_iterations": 1,
+    "workflow_duration_seconds": 10.0
+  },
+  "case_count": 1
+}

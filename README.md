@@ -299,3 +299,30 @@ pnpm test
 - [โครงสร้างฐานข้อมูลและโค้ด DBML](file:///Users/mac/Desktop/workspace/UniResearch/docs/UniResearch_Database_Schema.md)
 - [แผนภาพ UML ฉบับเต็ม (Use Case, Class, ER, State, Activity, Sequence, Component)](file:///Users/mac/Desktop/workspace/UniResearch/docs/UniResearch_UML_Diagrams.md)
 - [คู่มือการจัดการโครงสร้างพื้นฐานและการติดตั้ง (Terraform, Kubernetes, Prometheus, Grafana)](file:///Users/mac/Desktop/workspace/UniResearch/docs/INFRASTRUCTURE.md)
+
+## ResearchFlow AI
+
+ResearchFlow adds a durable research orchestrator at `/research-flow`, with approved
+repository search, abstract analysis, evidence mapping, independent criticism,
+verified-evidence writing and citation validation. Workflows pause for human review
+when evidence, retries or budgets are insufficient. Existing chat and writing tools
+retain their APIs.
+
+Development/production Compose includes `research-flow-worker` using the backend image.
+Outside Compose, run migrations and start the worker alongside FastAPI:
+
+```sh
+cd backend
+alembic upgrade head
+python -m app.services.research_flow.worker
+```
+
+Fresh databases first need `python -m app.scripts.bootstrap_db` for the existing schema.
+Configure existing Gemini settings and optional `RESEARCH_FLOW_*` settings from
+[the configuration example](backend/research-flow.env.example). Model mappings and depth
+limits are JSON; export them to the environment when using Compose. The initial corpus
+is repository abstracts, so publication metadata/full-paper claims remain explicitly limited.
+
+See [architecture and operating instructions](docs/ai-orchestrator/ARCHITECTURE.md),
+[API contracts](docs/ai-orchestrator/API.md),
+[verification and limitations](docs/ai-orchestrator/IMPLEMENTATION_REPORT.md).

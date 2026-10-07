@@ -1,0 +1,26 @@
+.research-flow { display: grid; gap: 24px; max-width: 1100px; padding-bottom: 40px; }
+.flow-card { padding: 24px; border: 1px solid var(--border, #e3dce0); border-radius: 12px; background: var(--surface, #fff); min-width: 0; overflow-wrap: anywhere; }
+.flow-card h2 { margin-bottom: 16px; }
+.flow-card h3 { margin: 18px 0 8px; }
+.flow-card p { margin: 12px 0; }
+.flow-card textarea, .flow-card select { width: 100%; padding: 12px; border: 1px solid #bbaeb6; border-radius: 6px; background: transparent; color: inherit; font: inherit; margin: 8px 0; }
+.flow-card label { display: block; }
+.flow-controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; margin: 12px 0; }
+.flow-controls select { width: auto; max-width: 100%; }
+.flow-heading { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.flow-agents { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.flow-agents li { border: 1px solid #e3dce0; padding: 12px; display: flex; gap: 8px; flex-wrap: wrap; border-radius: 6px; }
+.flow-agents li span { margin-left: auto; font-size: .8rem; }
+.flow-agents [data-status="COMPLETED"] { border-left: 4px solid #508061; }
+.flow-agents [data-status="RUNNING"] { border-left: 4px solid var(--mulberry); }
+.flow-agents [data-status="FAILED"], .flow-review { border-color: #a97638; }
+.flow-evidence { border-top: 1px solid #e3dce0; padding: 12px 0; }
+.flow-card details { padding: 12px 0; }
+.flow-card summary { cursor: pointer; font-weight: 600; }
+.flow-card blockquote { border-left: 3px solid #bbaeb6; margin: 12px 0; padding: 8px 16px; white-space: pre-wrap; }
+.flow-card a { color: var(--mulberry, #74294f); text-decoration: underline; }
+.flow-card li { margin-bottom: 8px; }
+.flow-error { color: #a32242; padding: 12px; border: 1px solid currentColor; border-radius: 6px; }
+.flow-metrics { display: flex; gap: 16px; flex-wrap: wrap; }
+.flow-metrics p { display: grid; gap: 4px; }
+@media (max-width: 640px) { .flow-card { padding: 16px; } .flow-agents { grid-template-columns: 1fr; } .flow-controls .btn { width: 100%; } }

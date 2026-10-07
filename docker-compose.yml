@@ -37,7 +37,7 @@ services:
     restart: unless-stopped
     command: >
       sh -c "
-        alembic upgrade head 2>/dev/null || echo 'Alembic migration skipped (no migrations found)' &&
+        python -m app.scripts.bootstrap_db && alembic upgrade head &&
         uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
       "
     ports:
@@ -47,7 +47,26 @@ services:
       - backend_static:/app/static
       - /app/__pycache__
       - /app/.pytest_cache
-    environment:
+    environment: &backend_environment
+      - RESEARCH_FLOW_ENABLED=${RESEARCH_FLOW_ENABLED:-true}
+      - RESEARCH_FLOW_PROVIDER=${RESEARCH_FLOW_PROVIDER:-gemini}
+      - RESEARCH_FLOW_AGENT_MODELS
+      - RESEARCH_FLOW_DEPTH_SOURCES
+      - RESEARCH_FLOW_PAPER_BATCH_SIZE=${RESEARCH_FLOW_PAPER_BATCH_SIZE:-3}
+      - RESEARCH_FLOW_AGENT_TIMEOUT=${RESEARCH_FLOW_AGENT_TIMEOUT:-90}
+      - RESEARCH_FLOW_OUTPUT_TOKENS=${RESEARCH_FLOW_OUTPUT_TOKENS:-4096}
+      - RESEARCH_FLOW_MAX_CONTEXT_CHARS=${RESEARCH_FLOW_MAX_CONTEXT_CHARS:-40000}
+      - RESEARCH_FLOW_MAX_ACTIVE_PER_USER=${RESEARCH_FLOW_MAX_ACTIVE_PER_USER:-2}
+      - RESEARCH_FLOW_MAX_ACTIVE_GLOBAL=${RESEARCH_FLOW_MAX_ACTIVE_GLOBAL:-20}
+      - RESEARCH_FLOW_CREATIONS_PER_HOUR=${RESEARCH_FLOW_CREATIONS_PER_HOUR:-10}
+      - RESEARCH_FLOW_POLL_SECONDS=${RESEARCH_FLOW_POLL_SECONDS:-2}
+      - RESEARCH_FLOW_MAX_RESEARCH_ITERATIONS=${RESEARCH_FLOW_MAX_RESEARCH_ITERATIONS:-3}
+      - RESEARCH_FLOW_MAX_AGENT_RETRIES=${RESEARCH_FLOW_MAX_AGENT_RETRIES:-2}
+      - RESEARCH_FLOW_MAX_SEARCH_ROUNDS=${RESEARCH_FLOW_MAX_SEARCH_ROUNDS:-3}
+      - RESEARCH_FLOW_MAX_PAPERS=${RESEARCH_FLOW_MAX_PAPERS:-20}
+      - RESEARCH_FLOW_MAX_WORKFLOW_DURATION=${RESEARCH_FLOW_MAX_WORKFLOW_DURATION:-900}
+      - RESEARCH_FLOW_MAX_LLM_CALLS=${RESEARCH_FLOW_MAX_LLM_CALLS:-40}
+      - RESEARCH_FLOW_MAX_TOKENS=${RESEARCH_FLOW_MAX_TOKENS:-100000}
       - PROJECT_NAME=${PROJECT_NAME:-UniResearch}
       - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@db:5432/${POSTGRES_DB:-uniresearch}
       - SECRET_KEY=${SECRET_KEY:-supersecretkey-change-this-in-production}
@@ -65,6 +84,25 @@ services:
       - AI_TEMPERATURE=${AI_TEMPERATURE:-0.7}
       - AI_ENABLED=${AI_ENABLED:-true}
     depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - uniresearch_net
+
+  # Durable ResearchFlow worker, reusing the backend code/image and database.
+  research-flow-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: development
+    restart: unless-stopped
+    command: python -m app.services.research_flow.worker
+    volumes:
+      - ./backend:/app
+    environment: *backend_environment
+    depends_on:
+      backend:
+        condition: service_started
       db:
         condition: service_healthy
     networks:

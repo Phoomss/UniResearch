@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Generated ResearchFlow screenshots are copied to docs after review.
+/test-results/research-flow-*.png

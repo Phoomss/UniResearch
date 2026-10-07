@@ -19,6 +19,7 @@ export async function SiteHeader(
                 <Brand />
                 <nav className="nav" aria-label="เมนูหลัก">
                     <Link href="/research">{t.searchWorks}</Link>
+                    <Link href="/research-flow">ResearchFlow AI</Link>
                     <Link href="/#categories">{t.exploreCategories}</Link>
                     <Link href="/#about">{t.aboutSystem}</Link>
                 </nav>
@@ -33,6 +34,7 @@ export async function SiteHeader(
                         </summary>
                         <nav className="mobile-nav-menu" aria-label="เมนูหลักบนมือถือ">
                             <Link href="/research">{t.searchWorks}</Link>
+                    <Link href="/research-flow">ResearchFlow AI</Link>
                             <Link href="/#categories">{t.exploreCategories}</Link>
                             <Link href="/#about">{t.aboutSystem}</Link>
                             <LanguageSwitch />
@@ -62,7 +64,8 @@ export async function SiteFooter() {
         <footer className="site-footer">
             <div className="container footer-grid">
                 <div><Brand /><p>คลังรวบรวมและเผยแพร่ผลงานวิจัยระดับอุดมศึกษา เพื่อสร้างสรรค์สังคมแห่งการเรียนรู้ที่ยั่งยืน</p></div>
-                <div><h3>{t.quickLinks}</h3><p><Link href="/research">{t.searchWorks}</Link></p><p><Link href="/#categories">{t.exploreCategories}</Link></p><p><Link href="/dashboard/student/submit">{t.submitResearch}</Link></p></div>
+                <div><h3>{t.quickLinks}</h3><p><Link href="/research">{t.searchWorks}</Link>
+                    <Link href="/research-flow">ResearchFlow AI</Link></p><p><Link href="/#categories">{t.exploreCategories}</Link></p><p><Link href="/dashboard/student/submit">{t.submitResearch}</Link></p></div>
                 <div><h3>{t.support}</h3><p>support@uniresearch.ac.th</p><p>02–123–4567</p></div>
                 <div><LanguageSwitch /><p className="latin">{t.rightsReserved}</p></div>
             </div>
@@ -106,6 +109,7 @@ export function ResearchRail({ active = "01", role = "guest" }: { active?: strin
                 <Link className={active === "01" ? "active" : ""} href={dashboardUrl} title="แดชบอร์ด">01</Link>
                 <Link className={active === "02" ? "active" : ""} href="/research" title="ค้นหางานวิจัย">02</Link>
                 <Link className={active === "03" ? "active" : ""} href={submitUrl} title="ส่งผลงานวิจัย">03</Link>
+                <Link className={active === "04" ? "active" : ""} href="/research-flow" title="ResearchFlow AI">04</Link>
             </nav>
             <span className="rail-label">INDEX RAIL</span>
         </aside>

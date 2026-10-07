@@ -173,7 +173,7 @@ async def create_research(db: AsyncSession, current_user: User, title_th: str, t
         logger.exception("Research creation database failure")
         raise HTTPException(status_code=500, detail="Unable to save research") from exc
 
-async def search_research(db: AsyncSession, q: Optional[str], category_id: Optional[int], current_user: Optional[User] = None) -> List[ResearchWork]:
+async def search_research(db: AsyncSession, q: Optional[str], category_id: Optional[int], current_user: Optional[User] = None, limit: Optional[int] = None, log_search: bool = True) -> List[ResearchWork]:
     if current_user:
         if current_user.role in ["admin", "advisor"]:
             query = select(ResearchWork)
@@ -204,8 +204,9 @@ async def search_research(db: AsyncSession, q: Optional[str], category_id: Optio
                     ResearchWork.abstract.ilike(t)
                 ])
             query = query.where(or_(*or_conds))
-            db.add(SearchLog(keyword=q))
-            await db.flush()
+            if log_search:
+                db.add(SearchLog(keyword=q))
+                await db.flush()
 
     if category_id:
         query = query.where(ResearchWork.category_id == category_id)
@@ -215,6 +216,8 @@ async def search_research(db: AsyncSession, q: Optional[str], category_id: Optio
         selectinload(ResearchWork.advisors).selectinload(ResearchAdvisor.user),
         selectinload(ResearchWork.reviews).selectinload(ReviewComment.reviewer)
     )
+    if limit is not None:
+        query = query.order_by(ResearchWork.id.desc()).limit(limit)
     result = await db.execute(query)
     await db.commit()
     works = list(result.scalars().all())
