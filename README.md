@@ -279,9 +279,10 @@ UniResearch/
 ชุด Selenium + pytest อ้างอิงเอกสาร Test Cases และ Test Plan ใน `docs/system-audit/` พร้อมฐานข้อมูลและไฟล์ทดสอบชั่วคราว ดูวิธีติดตั้งและรายงานผลที่ [tests/selenium/README.md](tests/selenium/README.md)
 
 ```bash
-tests/selenium/.venv/bin/python -m pytest -c tests/selenium/pytest.ini tests/selenium
+docker compose -f docker-compose.selenium.yml build
+docker compose -f docker-compose.selenium.yml run --rm selenium-tests -v
 # เฉพาะ 18 กรณีที่มอบหมายให้ Narongsak
-tests/selenium/.venv/bin/python -m pytest -c tests/selenium/pytest.ini tests/selenium -m narongsak
+docker compose -f docker-compose.selenium.yml run --rm selenium-tests
 ```
 
 ### การทดสอบหลังบ้าน (Backend Unit & Integration Tests)

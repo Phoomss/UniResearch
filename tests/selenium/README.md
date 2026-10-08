@@ -13,7 +13,34 @@ The original DOCX/PDF reports remain unchanged. Their historical passes are not 
 
 The [8 October execution report](../../docs/system-audit/SELENIUM-TEST-REPORT-2026-10-08.md) records 44 passed / 4 failed across all 48 cases, including 17 passed / 1 failed for Narongsak's subset. Failures expose related-recommendation, chat, and notification UI defects.
 
-## Install and run
+## Run with Docker
+
+Requires Docker Desktop (or Docker Engine with Compose). Run from the repository root. Python, Node, Chromium, and the matching ChromeDriver are installed in the test image; no local virtual environment is needed.
+
+```sh
+# Build the test image
+docker compose -f docker-compose.selenium.yml build
+
+# Narongsak's 18 cases (default selection)
+docker compose -f docker-compose.selenium.yml run --rm selenium-tests
+
+# All 48 cases
+docker compose -f docker-compose.selenium.yml run --rm selenium-tests -v
+
+# One case
+docker compose -f docker-compose.selenium.yml run --rm selenium-tests -v -k tc_047
+
+# API/database cases
+docker compose -f docker-compose.selenium.yml run --rm selenium-tests -v -m 'not ui'
+```
+
+The runner starts FastAPI, Next.js, and Chromium inside one container, with its own temporary SQLite database and file store. It uses this dedicated Compose file independently of the normal application Compose stack. Reports and screenshots are saved to `tests/selenium/artifacts/` through a bind mount. Chromium runs as a non-root user with 2 GiB shared memory. The image supports the host's Linux architecture, including Apple Silicon's ARM64 containers.
+
+Rebuild the image after changing application or test code. To record the host checkout's commit in Docker reports, set `UNIRESEARCH_TEST_COMMIT` to the output of `git rev-parse HEAD` before running Compose. The `.git` directory and environment files are excluded from the build context.
+
+The 8 October results linked above were obtained on macOS; a Docker run produces its own report and browser version. Docker uses the same disposable SQLite functional scope and AI test doubles.
+
+## Optional local installation
 
 Requires Python 3.11+, Chrome, and the frontend's Node dependencies. Run from the repository root:
 

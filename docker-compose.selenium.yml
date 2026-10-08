@@ -1,0 +1,12 @@
+services:
+  selenium-tests:
+    build:
+      context: .
+      dockerfile: tests/selenium/Dockerfile
+    init: true
+    shm_size: "2gb"
+    volumes:
+      - ./tests/selenium/artifacts:/artifacts
+    environment:
+      UNIRESEARCH_TEST_COMMIT: ${UNIRESEARCH_TEST_COMMIT:-unknown}
+    command: ["-m", "narongsak", "-v"]

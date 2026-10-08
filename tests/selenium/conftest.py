@@ -291,6 +291,11 @@ def e(app_environment, request):
 @pytest.fixture
 def page(e, frontend_server, pytestconfig, request):
     options = webdriver.ChromeOptions()
+    chrome_binary = os.environ.get("SELENIUM_CHROME_BINARY")
+    if chrome_binary:
+        options.binary_location = chrome_binary
+    if os.environ.get("SELENIUM_CONTAINER") == "1":
+        options.add_argument("--no-sandbox")
     if not pytestconfig.getoption("--headed"):
         options.add_argument("--headless=new")
     options.add_argument("--window-size=1440,1000")
@@ -361,12 +366,13 @@ def pytest_runtest_makereport(item, call):
 
 def pytest_sessionfinish(session, exitstatus):
     directory = session.config.artifact_dir
+    commit = os.environ.get("UNIRESEARCH_TEST_COMMIT", "unknown")
     try:
         commit = subprocess.check_output(
             ["git", "rev-parse", "HEAD"], cwd=REPO, text=True
         ).strip()
-    except subprocess.SubprocessError:
-        commit = "unknown"
+    except (subprocess.SubprocessError, OSError):
+        pass
     summary = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "commit": commit,
