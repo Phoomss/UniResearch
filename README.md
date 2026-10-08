@@ -274,6 +274,16 @@ UniResearch/
 
 ## 🧪 การทดสอบระบบ (Testing)
 
+### Selenium Python (48 Test Cases / Narongsak 18 Cases)
+
+ชุด Selenium + pytest อ้างอิงเอกสาร Test Cases และ Test Plan ใน `docs/system-audit/` พร้อมฐานข้อมูลและไฟล์ทดสอบชั่วคราว ดูวิธีติดตั้งและรายงานผลที่ [tests/selenium/README.md](tests/selenium/README.md)
+
+```bash
+tests/selenium/.venv/bin/python -m pytest -c tests/selenium/pytest.ini tests/selenium
+# เฉพาะ 18 กรณีที่มอบหมายให้ Narongsak
+tests/selenium/.venv/bin/python -m pytest -c tests/selenium/pytest.ini tests/selenium -m narongsak
+```
+
 ### การทดสอบหลังบ้าน (Backend Unit & Integration Tests)
 ตรวจสอบว่ามีการเปิดใช้ Virtual Environment และมีไลบรารีพร้อมใช้งาน จากนั้นพิมพ์คำสั่ง:
 ```bash

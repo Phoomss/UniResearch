@@ -1,0 +1,386 @@
+[
+  {
+    "case": "TC-001",
+    "title": "สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin",
+    "group": "บัญชี",
+    "requirement": "FR-001",
+    "priority": "สูง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-002",
+    "title": "สมัคร email ซ้ำ",
+    "group": "บัญชี",
+    "requirement": "FR-001",
+    "priority": "สูง",
+    "type": "Negative / API"
+  },
+  {
+    "case": "TC-003",
+    "title": "ล็อกอินข้อมูลถูก",
+    "group": "บัญชี",
+    "requirement": "FR-002",
+    "priority": "สูง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-004",
+    "title": "รหัสผ่านผิด",
+    "group": "บัญชี",
+    "requirement": "FR-002",
+    "priority": "สูง",
+    "type": "Negative / Web/API"
+  },
+  {
+    "case": "TC-005",
+    "title": "ดู/แก้โปรไฟล์และเปลี่ยนรหัส",
+    "group": "บัญชี",
+    "requirement": "FR-003",
+    "priority": "สูง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-006",
+    "title": "token ไม่ถูก/ผู้ใช้ inactive/email ซ้ำ",
+    "group": "บัญชี",
+    "requirement": "FR-003",
+    "priority": "สูง",
+    "type": "Negative / API"
+  },
+  {
+    "case": "TC-007",
+    "title": "ล็อกอินแล้วออกจากระบบ",
+    "group": "เว็บบัญชี",
+    "requirement": "FR-004",
+    "priority": "สูง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-008",
+    "title": "admin CRUD ผู้ใช้",
+    "group": "ผู้ใช้",
+    "requirement": "FR-005",
+    "priority": "สูง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-009",
+    "title": "student เรียก API จัดการผู้ใช้",
+    "group": "ผู้ใช้",
+    "requirement": "FR-005",
+    "priority": "สูง",
+    "type": "Negative / API/RBAC"
+  },
+  {
+    "case": "TC-010",
+    "title": "อ่านสาธารณะและเพิ่มโดย admin",
+    "group": "หมวดหมู่",
+    "requirement": "FR-006",
+    "priority": "กลาง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-011",
+    "title": "ผู้ไม่ใช่ admin เพิ่มหมวดหมู่",
+    "group": "หมวดหมู่",
+    "requirement": "FR-006",
+    "priority": "สูง",
+    "type": "Negative / API/RBAC"
+  },
+  {
+    "case": "TC-012",
+    "title": "admin แทนรายการตัวเลือก",
+    "group": "ตัวเลือก",
+    "requirement": "FR-007",
+    "priority": "กลาง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-013",
+    "title": "student เปลี่ยนตัวเลือก",
+    "group": "ตัวเลือก",
+    "requirement": "FR-007",
+    "priority": "สูง",
+    "type": "Negative / API/RBAC"
+  },
+  {
+    "case": "TC-014",
+    "title": "guest/student/admin ค้นงาน approved และ pending",
+    "group": "ค้นหา",
+    "requirement": "FR-008",
+    "priority": "สูง",
+    "type": "Positive / Web/API/RBAC"
+  },
+  {
+    "case": "TC-015",
+    "title": "คำค้นมีหลายคำและบันทึก log",
+    "group": "ค้นหา",
+    "requirement": "FR-008",
+    "priority": "กลาง",
+    "type": "Positive / API/Integration"
+  },
+  {
+    "case": "TC-016",
+    "title": "คำแนะนำไม่เผยงาน pending",
+    "group": "ค้นหา",
+    "requirement": "FR-009",
+    "priority": "สูง",
+    "type": "Negative / Web/API"
+  },
+  {
+    "case": "TC-017",
+    "title": "latest/popular และสถิติ",
+    "group": "หน้าหลัก",
+    "requirement": "FR-010",
+    "priority": "กลาง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-018",
+    "title": "เปิดงานและแนะนำงานที่เกี่ยวข้อง",
+    "group": "รายละเอียด",
+    "requirement": "FR-011",
+    "priority": "กลาง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-019",
+    "title": "ID ไม่มีอยู่",
+    "group": "รายละเอียด",
+    "requirement": "FR-011",
+    "priority": "กลาง",
+    "type": "Negative / Web/API"
+  },
+  {
+    "case": "TC-020",
+    "title": "ผู้ไม่ล็อกอิน/มี favorite ได้คำแนะนำ",
+    "group": "คำแนะนำ",
+    "requirement": "FR-012",
+    "priority": "กลาง",
+    "type": "Positive / API"
+  },
+  {
+    "case": "TC-021",
+    "title": "รายชื่อผู้เขียน/ที่ปรึกษา",
+    "group": "ผู้เกี่ยวข้อง",
+    "requirement": "FR-013",
+    "priority": "กลาง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-022",
+    "title": "ส่งงานครบข้อมูลและผู้เกี่ยวข้อง",
+    "group": "ส่งผลงาน",
+    "requirement": "FR-014",
+    "priority": "สูง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-023",
+    "title": "ไม่ล็อกอินหรือ role guest ส่งงาน",
+    "group": "ส่งผลงาน",
+    "requirement": "FR-014",
+    "priority": "สูง",
+    "type": "Negative / Web/API/RBAC"
+  },
+  {
+    "case": "TC-024",
+    "title": "IDs ไม่ใช่ JSON array/มี 0/role ผิด",
+    "group": "Validation",
+    "requirement": "FR-015",
+    "priority": "สูง",
+    "type": "Negative / API/Validation"
+  },
+  {
+    "case": "TC-025",
+    "title": "ผู้เขียนคนละ prefix ปี",
+    "group": "Validation",
+    "requirement": "FR-015",
+    "priority": "กลาง",
+    "type": "Negative / Web/API/Validation"
+  },
+  {
+    "case": "TC-026",
+    "title": "อัปโหลดชนิดถูกและทดสอบขนาดขอบเขต",
+    "group": "ไฟล์",
+    "requirement": "FR-016",
+    "priority": "สูง",
+    "type": "Positive / Web/API/Boundary"
+  },
+  {
+    "case": "TC-027",
+    "title": "นามสกุล/MIME/ลายเซ็นผิด",
+    "group": "ไฟล์",
+    "requirement": "FR-016",
+    "priority": "สูง",
+    "type": "Negative / API/Validation"
+  },
+  {
+    "case": "TC-028",
+    "title": "ผู้ส่ง/author เห็นงานใน /my",
+    "group": "ผลงานของฉัน",
+    "requirement": "FR-017",
+    "priority": "สูง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-029",
+    "title": "ผู้มีสิทธิ์แก้แล้วกลับ pending",
+    "group": "แก้ผลงาน",
+    "requirement": "FR-018",
+    "priority": "สูง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-030",
+    "title": "คนอื่นแก้งาน",
+    "group": "แก้ผลงาน",
+    "requirement": "FR-018",
+    "priority": "สูง",
+    "type": "Negative / API/RBAC"
+  },
+  {
+    "case": "TC-031",
+    "title": "ส่งเอกสารใหม่หลัง needs_revision",
+    "group": "Revision",
+    "requirement": "FR-019",
+    "priority": "สูง",
+    "type": "Positive / Web/API/Integration"
+  },
+  {
+    "case": "TC-032",
+    "title": "เจ้าของลบงานพร้อมข้อมูลสัมพันธ์",
+    "group": "ลบผลงาน",
+    "requirement": "FR-020",
+    "priority": "สูง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-033",
+    "title": "คนอื่นลบงาน",
+    "group": "ลบผลงาน",
+    "requirement": "FR-020",
+    "priority": "สูง",
+    "type": "Negative / API/RBAC"
+  },
+  {
+    "case": "TC-034",
+    "title": "ผู้ใช้ active ดาวน์โหลดงานมีไฟล์",
+    "group": "ดาวน์โหลด",
+    "requirement": "FR-021",
+    "priority": "กลาง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-035",
+    "title": "ไม่มี token หรือไม่มีไฟล์",
+    "group": "ดาวน์โหลด",
+    "requirement": "FR-021",
+    "priority": "กลาง",
+    "type": "Negative / API"
+  },
+  {
+    "case": "TC-036",
+    "title": "admin/advisor/student ดู pending",
+    "group": "คิวตรวจ",
+    "requirement": "FR-022",
+    "priority": "สูง",
+    "type": "Positive / Web/API/RBAC"
+  },
+  {
+    "case": "TC-037",
+    "title": "ผู้ตรวจเห็นประวัติของตน",
+    "group": "ประวัติตรวจ",
+    "requirement": "FR-023",
+    "priority": "กลาง",
+    "type": "Positive / Web/API/RBAC"
+  },
+  {
+    "case": "TC-038",
+    "title": "advisor ที่ได้รับมอบหมายอนุมัติ pending",
+    "group": "ตรวจงาน",
+    "requirement": "FR-024",
+    "priority": "สูง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-039",
+    "title": "advisor ไม่ได้รับมอบหมาย/งานไม่ pending/enum ผิด",
+    "group": "ตรวจงาน",
+    "requirement": "FR-024",
+    "priority": "สูง",
+    "type": "Negative / API/RBAC/Validation"
+  },
+  {
+    "case": "TC-040",
+    "title": "อนุมัติพร้อมคะแนนและแจ้งผู้เกี่ยวข้อง",
+    "group": "ตรวจงาน",
+    "requirement": "FR-025",
+    "priority": "สูง",
+    "type": "Positive / Web/API/Integration"
+  },
+  {
+    "case": "TC-041",
+    "title": "admin เปลี่ยน advisor; student ถูกห้าม",
+    "group": "มอบหมาย",
+    "requirement": "FR-026",
+    "priority": "สูง",
+    "type": "Positive / Web/API/RBAC"
+  },
+  {
+    "case": "TC-042",
+    "title": "บันทึกและยกเลิก favorite",
+    "group": "Favorite",
+    "requirement": "FR-027",
+    "priority": "กลาง",
+    "type": "Positive / Web/API"
+  },
+  {
+    "case": "TC-043",
+    "title": "อ่านเฉพาะของตนและ mark read",
+    "group": "แจ้งเตือน",
+    "requirement": "FR-028",
+    "priority": "สูง",
+    "type": "Positive / Web/API/RBAC"
+  },
+  {
+    "case": "TC-044",
+    "title": "เรียกสี่ API ด้วย token และ schema ที่ถูก/ผิด",
+    "group": "AI",
+    "requirement": "FR-029",
+    "priority": "กลาง",
+    "type": "Positive / API/AI"
+  },
+  {
+    "case": "TC-045",
+    "title": "dashboard insight และ chat",
+    "group": "AI",
+    "requirement": "FR-030",
+    "priority": "กลาง",
+    "type": "Positive / API/AI/RBAC"
+  },
+  {
+    "case": "TC-046",
+    "title": "สี่ endpoint วิเคราะห์ผลงานและสิทธิ์",
+    "group": "AI ตรวจงาน",
+    "requirement": "FR-031",
+    "priority": "กลาง",
+    "type": "Positive / Web/API/AI"
+  },
+  {
+    "case": "TC-047",
+    "title": "เว็บส่งงานแล้ว advisor ตรวจ",
+    "group": "E2E",
+    "requirement": "FR-032",
+    "priority": "สูง",
+    "type": "Positive / E2E"
+  },
+  {
+    "case": "TC-048",
+    "title": "เว็บ admin จัดการหมวดหมู่/ผู้ใช้",
+    "group": "E2E",
+    "requirement": "FR-032",
+    "priority": "กลาง",
+    "type": "Positive / E2E/RBAC"
+  }
+]

@@ -6,6 +6,10 @@ PDF `SPRS-Test-Cases.docx.pdf` และ `SPRS-Test-Plan-and-Report.docx.pdf` �
 
 ## เอกสารทดสอบสองชุด
 
+ชุดอัตโนมัติ Python Selenium สำหรับ TC-001–TC-048 และตัวเลือก `-m narongsak` สำหรับ 18 กรณีที่มอบหมาย อยู่ที่ [tests/selenium](../../tests/selenium/README.md) ผลแต่ละรอบสร้างแยกพร้อม screenshot และหลักฐาน API/DB; ไม่แทนผลย้อนหลังในเอกสาร Word/PDF ชุดนี้ การรันใช้ SQLite ชั่วคราวและ AI test double จึงยังไม่รับรอง PostgreSQL/pgvector หรือ AI provider จริง
+
+ผล Selenium รอบ 8 ตุลาคม 2026: **ผ่าน 44 / ไม่ผ่าน 4**; เฉพาะ Narongsak **ผ่าน 17 / ไม่ผ่าน 1** ดู [รายงานและข้อบกพร่อง](SELENIUM-TEST-REPORT-2026-10-08.md)
+
 | ชุด | เอกสารหลัก | เนื้อหา |
 |---|---|---|
 | 1. Test Cases | [TEST-CASES.md](TEST-CASES.md) | รายการ 48 TC และรายละเอียดรายกรณี: เงื่อนไขตั้งต้น ข้อมูลทดสอบ ขั้นตอน ผลที่คาดหวัง และช่องบันทึกผลจริง |
