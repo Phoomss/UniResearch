@@ -1,5 +1,8 @@
 services:
   selenium-tests:
+    # Chrome for Testing provides Linux ChromeDriver for x86_64.
+    # Docker Desktop emulates this platform on Apple Silicon.
+    platform: linux/amd64
     build:
       context: .
       dockerfile: tests/selenium/Dockerfile

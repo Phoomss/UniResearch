@@ -2,6 +2,7 @@ import json
 import os
 import platform
 import secrets
+import signal
 import shutil
 import socket
 import sqlite3
@@ -26,7 +27,7 @@ RESULTS = {}
 
 
 def pytest_addoption(parser):
-    parser.addoption("--headed", action="store_true", help="Show the Chrome browser")
+    parser.addoption("--headed", action="store_true", help="Show the configured browser")
     parser.addoption("--artifacts", default=str(Path(__file__).parent / "artifacts"))
 
 
@@ -68,7 +69,9 @@ def start(command, cwd, env, url, logfile):
     )
     try:
         with httpx.Client(trust_env=False, timeout=2) as client:
-            deadline = time.monotonic() + 90
+            # First Next.js compilation is slower under amd64 emulation.
+            startup_timeout = float(os.environ.get("SELENIUM_STARTUP_TIMEOUT", "90"))
+            deadline = time.monotonic() + startup_timeout
             while time.monotonic() < deadline:
                 if proc.poll() is not None:
                     raise RuntimeError(f"Service exited; see {logfile}")
@@ -299,6 +302,8 @@ def page(e, frontend_server, pytestconfig, request):
     if not pytestconfig.getoption("--headed"):
         options.add_argument("--headless=new")
     options.add_argument("--window-size=1440,1000")
+    options.add_argument("--no-first-run")
+    options.add_argument("--no-default-browser-check")
     options.add_experimental_option(
         "prefs",
         {
@@ -308,14 +313,36 @@ def page(e, frontend_server, pytestconfig, request):
         },
     )
     driver_path = os.environ.get("SELENIUM_CHROMEDRIVER")
-    service = Service(executable_path=driver_path) if driver_path else Service()
-    driver = webdriver.Chrome(service=service, options=options)
-    request.node.browser = driver
+    container = os.environ.get("SELENIUM_CONTAINER") == "1"
+    service = Service(
+        **({"executable_path": driver_path} if driver_path else {}),
+        popen_kw={"start_new_session": True} if container else {},
+    )
+    driver = None
+    process_group = None
     try:
+        driver = webdriver.Chrome(service=service, options=options)
+        if container:
+            process_group = service.process.pid
+        request.node.browser = driver
         yield Pages(driver, e)
     finally:
         request.node.browser = None
-        driver.quit()
+        # Under Docker's amd64 emulation Brave can outlive WebDriver's quit.
+        # Its own process group confines cleanup to this case's browser.
+        if container and process_group is None and getattr(service, "process", None):
+            process_group = service.process.pid
+        try:
+            if driver:
+                driver.quit()
+            else:
+                service.stop()
+        finally:
+            if process_group is not None:
+                try:
+                    os.killpg(process_group, signal.SIGKILL)
+                except ProcessLookupError:
+                    pass
 
 
 @pytest.hookimpl(hookwrapper=True)
@@ -353,6 +380,9 @@ def pytest_runtest_makereport(item, call):
                 screenshot=path.name,
                 url=browser.current_url,
                 browser=browser.capabilities.get("browserVersion"),
+                browser_name=os.environ.get("SELENIUM_BROWSER_NAME", "Chrome"),
+                browser_binary=os.environ.get("SELENIUM_CHROME_BINARY", "auto"),
+                driver_version=browser.capabilities.get("chrome", {}).get("chromedriverVersion"),
             )
             if report.failed:
                 record["visible_buttons"] = [
@@ -366,6 +396,15 @@ def pytest_runtest_makereport(item, call):
 
 def pytest_sessionfinish(session, exitstatus):
     directory = session.config.artifact_dir
+    binary = os.environ.get("SELENIUM_CHROME_BINARY")
+    browser_release = "auto"
+    if binary:
+        try:
+            browser_release = subprocess.check_output(
+                [binary, "--version"], text=True, timeout=10
+            ).strip()
+        except (subprocess.SubprocessError, OSError):
+            browser_release = "unavailable"
     commit = os.environ.get("UNIRESEARCH_TEST_COMMIT", "unknown")
     try:
         commit = subprocess.check_output(
@@ -377,6 +416,9 @@ def pytest_sessionfinish(session, exitstatus):
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "commit": commit,
         "os": platform.platform(),
+        "browser_name": os.environ.get("SELENIUM_BROWSER_NAME", "Chrome"),
+        "browser_binary": os.environ.get("SELENIUM_CHROME_BINARY", "auto"),
+        "browser_release": browser_release,
         "database": "disposable SQLite; PostgreSQL/pgvector not certified",
         "ai": "deterministic test double; text retrieval fallback",
         "exit_code": int(exitstatus),
@@ -389,6 +431,8 @@ def pytest_sessionfinish(session, exitstatus):
         "# Selenium execution report",
         "",
         f"Commit: `{commit}` (working tree included)",
+        f"Browser: {summary['browser_name']} (`{summary['browser_binary']}`)",
+        f"Browser release: {browser_release}",
         "",
         "Database: disposable SQLite. This run does not certify PostgreSQL/pgvector or a live AI provider.",
         "",

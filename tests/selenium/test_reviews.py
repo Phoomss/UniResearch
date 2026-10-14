@@ -148,6 +148,21 @@ def test_tc_043_private_notifications_and_read(e, page):
     page.text("N1 Selenium")
     assert "N2 Selenium" not in page.driver.find_element(By.TAG_NAME, "body").text
 
+    # Verify the browser proxy persists both read actions, retaining ownership.
+    e.execute("UPDATE notifications SET is_read=0 WHERE id=1")
+    page.driver.refresh()
+    page.notifications()
+    page.button_by_css('button[title="ทำเครื่องหมายว่าอ่านแล้ว"]')
+    page.wait.until(lambda _: e.scalar("SELECT is_read FROM notifications WHERE id=1") == 1)
+    assert e.scalar("SELECT is_read FROM notifications WHERE id=2") == 0
+
+    e.execute("UPDATE notifications SET is_read=0 WHERE id=1")
+    page.driver.refresh()
+    page.notifications()
+    page.button("อ่านทั้งหมด")
+    page.wait.until(lambda _: e.scalar("SELECT is_read FROM notifications WHERE id=1") == 1)
+    assert e.scalar("SELECT is_read FROM notifications WHERE id=2") == 0
+
 
 def test_tc_044_ai_writing_contracts_and_validation(e):
     for endpoint, body, key, expected in [

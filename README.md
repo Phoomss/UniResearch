@@ -283,6 +283,8 @@ docker compose -f docker-compose.selenium.yml build
 docker compose -f docker-compose.selenium.yml run --rm selenium-tests -v
 # เฉพาะ 18 กรณีที่มอบหมายให้ Narongsak
 docker compose -f docker-compose.selenium.yml run --rm selenium-tests
+# เฉพาะหน้าเว็บของ Narongsak ด้วย Brave ใน Docker
+docker compose -f docker-compose.selenium.yml run --rm selenium-tests -m "narongsak and ui" -v
 ```
 
 ### การทดสอบหลังบ้าน (Backend Unit & Integration Tests)
