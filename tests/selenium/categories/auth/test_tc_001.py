@@ -6,6 +6,10 @@ from tests.selenium.support import COOKIE
 @pytest.mark.auth
 def test_tc_001_register_forces_student(e, registration_page):
     registration_page.register_with_admin_role()
+    registration_page.text("สร้างบัญชีนักศึกษาแล้ว กรุณาเข้าสู่ระบบ")
+    assert "สร้างบัญชีนักศึกษาแล้ว" in registration_page.body_text(), (
+        "UI must confirm a student account after the admin-role attempt"
+    )
     assert not registration_page.driver.get_cookie(COOKIE), (
         "Registration must not create a login session"
     )

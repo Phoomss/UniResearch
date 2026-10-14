@@ -19,7 +19,8 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.service import Service
 
-from .support import PDF, PNG, Evidence, Pages
+from .support import PDF, PNG, Evidence
+from .ui_runtime import BrowserEvidence, BrowserSettings, account_email
 
 REPO = Path(__file__).resolve().parents[2]
 NARONGSAK = {1, 4, 7, 10, 13, 16, 19, 22, 25, 28, 31, 34, 37, 38, 43, 46, 47, 48}
@@ -32,14 +33,17 @@ def pytest_addoption(parser):
         action="store_true",
         help="Also collect untouched teammates cases",
     )
-    parser.addoption(
-        "--headed", action="store_true", help="Show the configured browser"
-    )
+    modes = parser.getgroup("browser modes")
+    modes.addoption("--headed", action="store_true", help="Show Chrome (local default)")
+    modes.addoption("--headless", action="store_true", help="Hide Chrome for CI")
     parser.addoption("--artifacts", default=str(Path(__file__).parent / "artifacts"))
 
 
 def pytest_configure(config):
     RESULTS.clear()
+    if config.getoption("--headed") and config.getoption("--headless"):
+        raise pytest.UsageError("Choose --headed or --headless")
+    config.browser_settings = BrowserSettings.from_environment(config, REPO)
     if hasattr(config, "workerinput"):
         raise pytest.UsageError(
             "Run serially: these tests reset their private database per case."
@@ -164,7 +168,17 @@ def app_environment(pytestconfig):
     with tempfile.TemporaryDirectory(prefix="uniresearch-selenium-") as directory:
         root = Path(directory)
         backend = f"http://127.0.0.1:{port()}"
-        frontend = f"http://127.0.0.1:{port()}"
+        frontend = (
+            pytestconfig.browser_settings.base_url or f"http://127.0.0.1:{port()}"
+        )
+        if pytestconfig.browser_settings.base_url:
+            with socket.socket() as probe:
+                try:
+                    probe.bind(("127.0.0.1", int(frontend.rsplit(":", 1)[1])))
+                except OSError as exc:
+                    raise pytest.UsageError(
+                        "BASE_URL port is already occupied; this runner refuses to attach to an existing application"
+                    ) from exc
         env = {
             **os.environ,
             "UNIRESEARCH_TEST_ROOT": str(root),
@@ -191,7 +205,7 @@ def app_environment(pytestconfig):
             backend + "/health",
             pytestconfig.artifact_dir / "backend.log",
         )
-        password = secrets.token_urlsafe(18)
+        password = os.environ.get("TEST_PASSWORD") or secrets.token_urlsafe(18)
         # Hash without importing application config into pytest or reading .env.
         from passlib.context import CryptContext
 
@@ -272,7 +286,7 @@ def e(app_environment, request):
                 "INSERT INTO users(id,email,hashed_password,role,student_id,first_name,last_name,department,is_active) VALUES(?,?,?,?,?,?,?,?,?)",
                 (
                     uid,
-                    f"{key.lower()}@example.org",
+                    account_email(key),
                     hashed,
                     role,
                     sid,
@@ -346,6 +360,7 @@ def e(app_environment, request):
             )
     evidence = Evidence(root, backend, frontend, password)
     evidence.artifact_dir = request.config.artifact_dir
+    evidence.timeout = request.config.browser_settings.timeout
     request.node.evidence = evidence
     try:
         yield evidence
@@ -356,14 +371,17 @@ def e(app_environment, request):
 @pytest.fixture
 def page(e, frontend_server, pytestconfig, request):
     options = webdriver.ChromeOptions()
+    settings = pytestconfig.browser_settings
     chrome_binary = os.environ.get("SELENIUM_CHROME_BINARY")
+    if settings.browser == "brave" and not chrome_binary:
+        pytest.fail("BROWSER=brave requires SELENIUM_CHROME_BINARY")
     if chrome_binary:
         options.binary_location = chrome_binary
     if os.environ.get("SELENIUM_CONTAINER") == "1":
         options.add_argument("--no-sandbox")
-    if not pytestconfig.getoption("--headed"):
+    if settings.headless:
         options.add_argument("--headless=new")
-    options.add_argument("--window-size=1440,1000")
+    options.add_argument(f"--window-size={settings.width},{settings.height}")
     options.add_argument("--no-first-run")
     options.add_argument("--no-default-browser-check")
     options.add_experimental_option(
@@ -387,7 +405,25 @@ def page(e, frontend_server, pytestconfig, request):
         if container:
             process_group = service.process.pid
         request.node.browser = driver
-        yield Pages(driver, e)
+        case = "TC-" + request.node.name.split("_")[2]
+        e.browser_evidence = BrowserEvidence(
+            driver,
+            e,
+            settings.screenshots
+            / CASE_CATEGORY.get(case, "legacy")
+            / case
+            / pytestconfig.artifact_dir.name,
+            REPO,
+        )
+        record = RESULTS[case]
+        record.update(
+            browser=driver.capabilities.get("browserVersion"),
+            browser_name=settings.browser,
+            mode="headless" if settings.headless else "headed",
+        )
+        from .pages import UIPage
+
+        yield UIPage(driver, e)
     finally:
         request.node.browser = None
         # Under Docker's amd64 emulation Brave can outlive WebDriver's quit.
@@ -415,6 +451,7 @@ def pytest_runtest_makereport(item, call):
         case, {"case": case, "test": item.name, "status": "not_run", "events": []}
     )
     record.update(item.config.case_catalog[case])
+    record["duration_seconds"] = record.get("duration_seconds", 0) + report.duration
     if report.failed:
         record["status"] = "failed" if report.when == "call" else "blocked"
         # Tracebacks can contain sensitive values; keep them in pytest's terminal only.
@@ -429,6 +466,13 @@ def pytest_runtest_makereport(item, call):
                     *evidence_for_redaction.tokens.values(),
                 ]:
                     message = message.replace(secret, "[REDACTED]")
+            record.setdefault("errors", []).append(
+                {
+                    "phase": report.when,
+                    "message": message,
+                    "exception": call.excinfo.type.__name__,
+                }
+            )
             with (item.config.artifact_dir / "errors.log").open("a") as log:
                 log.write(
                     f"{case} {report.when}: {call.excinfo.type.__name__}: {message}\n"
@@ -445,16 +489,27 @@ def pytest_runtest_makereport(item, call):
     evidence = getattr(item, "evidence", None)
     if evidence:
         record["events"] = evidence.events
+        recorder = getattr(evidence, "browser_evidence", None)
+        if recorder:
+            record.update(
+                steps=recorder.steps,
+                screenshot_paths=recorder.screenshots,
+                screenshot_errors=recorder.capture_errors,
+            )
     browser = getattr(item, "browser", None)
     if browser and (report.when == "call" or report.failed):
         try:
+            if evidence and getattr(evidence, "browser_evidence", None):
+                evidence.browser_evidence.capture(
+                    "failure-" + report.when if report.failed else "final-result"
+                )
             path = item.config.artifact_dir / f"{case}.png"
             browser.save_screenshot(str(path))
             record.update(
                 screenshot=path.name,
                 url=browser.current_url,
                 browser=browser.capabilities.get("browserVersion"),
-                browser_name=os.environ.get("SELENIUM_BROWSER_NAME", "Chrome"),
+                browser_name=item.config.browser_settings.browser,
                 browser_binary=os.environ.get("SELENIUM_CHROME_BINARY", "auto"),
                 driver_version=browser.capabilities.get("chrome", {}).get(
                     "chromedriverVersion"
@@ -560,6 +615,9 @@ def pytest_sessionfinish(session, exitstatus):
             f"| {case} | {CASE_CATEGORY[case].upper()} | {catalog['title']} | {EXPECTED[case]} | {actual} | {status} | {evidence} |"
         )
     (directory / "report.md").write_text("\n".join(lines) + "\n")
+    from .ui_reporting import write_ui_report
+
+    write_ui_report(session.config, summary, REPO, CASE_CATEGORY)
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
@@ -606,3 +664,10 @@ def submission_page(page):
     from .pages import SubmissionPage
 
     return SubmissionPage(page.driver, page.e)
+
+
+@pytest.fixture
+def review_page(page):
+    from .pages import ReviewPage
+
+    return ReviewPage(page.driver, page.e)

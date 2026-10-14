@@ -79,3 +79,54 @@ API calls ที่อยู่ร่วมกับ Selenium ใช้เป็
 - `results.json`: metadata, API/database evidence และ browser/driver version
 
 หาก setup สร้าง browser ไม่ได้ จะรายงาน BLOCKED พร้อม error log และไม่มี screenshot ถ้า assertion ล้มเหลวจะรายงาน FAIL เคสที่ไม่ได้เลือกจะเป็น NOT RUN ผล PASS ในเอกสารประวัติไม่ถูกนำมาใช้แทนผลรันปัจจุบัน เพิ่ม `--junitxml=tests/selenium/artifacts/junit.xml` เพื่อส่งเข้า CI
+
+## UI execution layer
+
+ค่าเริ่มต้นบนเครื่อง local คือ Chrome แบบ **headed**; ใน CI (`CI` ถูกกำหนด) และ Docker (`SELENIUM_CONTAINER=1`) ค่าเริ่มต้นเป็น headless ใช้ `--headed` หรือ `--headless` เพื่อกำหนดชัดเจน ห้ามใช้ทั้งสอง option พร้อมกัน
+
+```bash
+pytest tests/selenium/ -v --headed
+pytest tests/selenium/ -m auth -v --headed
+pytest tests/selenium/ -m ai -v --headed
+pytest tests/selenium/ -m submission -v --headed
+pytest tests/selenium/categories/auth/test_tc_004.py -v --headed
+pytest tests/selenium/ -v --headless
+```
+
+`pages.py` ใช้ `UIPage` ต่อจาก POM เดิมเพื่อบันทึกเฉพาะ WebDriver interactions เช่นเปิดหน้า กรอกฟอร์ม คลิก เลือกผู้เกี่ยวข้อง อัปโหลด อ่านข้อความและสถานะ ส่วน API/database assertions ยังคงเป็นหลักฐานเสริมและไม่รวมเป็น browser steps
+
+| Environment variable | ค่าเริ่มต้น / การใช้งาน |
+|---|---|
+| `BASE_URL` | ไม่กำหนด = สร้าง frontend บนพอร์ต localhost ว่าง; กำหนดเป็น `http://127.0.0.1:3100` เพื่อใช้พอร์ตทดสอบคงที่ |
+| `BROWSER` | `chrome`; รองรับ `brave` เมื่อกำหนด binary |
+| `HEADLESS` | `false` บน local; `true` บน CI/container; flags มีลำดับความสำคัญสูงกว่า env |
+| `BROWSER_WINDOW_SIZE` | `1440,1000` (width,height) |
+| `SELENIUM_TIMEOUT` | `30` วินาที สำหรับ explicit UI waits |
+| `SCREENSHOTS_DIR` | `tests/selenium/reports/screenshots` |
+| `TEST_PASSWORD` | ไม่กำหนด = สุ่มรหัสผ่าน fixture ใหม่ทุก session; หากต้องกำหนดให้ใช้ environment/CI secret |
+| `TEST_STUDENT_EMAIL` | `s1@example.org` สำหรับ S1 |
+| `TEST_ADMIN_EMAIL` | `a1@example.org` สำหรับ A1 |
+| `TEST_ADVISOR_EMAIL` | `d1@example.org` สำหรับ D1 |
+| `TEST_{role}_EMAIL` | override email ราย fixture เช่น `TEST_S2_EMAIL`; มีลำดับความสำคัญสูงกว่า alias |
+| `SELENIUM_CHROME_BINARY` | optional Chrome binary; required เมื่อ `BROWSER=brave` |
+| `SELENIUM_CHROMEDRIVER` | optional absolute driver path สำหรับ offline execution |
+
+`BASE_URL` กำหนด origin ของ frontend ชั่วคราวที่ runner เปิดเอง ไม่ใช่ URL ของแอปที่มีข้อมูลอยู่แล้ว รับเฉพาะ HTTP origin ที่ localhost/127.0.0.1 พร้อม port เพื่อป้องกันการเขียนข้อมูลจากชุดทดสอบนี้ไป production หรือฐานข้อมูล staging ที่ไม่ได้จัดเตรียมแบบ isolated หากพอร์ตถูกใช้งานอยู่ service จะหยุดด้วย setup error ไม่ยึดแอปที่เปิดไว้
+
+Test accounts ที่กำหนดผ่าน env จะ seed ในฐานข้อมูลชั่วคราวเดียวกับ fixtures เดิม ไม่ได้ใช้บัญชี production และไม่บันทึก passwords/tokens ลงขั้นตอนรายงาน
+
+หลักฐาน UI ใหม่อยู่ที่:
+
+```text
+tests/selenium/reports/screenshots/{category}/{TC-ID}/{unique-session-id}/
+  001-....png
+  ...
+  ...-final-result.png
+  ...-failure-call.png          # เมื่อเคสล้มเหลวและยังมี browser
+tests/selenium/reports/{unique-session-id}/ui-results.json
+docs/testing/narongsak/UI-TEST-EXECUTION.md
+```
+
+Screenshots ครอบคลุม initial pages, important interactions, ผลที่มองเห็น, final result และ failure โดยชื่อมี session timestamp กับลำดับจึงไม่ทับผลครั้งก่อน JSON มี TC ID, category, browser/version/mode, steps, expected/actual result, status, duration, screenshot paths และ errors รายงานภาษาไทยแสดงผลเฉพาะ session ล่าสุด รวม NOT RUN ของเคสที่ไม่ได้เลือก; `--collect-only` จะไม่เขียนทับรายงานผลรันจริง
+
+TC-038 และ TC-047 เปิดคิว review แล้วคลิกลิงก์ผลงานจริงก่อนเลือก Approve และยืนยัน TC-022/031 ตรวจสถานะในผลงานของฉันหลังส่งข้อมูลและไฟล์ TC-043 ตรวจ toast และการเปลี่ยน control ของรายการอ่านแล้ว TC-001 ส่ง role=admin ที่ boundary ของ request จากฟอร์มจริง และตรวจข้อความการสร้างบัญชี student พร้อม role ที่บันทึก; ไม่มีการให้สิทธิ์ admin กับบัญชีที่สมัคร

@@ -5,7 +5,8 @@ import pytest
 def test_tc_013_student_cannot_replace_options(e, options_page):
     before = e.call("GET", "/options/")
     options_page.login()
-    options_page.attempt_student_change()
+    message = options_page.attempt_student_change()
+    assert message, "Student must see an explicit permission error when saving options"
     assert e.call("GET", "/options/") == before, (
         "Student UI save must not change global options"
     )

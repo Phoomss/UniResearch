@@ -52,12 +52,17 @@ class Evidence:
     def scalar(self, sql, args=()):
         return next(iter(self.rows(sql, args)[0].values()))
 
+    def email(self, role="S1"):
+        from .ui_runtime import account_email
+
+        return account_email(role)
+
     def token(self, role="S1"):
         if role not in self.tokens:
             response = self.http.post(
                 "/auth/login",
                 data={
-                    "username": f"{role.lower()}@example.org",
+                    "username": self.email(role),
                     "password": self.password,
                 },
             )
@@ -174,13 +179,17 @@ class Pages:
     def login(self, role="S1", password=None):
         self.open("/login")
         self.element('form[data-hydrated="true"]')
-        self.fill("email", f"{role.lower()}@example.org")
+        self.fill("email", self.e.email(role))
         self.fill("password", password or self.e.password)
-        self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, 'form button[type="submit"]'))
-        ).click()
+        self.button_by_css('form button[type="submit"]')
         self.wait.until(lambda d: urlparse(d.current_url).path != "/login")
         assert self.driver.get_cookie(COOKIE), "Login did not create a session"
+
+    def select_element(self, element, value):
+        Select(element).select_by_value(value)
+
+    def upload(self, field, path):
+        self.driver.find_element(By.NAME, field).send_keys(str(path))
 
     def participants(self):
         self.open("/student/research/new")
@@ -208,18 +217,18 @@ class Pages:
         self.button("ดำเนินการต่อ")
         self.element(".people-fields")
         selects = self.driver.find_elements(By.CSS_SELECTOR, ".people-fields select")
-        Select(selects[0]).select_by_value("2")
-        Select(selects[-1]).select_by_value("5")
+        self.select_element(selects[0], "2")
+        self.select_element(selects[-1], "5")
         self.button("ดำเนินการต่อ")
         self.fill("abstract", "บทคัดย่อสำหรับการทดสอบ Selenium กับ backend จริง")
         self.button("ดำเนินการต่อ")
         for field, filename, content in [
             ("cover_image", "cover.png", PNG),
-            ("document", "paper.pdf", PDF),
+            ("document", "paper.pdf", getattr(self.e, "document_content", PDF)),
         ]:
             path = self.e.root / filename
             path.write_bytes(content)
-            self.driver.find_element(By.NAME, field).send_keys(str(path))
+            self.upload(field, path)
         self.button("ดำเนินการต่อ")
         self.wait.until(
             EC.presence_of_element_located(

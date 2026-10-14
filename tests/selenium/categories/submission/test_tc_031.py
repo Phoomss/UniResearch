@@ -11,8 +11,13 @@ def test_tc_031_revision_archives_previous_file(e, page):
         "INSERT INTO file_revisions(research_id,file_path,version_no,uploaded_by,uploaded_at) VALUES(2,?,1,2,'2026-10-01')",
         (old,),
     )
+    e.document_content = PDF + b"\n% Revised Selenium document\n"
     page.login()
+    assert page.visible_status(2, "ส่งกลับแก้ไข") == "ส่งกลับแก้ไข"
     page.submit(title="Revised research", edit_id=2)
+    assert page.my_submission_status("Revised research") == "รอตรวจสอบ", (
+        "Revised research must return to pending in the UI"
+    )
     work = e.work(2)
     assert work["status"] == "pending" and work["file_path"] != old, (
         "TC-031: expected work['status'] == 'pending' and work['file_path'] != old"
@@ -25,7 +30,7 @@ def test_tc_031_revision_archives_previous_file(e, page):
     )
     assert (
         e.storage_path(old).exists()
-        and e.storage_path(work["file_path"]).read_bytes() == PDF
+        and e.storage_path(work["file_path"]).read_bytes() == e.document_content
     ), (
-        "TC-031: expected e.storage_path(old).exists() and e.storage_path(work['file_path']).read_bytes() == PDF"
+        "TC-031: expected e.storage_path(old).exists() and e.storage_path(work['file_path']).read_bytes() == e.document_content"
     )

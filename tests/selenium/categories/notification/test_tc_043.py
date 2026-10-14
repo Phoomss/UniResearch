@@ -33,7 +33,10 @@ def test_tc_043_private_notifications_and_read(e, page):
     e.execute("UPDATE notifications SET is_read=0 WHERE id=1")
     page.driver.refresh()
     page.notifications()
-    page.button_by_css('button[title="ทำเครื่องหมายว่าอ่านแล้ว"]')
+    page.mark_notification_read()
+    assert not page.driver.find_elements(
+        By.CSS_SELECTOR, 'button[title="ทำเครื่องหมายว่าอ่านแล้ว"]'
+    ), "Read notification must lose its mark-read control"
     page.wait.until(
         lambda _: e.scalar("SELECT is_read FROM notifications WHERE id=1") == 1
     )
@@ -43,7 +46,10 @@ def test_tc_043_private_notifications_and_read(e, page):
     e.execute("UPDATE notifications SET is_read=0 WHERE id=1")
     page.driver.refresh()
     page.notifications()
-    page.button("อ่านทั้งหมด")
+    page.mark_notification_read(all_notifications=True)
+    assert not page.driver.find_elements(
+        By.CSS_SELECTOR, 'button[title="ทำเครื่องหมายว่าอ่านแล้ว"]'
+    ), "Read-all must update visible notifications"
     page.wait.until(
         lambda _: e.scalar("SELECT is_read FROM notifications WHERE id=1") == 1
     )

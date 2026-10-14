@@ -1,0 +1,3795 @@
+{
+  "generated_at": "2026-10-14T10:31:38.712029+00:00",
+  "commit": "7ff6c6750f0982ca4a34834daf5dee5ff223e976",
+  "os": "macOS-27.0.1-arm64-arm-64bit-Mach-O",
+  "browser_name": "Chrome",
+  "browser_binary": "auto",
+  "browser_release": "auto",
+  "database": "disposable SQLite; PostgreSQL/pgvector not certified",
+  "ai": "deterministic test double; text retrieval fallback",
+  "exit_code": 0,
+  "cases": [
+    {
+      "case": "TC-001",
+      "test": "test_tc_001_register_forces_student",
+      "status": "passed",
+      "events": [
+        {
+          "observation": "Browser registration form submitted role=admin; persisted role checked separately"
+        },
+        {
+          "method": "POST",
+          "path": "/auth/register",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT role FROM users WHERE email IN ('newui@example.org','newapi@example.org')",
+          "row_count": 2,
+          "rows": [
+            {
+              "role": "student"
+            },
+            {
+              "role": "student"
+            }
+          ]
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin",
+      "group": "บัญชี",
+      "requirement": "FR-001",
+      "priority": "สูง",
+      "type": "Positive / Web/API",
+      "duration_seconds": 6.629,
+      "steps": [
+        {
+          "action": "เปิดหน้า",
+          "target": "/register",
+          "started_at": "2026-10-14T10:28:23.050043+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.6114,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-001/20261014-102745-778362/001-register.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "first_name",
+          "started_at": "2026-10-14T10:28:24.769785+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.2834
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "last_name",
+          "started_at": "2026-10-14T10:28:25.053257+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0416
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:28:25.094835+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0468
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:28:25.141704+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0584
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "confirmPassword",
+          "started_at": "2026-10-14T10:28:25.200079+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0558
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='สร้างบัญชี']",
+          "started_at": "2026-10-14T10:28:25.261965+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6098,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-001/20261014-102745-778362/002-button-normalize-space.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "สร้างบัญชีนักศึกษาแล้ว กรุณาเข้าสู่ระบบ",
+          "started_at": "2026-10-14T10:28:27.401058+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0214,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-001/20261014-102745-778362/003-ui.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-001/20261014-102745-778362/001-register.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-001/20261014-102745-778362/002-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-001/20261014-102745-778362/003-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-001/20261014-102745-778362/004-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-001.png",
+      "url": "http://127.0.0.1:59398/login?registered=1",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "auth",
+      "expected_result": "สมัครสำเร็จโดยได้สิทธิ์ student แม้ส่ง role admin",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-004",
+      "test": "test_tc_004_wrong_password",
+      "status": "passed",
+      "events": [
+        {
+          "method": "POST",
+          "path": "/auth/login",
+          "status": 400
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "รหัสผ่านผิด",
+      "group": "บัญชี",
+      "requirement": "FR-002",
+      "priority": "สูง",
+      "type": "Negative / Web/API",
+      "duration_seconds": 3.798,
+      "steps": [
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:28:28.976150+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.8188,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-004/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:28:29.896504+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1437
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:28:30.040188+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0989
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='เข้าสู่ระบบ']",
+          "started_at": "2026-10-14T10:28:30.139148+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5751,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-004/20261014-102745-778362/002-button-normalize-space.png"
+        },
+        {
+          "action": "อ่านข้อความปฏิเสธ",
+          "target": "toast-error",
+          "started_at": "2026-10-14T10:28:31.389242+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0248,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-004/20261014-102745-778362/003-toast-error.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-004/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-004/20261014-102745-778362/002-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-004/20261014-102745-778362/003-toast-error.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-004/20261014-102745-778362/004-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-004.png",
+      "url": "http://127.0.0.1:59398/login",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "auth",
+      "expected_result": "แสดงข้อผิดพลาดและไม่สร้าง session",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-007",
+      "test": "test_tc_007_logout_removes_httponly_session",
+      "status": "passed",
+      "events": [],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "ล็อกอินแล้วออกจากระบบ",
+      "group": "เว็บบัญชี",
+      "requirement": "FR-004",
+      "priority": "สูง",
+      "type": "Positive / Web/API",
+      "duration_seconds": 8.861,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:28:32.692094+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.8418,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/003-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:28:32.692115+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.8704,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:28:33.676794+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1177
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:28:33.794530+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0909
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:28:33.885488+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5784,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/account/saved",
+          "started_at": "2026-10-14T10:28:35.630176+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6989,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/004-account-saved.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ออกจากระบบ']",
+          "started_at": "2026-10-14T10:28:36.429655+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5831,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/005-button-normalize-space.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/account/saved",
+          "started_at": "2026-10-14T10:28:38.990063+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.9662,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/006-account-saved.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/003-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/004-account-saved.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/005-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/006-account-saved.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/auth/TC-007/20261014-102745-778362/007-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-007.png",
+      "url": "http://127.0.0.1:59398/login?next=%2Faccount%2Fsaved",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "auth",
+      "expected_result": "ล็อกอินสำเร็จ ออกจากระบบ และหน้าที่ต้องล็อกอินปฏิเสธการเข้าถึง",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-010",
+      "test": "test_tc_010_admin_category_public_read",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT count(*) FROM categories WHERE category_name=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM categories WHERE category_name=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM categories WHERE category_name=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 1
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/categories/",
+          "status": 200
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "อ่านสาธารณะและเพิ่มโดย admin",
+      "group": "หมวดหมู่",
+      "requirement": "FR-006",
+      "priority": "กลาง",
+      "type": "Positive / Web/API",
+      "duration_seconds": 14.768,
+      "steps": [
+        {
+          "action": "เปิดหน้า",
+          "target": "/research",
+          "started_at": "2026-10-14T10:28:42.657582+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.0459,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/001-research.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "C1 Selenium",
+          "started_at": "2026-10-14T10:28:44.835424+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0286,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/002-C1-Selenium.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "C2 Selenium",
+          "started_at": "2026-10-14T10:28:45.061434+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0512,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/003-C2-Selenium.png"
+        },
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "A1",
+          "started_at": "2026-10-14T10:28:45.230136+00:00",
+          "status": "PASS",
+          "duration_seconds": 4.3064,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/006-A1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:28:45.230186+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.8381,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/004-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:28:46.173748+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.2055
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:28:46.379292+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0969
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:28:46.476250+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5954,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/005-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/admin/categories",
+          "started_at": "2026-10-14T10:28:49.636227+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.0704,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/007-admin-categories.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "category_name",
+          "started_at": "2026-10-14T10:28:51.926845+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.2087
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "description",
+          "started_at": "2026-10-14T10:28:52.135541+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0646
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='เพิ่มหมวดหมู่']",
+          "started_at": "2026-10-14T10:28:52.200201+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6049,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/008-button-normalize-space.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/admin/categories",
+          "started_at": "2026-10-14T10:28:53.948648+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6981,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/009-admin-categories.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Selenium C2",
+          "started_at": "2026-10-14T10:28:54.734976+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0167,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/010-Selenium-C2.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/research",
+          "started_at": "2026-10-14T10:28:54.843996+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6263,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/011-research.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Selenium C2",
+          "started_at": "2026-10-14T10:28:55.567040+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0229,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/012-Selenium-C2.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/001-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/002-C1-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/003-C2-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/004-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/005-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/006-A1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/007-admin-categories.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/008-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/009-admin-categories.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/010-Selenium-C2.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/011-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/012-Selenium-C2.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/category/TC-010/20261014-102745-778362/013-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-010.png",
+      "url": "http://127.0.0.1:59398/research",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "category",
+      "expected_result": "อ่านหมวดหมู่สาธารณะได้และ admin เพิ่มหมวดหมู่ผ่าน UI สำเร็จ",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-013",
+      "test": "test_tc_013_student_cannot_replace_options",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/options/",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/options/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/options/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/options/",
+          "status": 200
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "student เปลี่ยนตัวเลือก",
+      "group": "ตัวเลือก",
+      "requirement": "FR-007",
+      "priority": "สูง",
+      "type": "Negative / API/RBAC",
+      "duration_seconds": 8.767,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:31:31.007119+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.9998,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/003-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:31:31.007165+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.9095,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:31:31.989427+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1633
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:31:32.152729+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0923
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:31:32.245087+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5924,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/admin/options",
+          "started_at": "2026-10-14T10:31:34.072249+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.9189,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/004-admin-options.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "button[aria-label=\"เพิ่มภาควิชา\"]",
+          "started_at": "2026-10-14T10:31:36.358915+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5586,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/005-button-aria-label.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Denied Selenium Department",
+          "started_at": "2026-10-14T10:31:36.985405+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0224,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/006-Denied-Selenium-Department.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='บันทึกการตั้งค่าทั้งหมด']",
+          "started_at": "2026-10-14T10:31:37.079348+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5872,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/007-button-normalize-space.png"
+        },
+        {
+          "action": "อ่านข้อความปฏิเสธ",
+          "target": "toast-error",
+          "started_at": "2026-10-14T10:31:37.716851+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0154,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/008-toast-error.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/003-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/004-admin-options.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/005-button-aria-label.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/006-Denied-Selenium-Department.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/007-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/008-toast-error.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/user/TC-013/20261014-102745-778362/009-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-013.png",
+      "url": "http://127.0.0.1:59398/admin/options",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "user",
+      "expected_result": "student บันทึกตัวเลือกส่วนกลางไม่ได้ ข้อมูลเดิมไม่เปลี่ยน",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-016",
+      "test": "test_tc_016_suggestions_hide_pending",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/research/search/suggestions",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/research/search/suggestions",
+          "status": 200
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "คำแนะนำไม่เผยงาน pending",
+      "group": "ค้นหา",
+      "requirement": "FR-009",
+      "priority": "สูง",
+      "type": "Negative / Web/API",
+      "duration_seconds": 3.056,
+      "steps": [
+        {
+          "action": "เปิดหน้า",
+          "target": "/research",
+          "started_at": "2026-10-14T10:30:09.057057+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.0311,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/recommendation/TC-016/20261014-102745-778362/001-research.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/recommendation/TC-016/20261014-102745-778362/001-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/recommendation/TC-016/20261014-102745-778362/002-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-016.png",
+      "url": "http://127.0.0.1:59398/research",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "recommendation",
+      "expected_result": "คำแนะนำไม่เผยข้อมูล pending",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-019",
+      "test": "test_tc_019_unknown_detail",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/research/999999999",
+          "status": 404
+        },
+        {
+          "database_query": "SELECT count(*) FROM download_view_logs WHERE research_id=999999999",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "ID ไม่มีอยู่",
+      "group": "รายละเอียด",
+      "requirement": "FR-011",
+      "priority": "กลาง",
+      "type": "Negative / Web/API",
+      "duration_seconds": 2.386,
+      "steps": [
+        {
+          "action": "เปิดหน้า",
+          "target": "/research/999999999",
+          "started_at": "2026-10-14T10:30:30.927831+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.7575,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-019/20261014-102745-778362/001-research-999999999.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "รหัสงานวิจัยนี้ไม่มีอยู่ในระบบ",
+          "started_at": "2026-10-14T10:30:31.737015+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0117,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-019/20261014-102745-778362/002-ui.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-019/20261014-102745-778362/001-research-999999999.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-019/20261014-102745-778362/002-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-019/20261014-102745-778362/003-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-019.png",
+      "url": "http://127.0.0.1:59398/research/999999999",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "submission",
+      "expected_result": "แสดงไม่พบงานวิจัยและ API ตอบ 404",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-022",
+      "test": "test_tc_022_complete_submission",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT id FROM research_works WHERE title_th=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 6
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 6,
+              "title_th": "งานวิจัยทดสอบ Selenium",
+              "title_en": "Selenium Research",
+              "abstract": "บทคัดย่อสำหรับการทดสอบ Selenium กับ backend จริง",
+              "category_id": 1,
+              "department": "วิทยาการคอมพิวเตอร์",
+              "work_type": "วิทยานิพนธ์",
+              "academic_year": 2569,
+              "keywords": "selenium, research",
+              "cover_image_path": "static/uploads/covers/28b43d3412bf4cd4a6d94254e5958ad7.png",
+              "file_path": "static/uploads/docs/7620688dcbb1496e83a020f8bef9f9b6.pdf",
+              "status": "pending",
+              "view_count": 0,
+              "download_count": 0,
+              "published_at": null,
+              "created_at": "2026-10-14 10:30:46.807105",
+              "updated_at": "2026-10-14 10:30:46.807113",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT user_id FROM research_authors WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "user_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT user_id FROM research_advisors WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "user_id": 5
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM research_works WHERE status='draft'",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "ส่งงานครบข้อมูลและผู้เกี่ยวข้อง",
+      "group": "ส่งผลงาน",
+      "requirement": "FR-014",
+      "priority": "สูง",
+      "type": "Positive / Web/API",
+      "duration_seconds": 18.821,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:30:32.624611+00:00",
+          "status": "PASS",
+          "duration_seconds": 3.102,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/003-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:30:32.624629+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.7466,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:30:33.436800+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1706
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:30:33.607452+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0898
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:30:33.697327+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.615,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "ส่งฟอร์มพร้อมผู้เขียน ที่ปรึกษาและไฟล์",
+          "target": "งานวิจัยทดสอบ Selenium",
+          "started_at": "2026-10-14T10:30:35.785438+00:00",
+          "status": "PASS",
+          "duration_seconds": 11.5632,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/017-Selenium.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/student/research/new",
+          "started_at": "2026-10-14T10:30:35.785479+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6746,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/004-student-research-new.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "academic_year",
+          "started_at": "2026-10-14T10:30:37.631894+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1334
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "title_th",
+          "started_at": "2026-10-14T10:30:37.765331+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1605
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "title_en",
+          "started_at": "2026-10-14T10:30:37.925890+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0881
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:30:38.065802+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5886,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/005-button-normalize-space.png"
+        },
+        {
+          "action": "เลือกผู้เกี่ยวข้อง",
+          "target": "participant",
+          "started_at": "2026-10-14T10:30:38.767491+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0088,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/006-participant.png"
+        },
+        {
+          "action": "เลือกผู้เกี่ยวข้อง",
+          "target": "participant",
+          "started_at": "2026-10-14T10:30:38.872843+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0242,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/007-participant.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:30:38.975159+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.1204,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/008-button-normalize-space.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "abstract",
+          "started_at": "2026-10-14T10:30:40.185562+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.3146
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "keyword_input_temp",
+          "started_at": "2026-10-14T10:30:40.500162+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0672
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='เพิ่ม']",
+          "started_at": "2026-10-14T10:30:40.567361+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5792,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/009-button-normalize-space.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "keyword_input_temp",
+          "started_at": "2026-10-14T10:30:41.226610+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0852
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='เพิ่ม']",
+          "started_at": "2026-10-14T10:30:41.311859+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.1241,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/010-button-normalize-space.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:30:42.494541+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.581,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/011-button-normalize-space.png"
+        },
+        {
+          "action": "อัปโหลดไฟล์",
+          "target": "cover_image",
+          "started_at": "2026-10-14T10:30:43.137467+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0308,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/012-cover_image.png"
+        },
+        {
+          "action": "อัปโหลดไฟล์",
+          "target": "document",
+          "started_at": "2026-10-14T10:30:43.250804+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.014,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/013-document.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:30:43.336628+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.1132,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/014-button-normalize-space.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ยืนยันและส่งผลงาน']",
+          "started_at": "2026-10-14T10:30:44.526349+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.6364,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/015-button-normalize-space.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "ส่งผลงานเรียบร้อยแล้ว",
+          "started_at": "2026-10-14T10:30:46.229979+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.065,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/016-ui.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/student/research",
+          "started_at": "2026-10-14T10:30:47.390653+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.6024,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/018-student-research.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "งานวิจัยทดสอบ Selenium",
+          "started_at": "2026-10-14T10:30:49.062225+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0207,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/019-Selenium.png"
+        },
+        {
+          "action": "อ่านสถานะในผลงานของฉัน",
+          "target": "งานวิจัยทดสอบ Selenium",
+          "started_at": "2026-10-14T10:30:49.174369+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.018,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/020-Selenium.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/research/6",
+          "started_at": "2026-10-14T10:30:49.280327+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.7575,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/021-research-6.png"
+        },
+        {
+          "action": "ตรวจสถานะบนหน้าจอ",
+          "target": "รอตรวจสอบ",
+          "started_at": "2026-10-14T10:30:50.109694+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0125,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/022-ui.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "S1 Selenium",
+          "started_at": "2026-10-14T10:30:50.164076+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0165,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/023-S1-Selenium.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "D1 Selenium",
+          "started_at": "2026-10-14T10:30:50.246030+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0177,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/024-D1-Selenium.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "วิทยาการคอมพิวเตอร์",
+          "started_at": "2026-10-14T10:30:50.309551+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0146,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/025-ui.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "วิทยานิพนธ์",
+          "started_at": "2026-10-14T10:30:50.378512+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0144,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/026-ui.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "2569",
+          "started_at": "2026-10-14T10:30:50.447225+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0148,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/027-2569.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "selenium",
+          "started_at": "2026-10-14T10:30:50.511718+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0146,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/028-selenium.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "research",
+          "started_at": "2026-10-14T10:30:50.579326+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0145,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/029-research.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/003-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/004-student-research-new.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/005-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/006-participant.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/007-participant.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/008-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/009-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/010-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/011-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/012-cover_image.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/013-document.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/014-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/015-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/016-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/017-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/018-student-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/019-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/020-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/021-research-6.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/022-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/023-S1-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/024-D1-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/025-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/026-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/027-2569.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/028-selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/029-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-022/20261014-102745-778362/030-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-022.png",
+      "url": "http://127.0.0.1:59398/research/6",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "submission",
+      "expected_result": "บันทึกข้อมูล ไฟล์ ผู้เขียน และที่ปรึกษาครบ สถานะ pending",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-025",
+      "test": "test_tc_025_author_year_prefix",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT count(*) FROM research_works",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 5
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/research/",
+          "status": 422
+        },
+        {
+          "database_query": "SELECT count(*) FROM research_works",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 5
+            }
+          ]
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "ผู้เขียนคนละ prefix ปี",
+      "group": "Validation",
+      "requirement": "FR-015",
+      "priority": "กลาง",
+      "type": "Negative / Web/API/Validation",
+      "duration_seconds": 6.26,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:30:52.040111+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.7458,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/003-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:30:52.040129+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.7548,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:30:52.871076+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1555
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:30:53.026629+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1086
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:30:53.135343+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6102,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/student/research/new",
+          "started_at": "2026-10-14T10:30:54.848448+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6407,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/004-student-research-new.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "title_th",
+          "started_at": "2026-10-14T10:30:55.542788+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1736
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "title_en",
+          "started_at": "2026-10-14T10:30:55.716412+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0911
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:30:55.866177+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5803,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/005-button-normalize-space.png"
+        },
+        {
+          "action": "เลือกผู้เกี่ยวข้อง",
+          "target": "participant",
+          "started_at": "2026-10-14T10:30:56.545192+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0255,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/006-participant.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/003-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/004-student-research-new.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/005-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/006-participant.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/007-same-year-author-options.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-025/20261014-102745-778362/008-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-025.png",
+      "url": "http://127.0.0.1:59398/student/research/new",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "submission",
+      "expected_result": "UI ไม่เสนอผู้เขียนคนละปี และ backend ปฏิเสธด้วย 422",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-028",
+      "test": "test_tc_028_my_research_includes_coauthored",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/research/my",
+          "status": 200
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "ผู้ส่ง/author เห็นงานใน /my",
+      "group": "ผลงานของฉัน",
+      "requirement": "FR-017",
+      "priority": "สูง",
+      "type": "Positive / Web/API",
+      "duration_seconds": 6.121,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:30:58.454927+00:00",
+          "status": "PASS",
+          "duration_seconds": 3.2916,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/003-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:30:58.454954+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.302,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:30:59.831788+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1549
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:30:59.986697+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0968
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:31:00.083491+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6468,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/student/research",
+          "started_at": "2026-10-14T10:31:01.795599+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.7911,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/004-student-research.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "W1 งานวิจัย Selenium",
+          "started_at": "2026-10-14T10:31:02.694611+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0225,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/005-W1-Selenium.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "W4 งานวิจัย Selenium",
+          "started_at": "2026-10-14T10:31:02.799762+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0146,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/006-W4-Selenium.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/003-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/004-student-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/005-W1-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/006-W4-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-028/20261014-102745-778362/007-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-028.png",
+      "url": "http://127.0.0.1:59398/student/research",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "submission",
+      "expected_result": "เห็นงานที่ส่งและร่วมเขียน ไม่เห็น pending ของผู้อื่น",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-031",
+      "test": "test_tc_031_revision_archives_previous_file",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 2,
+              "title_th": "W2 งานวิจัย Selenium",
+              "title_en": "W2 Research",
+              "abstract": "research selenium abstract",
+              "category_id": 1,
+              "department": "วิทยาการคอมพิวเตอร์",
+              "work_type": "วิทยานิพนธ์",
+              "academic_year": 2569,
+              "keywords": "pendingsecret",
+              "cover_image_path": "static/fixture.png",
+              "file_path": "static/fixture.pdf",
+              "status": "needs_revision",
+              "view_count": 0,
+              "download_count": 0,
+              "published_at": null,
+              "created_at": "2026-10-01 00:00:00",
+              "updated_at": "2026-10-01 00:00:00",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT id FROM research_works WHERE title_th=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 2,
+              "title_th": "Revised research",
+              "title_en": "Selenium Research",
+              "abstract": "บทคัดย่อสำหรับการทดสอบ Selenium กับ backend จริง",
+              "category_id": 1,
+              "department": "วิทยาการคอมพิวเตอร์",
+              "work_type": "วิทยานิพนธ์",
+              "academic_year": 2569,
+              "keywords": "pendingsecret",
+              "cover_image_path": "static/uploads/covers/32bf10b239c84dcc92030d7aa0da9048.png",
+              "file_path": "static/uploads/docs/b1cf8894687c4e26b7043c437fddde56.pdf",
+              "status": "pending",
+              "view_count": 2,
+              "download_count": 0,
+              "published_at": null,
+              "created_at": "2026-10-01 00:00:00",
+              "updated_at": "2026-10-14 10:31:20.064139",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT file_path,version_no FROM file_revisions WHERE research_id=2 ORDER BY version_no DESC",
+          "row_count": 2,
+          "rows": [
+            {
+              "file_path": "static/fixture.pdf",
+              "version_no": 2
+            },
+            {
+              "file_path": "static/fixture.pdf",
+              "version_no": 1
+            }
+          ]
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "ส่งเอกสารใหม่หลัง needs_revision",
+      "group": "Revision",
+      "requirement": "FR-019",
+      "priority": "สูง",
+      "type": "Positive / Web/API/Integration",
+      "duration_seconds": 18.788,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:31:04.427217+00:00",
+          "status": "PASS",
+          "duration_seconds": 3.6009,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/003-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:31:04.427315+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.4992,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:31:06.045568+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.2293
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:31:06.274871+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0798
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:31:06.354678+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5961,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/research/2",
+          "started_at": "2026-10-14T10:31:08.127199+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.8867,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/004-research-2.png"
+        },
+        {
+          "action": "ตรวจสถานะบนหน้าจอ",
+          "target": "ส่งกลับแก้ไข",
+          "started_at": "2026-10-14T10:31:09.123203+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0154,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/005-ui.png"
+        },
+        {
+          "action": "ส่งฟอร์มพร้อมผู้เขียน ที่ปรึกษาและไฟล์",
+          "target": "Revised research",
+          "started_at": "2026-10-14T10:31:09.224527+00:00",
+          "status": "PASS",
+          "duration_seconds": 11.4346,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/017-Revised-research.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/student/research/edit/2",
+          "started_at": "2026-10-14T10:31:09.224622+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.6744,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/006-student-research-edit-2.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "title_th",
+          "started_at": "2026-10-14T10:31:12.086076+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.3453
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "title_en",
+          "started_at": "2026-10-14T10:31:12.431378+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1079
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:31:12.562714+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5735,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/007-button-normalize-space.png"
+        },
+        {
+          "action": "เลือกผู้เกี่ยวข้อง",
+          "target": "participant",
+          "started_at": "2026-10-14T10:31:13.252905+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0108,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/008-participant.png"
+        },
+        {
+          "action": "เลือกผู้เกี่ยวข้อง",
+          "target": "participant",
+          "started_at": "2026-10-14T10:31:13.389556+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0112,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/009-participant.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:31:13.492989+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6065,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/010-button-normalize-space.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "abstract",
+          "started_at": "2026-10-14T10:31:14.204705+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.2356
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:31:14.440354+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5592,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/011-button-normalize-space.png"
+        },
+        {
+          "action": "อัปโหลดไฟล์",
+          "target": "cover_image",
+          "started_at": "2026-10-14T10:31:15.091198+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0363,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/012-cover_image.png"
+        },
+        {
+          "action": "อัปโหลดไฟล์",
+          "target": "document",
+          "started_at": "2026-10-14T10:31:15.239055+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0133,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/013-document.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:31:15.373498+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.1123,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/014-button-normalize-space.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ยืนยันและส่งผลงาน']",
+          "started_at": "2026-10-14T10:31:16.624288+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.6422,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/015-button-normalize-space.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "แก้ไขผลงานเรียบร้อยแล้ว",
+          "started_at": "2026-10-14T10:31:18.410413+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.1716,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/016-ui.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/student/research",
+          "started_at": "2026-10-14T10:31:20.739548+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.8714,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/018-student-research.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Revised research",
+          "started_at": "2026-10-14T10:31:21.729598+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0179,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/019-Revised-research.png"
+        },
+        {
+          "action": "อ่านสถานะในผลงานของฉัน",
+          "target": "Revised research",
+          "started_at": "2026-10-14T10:31:21.872345+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0099,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/020-Revised-research.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/003-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/004-research-2.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/005-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/006-student-research-edit-2.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/007-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/008-participant.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/009-participant.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/010-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/011-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/012-cover_image.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/013-document.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/014-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/015-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/016-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/017-Revised-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/018-student-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/019-Revised-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/020-Revised-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-031/20261014-102745-778362/021-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-031.png",
+      "url": "http://127.0.0.1:59398/student/research",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "submission",
+      "expected_result": "ส่งไฟล์ใหม่สำเร็จ เก็บไฟล์เดิม และกลับเป็น pending",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-034",
+      "test": "test_tc_034_active_user_downloads_available_document",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 1,
+              "title_th": "W1 งานวิจัย Selenium",
+              "title_en": "W1 Research",
+              "abstract": "research selenium abstract",
+              "category_id": 1,
+              "department": "วิทยาการคอมพิวเตอร์",
+              "work_type": "วิทยานิพนธ์",
+              "academic_year": 2569,
+              "keywords": "publickeyword,research",
+              "cover_image_path": "static/fixture.png",
+              "file_path": "static/fixture.pdf",
+              "status": "approved",
+              "view_count": 20,
+              "download_count": 0,
+              "published_at": "2026-10-01 00:00:00",
+              "created_at": "2026-10-01 00:00:00",
+              "updated_at": "2026-10-01 00:00:00",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 1,
+              "title_th": "W1 งานวิจัย Selenium",
+              "title_en": "W1 Research",
+              "abstract": "research selenium abstract",
+              "category_id": 1,
+              "department": "วิทยาการคอมพิวเตอร์",
+              "work_type": "วิทยานิพนธ์",
+              "academic_year": 2569,
+              "keywords": "publickeyword,research",
+              "cover_image_path": "static/fixture.png",
+              "file_path": "static/fixture.pdf",
+              "status": "approved",
+              "view_count": 21,
+              "download_count": 1,
+              "published_at": "2026-10-01 00:00:00",
+              "created_at": "2026-10-01 00:00:00",
+              "updated_at": "2026-10-14 10:31:28.961579",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT user_id,action_type FROM download_view_logs WHERE action_type='download'",
+          "row_count": 1,
+          "rows": [
+            {
+              "user_id": 2,
+              "action_type": "download"
+            }
+          ]
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "ผู้ใช้ active ดาวน์โหลดงานมีไฟล์",
+      "group": "ดาวน์โหลด",
+      "requirement": "FR-021",
+      "priority": "กลาง",
+      "type": "Positive / Web/API",
+      "duration_seconds": 7.333,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:31:23.675053+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.7246,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/003-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:31:23.675198+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.8046,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:31:24.547413+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1838
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:31:24.731255+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:31:24.831320+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6273,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/research/1",
+          "started_at": "2026-10-14T10:31:26.457182+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.76,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/004-research-1.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='Download PDF']",
+          "started_at": "2026-10-14T10:31:27.266228+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5844,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/005-button-normalize-space-Download-PDF.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "The document download has started.",
+          "started_at": "2026-10-14T10:31:27.903332+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.6072,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/006-The-document-download-has-started.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/003-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/004-research-1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/005-button-normalize-space-Download-PDF.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/006-The-document-download-has-started.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/submission/TC-034/20261014-102745-778362/007-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-034.png",
+      "url": "http://127.0.0.1:59398/research/1",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "submission",
+      "expected_result": "ดาวน์โหลด PDF ผ่าน UI ได้ บันทึกผู้ใช้และนับหนึ่งครั้ง",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-037",
+      "test": "test_tc_037_reviewer_history_is_personal",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/research/history",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/research/history",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/research/history",
+          "status": 403
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "ผู้ตรวจเห็นประวัติของตน",
+      "group": "ประวัติตรวจ",
+      "requirement": "FR-023",
+      "priority": "กลาง",
+      "type": "Positive / Web/API/RBAC",
+      "duration_seconds": 8.139,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "D1",
+          "started_at": "2026-10-14T10:30:11.604069+00:00",
+          "status": "PASS",
+          "duration_seconds": 3.4715,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-037/20261014-102745-778362/003-D1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:30:11.604103+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.2899,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-037/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:30:13.038787+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1702
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:30:13.209023+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0989
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:30:13.307954+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5927,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-037/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/advisor/history",
+          "started_at": "2026-10-14T10:30:15.183321+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.028,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-037/20261014-102745-778362/004-advisor-history.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "W1 งานวิจัย Selenium",
+          "started_at": "2026-10-14T10:30:17.319909+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0238,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-037/20261014-102745-778362/005-W1-Selenium.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-037/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-037/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-037/20261014-102745-778362/003-D1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-037/20261014-102745-778362/004-advisor-history.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-037/20261014-102745-778362/005-W1-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-037/20261014-102745-778362/006-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-037.png",
+      "url": "http://127.0.0.1:59398/advisor/history",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "review",
+      "expected_result": "ประวัติแสดงเฉพาะงานที่ผู้ตรวจคนนี้ตรวจ",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-038",
+      "test": "test_tc_038_assigned_advisor_approves",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/research/2",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT reviewer_id,comment_text,score,status_result FROM review_comments WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "reviewer_id": 5,
+              "comment_text": "Selenium verified review",
+              "score": 80,
+              "status_result": "approved"
+            }
+          ]
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "advisor ที่ได้รับมอบหมายอนุมัติ pending",
+      "group": "ตรวจงาน",
+      "requirement": "FR-024",
+      "priority": "สูง",
+      "type": "Positive / Web/API",
+      "duration_seconds": 10.265,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "D1",
+          "started_at": "2026-10-14T10:30:20.648652+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.6764,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/003-D1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:30:20.648686+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.7176,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:30:21.432337+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1695
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:30:21.601798+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0762
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:30:21.678008+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5969,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/advisor/reviews",
+          "started_at": "2026-10-14T10:30:23.381056+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.677,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/004-advisor-reviews.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "a[href=\"/advisor/reviews/2\"]",
+          "started_at": "2026-10-14T10:30:24.123422+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5843,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/005-a-href-advisor-reviews-2.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "W2 งานวิจัย Selenium",
+          "started_at": "2026-10-14T10:30:25.547052+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.024,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/006-W2-Selenium.png"
+        },
+        {
+          "action": "เลือกตัวเลือก",
+          "target": "[name=\"status_result\"]=approved",
+          "started_at": "2026-10-14T10:30:25.673809+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.026,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/007-name-status_result-approved.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "score",
+          "started_at": "2026-10-14T10:30:25.750334+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0414
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "comment_text",
+          "started_at": "2026-10-14T10:30:25.791725+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1371
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ยืนยันผลการประเมิน']",
+          "started_at": "2026-10-14T10:30:25.928847+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5947,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/008-button-normalize-space.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "ยืนยันการอนุมัติผลงาน",
+          "started_at": "2026-10-14T10:30:26.643431+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.033,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/009-ui.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ยืนยัน']",
+          "started_at": "2026-10-14T10:30:26.832679+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5719,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/010-button-normalize-space.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "บันทึกผลการประเมินผลงานสำเร็จ",
+          "started_at": "2026-10-14T10:30:27.527261+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5664,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/011-ui.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/research/2",
+          "started_at": "2026-10-14T10:30:28.143925+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.0108,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/012-research-2.png"
+        },
+        {
+          "action": "ตรวจสถานะบนหน้าจอ",
+          "target": "อนุมัติแล้ว",
+          "started_at": "2026-10-14T10:30:29.209089+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0174,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/013-ui.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/003-D1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/004-advisor-reviews.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/005-a-href-advisor-reviews-2.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/006-W2-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/007-name-status_result-approved.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/008-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/009-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/010-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/011-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/012-research-2.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/013-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/review/TC-038/20261014-102745-778362/014-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-038.png",
+      "url": "http://127.0.0.1:59398/research/2",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "review",
+      "expected_result": "ที่ปรึกษาที่ได้รับมอบหมายอนุมัติและบันทึกผลสำเร็จ",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-043",
+      "test": "test_tc_043_private_notifications_and_read",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/notifications/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/notifications/2/read",
+          "status": 404
+        },
+        {
+          "database_query": "SELECT is_read FROM notifications WHERE id=2",
+          "row_count": 1,
+          "rows": [
+            {
+              "is_read": 0
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/notifications/1/read",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/notifications/read-all",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT is_read FROM notifications WHERE id=1",
+          "row_count": 1,
+          "rows": [
+            {
+              "is_read": 1
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT is_read FROM notifications WHERE id=2",
+          "row_count": 1,
+          "rows": [
+            {
+              "is_read": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT is_read FROM notifications WHERE id=1",
+          "row_count": 1,
+          "rows": [
+            {
+              "is_read": 1
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT is_read FROM notifications WHERE id=2",
+          "row_count": 1,
+          "rows": [
+            {
+              "is_read": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT is_read FROM notifications WHERE id=1",
+          "row_count": 1,
+          "rows": [
+            {
+              "is_read": 1
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT is_read FROM notifications WHERE id=2",
+          "row_count": 1,
+          "rows": [
+            {
+              "is_read": 0
+            }
+          ]
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "อ่านเฉพาะของตนและ mark read",
+      "group": "แจ้งเตือน",
+      "requirement": "FR-028",
+      "priority": "สูง",
+      "type": "Positive / Web/API/RBAC",
+      "duration_seconds": 11.063,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:29:58.183309+00:00",
+          "status": "PASS",
+          "duration_seconds": 3.7552,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/003-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:29:58.183345+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.4779,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:29:59.777705+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.3625
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:30:00.140280+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1111
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:30:00.251460+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6332,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "[aria-label=\"การแจ้งเตือน\"]",
+          "started_at": "2026-10-14T10:30:02.028034+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6022,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/004-aria-label.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "N1 Selenium",
+          "started_at": "2026-10-14T10:30:02.712689+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0167,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/005-N1-Selenium.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "[aria-label=\"การแจ้งเตือน\"]",
+          "started_at": "2026-10-14T10:30:03.412583+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5942,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/006-aria-label.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "button[title=\"ทำเครื่องหมายว่าอ่านแล้ว\"]",
+          "started_at": "2026-10-14T10:30:04.103250+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5589,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/007-button-title.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "ทำเครื่องหมายว่าอ่านแล้ว",
+          "started_at": "2026-10-14T10:30:04.750768+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0116,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/008-ui.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "[aria-label=\"การแจ้งเตือน\"]",
+          "started_at": "2026-10-14T10:30:05.539433+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6083,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/009-aria-label.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='อ่านทั้งหมด']",
+          "started_at": "2026-10-14T10:30:06.247469+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5677,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/010-button-normalize-space.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "ทำเครื่องหมายว่าอ่านแล้วทั้งหมด",
+          "started_at": "2026-10-14T10:30:06.899272+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0106,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/011-ui.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/003-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/004-aria-label.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/005-N1-Selenium.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/006-aria-label.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/007-button-title.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/008-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/009-aria-label.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/010-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/011-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/notification/TC-043/20261014-102745-778362/012-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-043.png",
+      "url": "http://127.0.0.1:59398/account/saved",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "notification",
+      "expected_result": "เห็นและทำเครื่องหมายอ่านเฉพาะการแจ้งเตือนของตน",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-046",
+      "test": "test_tc_046_ai_review_contracts_and_permissions",
+      "status": "passed",
+      "events": [
+        {
+          "observation": "TC-046 Selenium tab Pre-Review Analysis: visible result Deterministic pre-review"
+        },
+        {
+          "ui_tab": "Pre-Review Analysis",
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/008-AI-Pre-Review-Analysis.png"
+        },
+        {
+          "observation": "TC-046 Selenium tab Plagiarism Check: visible result Deterministic similarity"
+        },
+        {
+          "ui_tab": "Plagiarism Check",
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/013-AI-Plagiarism-Check.png"
+        },
+        {
+          "observation": "TC-046 Selenium tab Reviewer Matching: visible result Deterministic advisor"
+        },
+        {
+          "ui_tab": "Reviewer Matching",
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/018-AI-Reviewer-Matching.png"
+        },
+        {
+          "observation": "TC-046 Selenium tab Review Summary: visible result Deterministic review summary"
+        },
+        {
+          "ui_tab": "Review Summary",
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/023-AI-Review-Summary.png"
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-pre-review",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-pre-review",
+          "status": 401
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-pre-review",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/research/999999999/ai-pre-review",
+          "status": 404
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-plagiarism",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-plagiarism",
+          "status": 401
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-plagiarism",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/research/999999999/ai-plagiarism",
+          "status": 404
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-reviewer-match",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-reviewer-match",
+          "status": 401
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-reviewer-match",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/research/999999999/ai-reviewer-match",
+          "status": 404
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-review-summary",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-review-summary",
+          "status": 401
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-review-summary",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/research/999999999/ai-review-summary",
+          "status": 404
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "สี่ endpoint วิเคราะห์ผลงานและสิทธิ์",
+      "group": "AI ตรวจงาน",
+      "requirement": "FR-031",
+      "priority": "กลาง",
+      "type": "Positive / Web/API/AI",
+      "duration_seconds": 35.215,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "D1",
+          "started_at": "2026-10-14T10:27:55.112536+00:00",
+          "status": "PASS",
+          "duration_seconds": 4.7059,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/003-D1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:27:55.112580+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.8318,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:27:56.056420+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1934
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:27:56.249911+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.109
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:27:56.358917+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5996,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/advisor/reviews/1",
+          "started_at": "2026-10-14T10:27:59.977070+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.4468,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/004-advisor-reviews-1.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "AI Peer Review Assistant",
+          "started_at": "2026-10-14T10:28:02.531308+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.028,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/005-AI-Peer-Review-Assistant.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='Pre-Review Analysis']",
+          "started_at": "2026-10-14T10:28:02.666263+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5723,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/006-button-normalize-space-Pre-Review-Analysis.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Deterministic pre-review",
+          "started_at": "2026-10-14T10:28:03.364952+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.1036,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/007-Deterministic-pre-review.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/advisor/reviews/1",
+          "started_at": "2026-10-14T10:28:04.706375+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.2738,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/009-advisor-reviews-1.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "AI Peer Review Assistant",
+          "started_at": "2026-10-14T10:28:06.114254+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0318,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/010-AI-Peer-Review-Assistant.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='Plagiarism Check']",
+          "started_at": "2026-10-14T10:28:06.270550+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5694,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/011-button-normalize-space-Plagiarism-Check.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Deterministic similarity",
+          "started_at": "2026-10-14T10:28:06.970111+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.0768,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/012-Deterministic-similarity.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/advisor/reviews/1",
+          "started_at": "2026-10-14T10:28:08.288770+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.7951,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/014-advisor-reviews-1.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "AI Peer Review Assistant",
+          "started_at": "2026-10-14T10:28:09.194342+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0228,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/015-AI-Peer-Review-Assistant.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='Reviewer Matching']",
+          "started_at": "2026-10-14T10:28:09.312678+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5952,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/016-button-normalize-space-Reviewer-Matching.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Deterministic advisor",
+          "started_at": "2026-10-14T10:28:10.029730+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.1005,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/017-Deterministic-advisor.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/advisor/reviews/1",
+          "started_at": "2026-10-14T10:28:11.309243+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.7935,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/019-advisor-reviews-1.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "AI Peer Review Assistant",
+          "started_at": "2026-10-14T10:28:12.246949+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0244,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/020-AI-Peer-Review-Assistant.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='Review Summary']",
+          "started_at": "2026-10-14T10:28:12.431213+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5788,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/021-button-normalize-space-Review-Summary.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Deterministic review summary",
+          "started_at": "2026-10-14T10:28:13.153364+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.0946,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/022-Deterministic-review-summary.png"
+        },
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:28:14.974005+00:00",
+          "status": "PASS",
+          "duration_seconds": 3.8037,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/026-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:28:14.974025+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6465,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/024-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:28:15.723802+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1515
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:28:15.875306+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0845
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:28:15.959877+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5954,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/025-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/advisor/reviews/1",
+          "started_at": "2026-10-14T10:28:18.869434+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.8638,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/027-advisor-reviews-1.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/003-D1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/004-advisor-reviews-1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/005-AI-Peer-Review-Assistant.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/006-button-normalize-space-Pre-Review-Analysis.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/007-Deterministic-pre-review.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/008-AI-Pre-Review-Analysis.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/009-advisor-reviews-1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/010-AI-Peer-Review-Assistant.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/011-button-normalize-space-Plagiarism-Check.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/012-Deterministic-similarity.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/013-AI-Plagiarism-Check.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/014-advisor-reviews-1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/015-AI-Peer-Review-Assistant.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/016-button-normalize-space-Reviewer-Matching.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/017-Deterministic-advisor.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/018-AI-Reviewer-Matching.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/019-advisor-reviews-1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/020-AI-Peer-Review-Assistant.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/021-button-normalize-space-Review-Summary.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/022-Deterministic-review-summary.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/023-AI-Review-Summary.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/024-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/025-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/026-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/027-advisor-reviews-1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/ai/TC-046/20261014-102745-778362/028-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-046.png",
+      "url": "http://127.0.0.1:59398/account/saved",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "ai",
+      "expected_result": "ทั้งสี่ AI tabs แสดงผล mock จริงและปฏิเสธสิทธิ์ student/anonymous",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-047",
+      "test": "test_tc_047_student_submission_to_advisor_review",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT id FROM research_works WHERE title_th=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 6
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 6,
+              "title_th": "Cross-role Selenium Research",
+              "title_en": "Selenium Research",
+              "abstract": "บทคัดย่อสำหรับการทดสอบ Selenium กับ backend จริง",
+              "category_id": 1,
+              "department": "วิทยาการคอมพิวเตอร์",
+              "work_type": "วิทยานิพนธ์",
+              "academic_year": 2569,
+              "keywords": "selenium, research",
+              "cover_image_path": "static/uploads/covers/9ae9a0fab2524b2a9a9e423da4acb79d.png",
+              "file_path": "static/uploads/docs/437e9e68a47d4490a5096ea8f0b5d122.pdf",
+              "status": "pending",
+              "view_count": 0,
+              "download_count": 0,
+              "published_at": null,
+              "created_at": "2026-10-14 10:29:14.404661",
+              "updated_at": "2026-10-14 10:29:14.404669",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT user_id FROM research_authors WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "user_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT user_id FROM research_advisors WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "user_id": 5
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM research_works WHERE status='draft'",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/research/pending",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/research/6",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT reviewer_id,comment_text,score,status_result FROM review_comments WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "reviewer_id": 5,
+              "comment_text": "Selenium verified review",
+              "score": 80,
+              "status_result": "approved"
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 6,
+              "title_th": "Cross-role Selenium Research",
+              "title_en": "Selenium Research",
+              "abstract": "บทคัดย่อสำหรับการทดสอบ Selenium กับ backend จริง",
+              "category_id": 1,
+              "department": "วิทยาการคอมพิวเตอร์",
+              "work_type": "วิทยานิพนธ์",
+              "academic_year": 2569,
+              "keywords": "selenium, research",
+              "cover_image_path": "static/uploads/covers/9ae9a0fab2524b2a9a9e423da4acb79d.png",
+              "file_path": "static/uploads/docs/437e9e68a47d4490a5096ea8f0b5d122.pdf",
+              "status": "approved",
+              "view_count": 4,
+              "download_count": 0,
+              "published_at": "2026-10-14 10:29:29.691789",
+              "created_at": "2026-10-14 10:29:14.404661",
+              "updated_at": "2026-10-14 10:29:33.063339",
+              "submitted_by_id": 2
+            }
+          ]
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "เว็บส่งงานแล้ว advisor ตรวจ",
+      "group": "E2E",
+      "requirement": "FR-032",
+      "priority": "สูง",
+      "type": "Positive / E2E",
+      "duration_seconds": 42.402,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:28:57.538232+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.9224,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/003-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:28:57.538269+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.8294,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:28:58.480621+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.155
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:28:58.635643+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0991
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:28:58.734749+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5874,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "ส่งฟอร์มพร้อมผู้เขียน ที่ปรึกษาและไฟล์",
+          "target": "Cross-role Selenium Research",
+          "started_at": "2026-10-14T10:29:00.560847+00:00",
+          "status": "PASS",
+          "duration_seconds": 14.2385,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/017-Cross-role-Selenium-Research.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/student/research/new",
+          "started_at": "2026-10-14T10:29:00.560871+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.7162,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/004-student-research-new.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "academic_year",
+          "started_at": "2026-10-14T10:29:04.572599+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1268
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "title_th",
+          "started_at": "2026-10-14T10:29:04.699415+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.2277
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "title_en",
+          "started_at": "2026-10-14T10:29:04.927182+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0991
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:29:05.098997+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.589,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/005-button-normalize-space.png"
+        },
+        {
+          "action": "เลือกผู้เกี่ยวข้อง",
+          "target": "participant",
+          "started_at": "2026-10-14T10:29:05.848984+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0103,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/006-participant.png"
+        },
+        {
+          "action": "เลือกผู้เกี่ยวข้อง",
+          "target": "participant",
+          "started_at": "2026-10-14T10:29:06.005714+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.029,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/007-participant.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:29:06.148246+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.1198,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/008-button-normalize-space.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "abstract",
+          "started_at": "2026-10-14T10:29:07.408236+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.3079
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "keyword_input_temp",
+          "started_at": "2026-10-14T10:29:07.716143+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0704
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='เพิ่ม']",
+          "started_at": "2026-10-14T10:29:07.786539+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5919,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/009-button-normalize-space.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "keyword_input_temp",
+          "started_at": "2026-10-14T10:29:08.881940+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0857
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='เพิ่ม']",
+          "started_at": "2026-10-14T10:29:08.967696+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.0799,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/010-button-normalize-space.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:29:10.184499+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5868,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/011-button-normalize-space.png"
+        },
+        {
+          "action": "อัปโหลดไฟล์",
+          "target": "cover_image",
+          "started_at": "2026-10-14T10:29:10.879228+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0313,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/012-cover_image.png"
+        },
+        {
+          "action": "อัปโหลดไฟล์",
+          "target": "document",
+          "started_at": "2026-10-14T10:29:11.045999+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0144,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/013-document.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ดำเนินการต่อ']",
+          "started_at": "2026-10-14T10:29:11.196059+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5644,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/014-button-normalize-space.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ยืนยันและส่งผลงาน']",
+          "started_at": "2026-10-14T10:29:11.867782+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.6364,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/015-button-normalize-space.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "ส่งผลงานเรียบร้อยแล้ว",
+          "started_at": "2026-10-14T10:29:13.620308+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.068,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/016-ui.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/student/research",
+          "started_at": "2026-10-14T10:29:14.878266+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.2555,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/018-student-research.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Cross-role Selenium Research",
+          "started_at": "2026-10-14T10:29:17.357629+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0429,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/019-Cross-role-Selenium-Research.png"
+        },
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "D1",
+          "started_at": "2026-10-14T10:29:17.645602+00:00",
+          "status": "PASS",
+          "duration_seconds": 3.374,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/022-D1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:29:17.645650+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.7246,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/020-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:29:18.479407+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0934
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:29:18.572808+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0962
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:29:18.669075+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5811,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/021-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/advisor/reviews",
+          "started_at": "2026-10-14T10:29:21.562507+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.2867,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/023-advisor-reviews.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Cross-role Selenium Research",
+          "started_at": "2026-10-14T10:29:24.057898+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0265,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/024-Cross-role-Selenium-Research.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/advisor/reviews",
+          "started_at": "2026-10-14T10:29:24.225071+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.658,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/025-advisor-reviews.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "a[href=\"/advisor/reviews/6\"]",
+          "started_at": "2026-10-14T10:29:25.011874+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5843,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/026-a-href-advisor-reviews-6.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Cross-role Selenium Research",
+          "started_at": "2026-10-14T10:29:26.359363+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0189,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/027-Cross-role-Selenium-Research.png"
+        },
+        {
+          "action": "เลือกตัวเลือก",
+          "target": "[name=\"status_result\"]=approved",
+          "started_at": "2026-10-14T10:29:26.454824+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.015,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/028-name-status_result-approved.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "score",
+          "started_at": "2026-10-14T10:29:26.558911+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1023
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "comment_text",
+          "started_at": "2026-10-14T10:29:26.661235+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0742
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ยืนยันผลการประเมิน']",
+          "started_at": "2026-10-14T10:29:26.735489+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6183,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/029-button-normalize-space.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "ยืนยันการอนุมัติผลงาน",
+          "started_at": "2026-10-14T10:29:27.570260+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0214,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/030-ui.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='ยืนยัน']",
+          "started_at": "2026-10-14T10:29:27.753288+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6021,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/031-button-normalize-space.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "บันทึกผลการประเมินผลงานสำเร็จ",
+          "started_at": "2026-10-14T10:29:28.574111+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.6172,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/032-ui.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/research/6",
+          "started_at": "2026-10-14T10:29:30.276049+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.5691,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/033-research-6.png"
+        },
+        {
+          "action": "ตรวจสถานะบนหน้าจอ",
+          "target": "อนุมัติแล้ว",
+          "started_at": "2026-10-14T10:29:32.926336+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0126,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/034-ui.png"
+        },
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:29:33.077872+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.8289,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/037-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:29:33.077892+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.9112,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/035-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:29:34.091123+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1841
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:29:34.275205+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.083
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:29:34.358170+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6271,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/036-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/student/research",
+          "started_at": "2026-10-14T10:29:36.020273+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.9166,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/038-student-research.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Cross-role Selenium Research",
+          "started_at": "2026-10-14T10:29:37.055460+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0223,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/039-Cross-role-Selenium-Research.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/student/research",
+          "started_at": "2026-10-14T10:29:37.188285+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5865,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/040-student-research.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "Cross-role Selenium Research",
+          "started_at": "2026-10-14T10:29:37.884682+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0201,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/041-Cross-role-Selenium-Research.png"
+        },
+        {
+          "action": "อ่านสถานะในผลงานของฉัน",
+          "target": "Cross-role Selenium Research",
+          "started_at": "2026-10-14T10:29:38.040529+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0124,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/042-Cross-role-Selenium-Research.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/003-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/004-student-research-new.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/005-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/006-participant.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/007-participant.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/008-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/009-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/010-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/011-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/012-cover_image.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/013-document.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/014-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/015-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/016-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/017-Cross-role-Selenium-Research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/018-student-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/019-Cross-role-Selenium-Research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/020-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/021-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/022-D1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/023-advisor-reviews.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/024-Cross-role-Selenium-Research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/025-advisor-reviews.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/026-a-href-advisor-reviews-6.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/027-Cross-role-Selenium-Research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/028-name-status_result-approved.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/029-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/030-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/031-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/032-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/033-research-6.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/034-ui.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/035-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/036-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/037-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/038-student-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/039-Cross-role-Selenium-Research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/040-student-research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/041-Cross-role-Selenium-Research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/042-Cross-role-Selenium-Research.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-047/20261014-102745-778362/043-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-047.png",
+      "url": "http://127.0.0.1:59398/student/research",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "e2e",
+      "expected_result": "ส่งงานผ่าน UI และที่ปรึกษาอนุมัติผ่าน UI สำเร็จ",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    },
+    {
+      "case": "TC-048",
+      "test": "test_tc_048_admin_category_user_workflow_and_rbac",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT count(*) FROM categories WHERE category_name=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 1
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM users WHERE email='u3@example.org'",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM users WHERE email='u3@example.org'",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM users WHERE email='u3@example.org'",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 1
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT id FROM users WHERE email='u3@example.org'",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 9
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/users/9",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/categories/",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT count(*) FROM users",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 9
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM categories",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 3
+            }
+          ]
+        },
+        {
+          "observation": "Student /admin UI final URL: http://127.0.0.1:59398/admin"
+        },
+        {
+          "method": "GET",
+          "path": "/users/",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/users/",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/categories/",
+          "status": 403
+        },
+        {
+          "database_query": "SELECT count(*) FROM users",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 9
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM categories",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 3
+            }
+          ]
+        }
+      ],
+      "browser": "155.0.8059.41",
+      "browser_name": "chrome",
+      "mode": "headed",
+      "title": "เว็บ admin จัดการหมวดหมู่/ผู้ใช้",
+      "group": "E2E",
+      "requirement": "FR-032",
+      "priority": "กลาง",
+      "type": "Positive / E2E/RBAC",
+      "duration_seconds": 17.504,
+      "steps": [
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "A1",
+          "started_at": "2026-10-14T10:29:40.202954+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.9485,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/003-A1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:29:40.202976+00:00",
+          "status": "PASS",
+          "duration_seconds": 1.0121,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/001-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:29:41.305391+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1735
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:29:41.478973+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0808
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:29:41.559745+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6001,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/002-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/admin/categories",
+          "started_at": "2026-10-14T10:29:43.221426+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6751,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/004-admin-categories.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "category_name",
+          "started_at": "2026-10-14T10:29:43.959902+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0622
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "description",
+          "started_at": "2026-10-14T10:29:44.022103+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0404
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='เพิ่มหมวดหมู่']",
+          "started_at": "2026-10-14T10:29:44.062543+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5946,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/005-button-normalize-space.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/admin/categories",
+          "started_at": "2026-10-14T10:29:44.785165+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.9152,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/006-admin-categories.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "E2E Selenium Category",
+          "started_at": "2026-10-14T10:29:45.757894+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0193,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/007-E2E-Selenium-Category.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/admin/users",
+          "started_at": "2026-10-14T10:29:45.839110+00:00",
+          "status": "PASS",
+          "duration_seconds": 2.5234,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/008-admin-users.png"
+        },
+        {
+          "action": "คลิก",
+          "target": "//button[normalize-space(.)='เพิ่มผู้ใช้ใหม่']",
+          "started_at": "2026-10-14T10:29:48.472224+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6282,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/009-button-normalize-space.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:29:49.184390+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0928
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:29:49.277202+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0517
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "first_name",
+          "started_at": "2026-10-14T10:29:49.328909+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.055
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "last_name",
+          "started_at": "2026-10-14T10:29:49.383874+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0375
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:29:49.474691+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.5727,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/010-form-button-type-submit.png"
+        },
+        {
+          "action": "รอข้อความที่มองเห็น",
+          "target": "u3@example.org",
+          "started_at": "2026-10-14T10:29:51.183907+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0663,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/011-u3-example-org.png"
+        },
+        {
+          "action": "ล็อกอินผ่านฟอร์ม",
+          "target": "S1",
+          "started_at": "2026-10-14T10:29:51.734915+00:00",
+          "status": "PASS",
+          "duration_seconds": 3.0173,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/014-S1.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/login",
+          "started_at": "2026-10-14T10:29:51.734947+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.8181,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/012-login.png"
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "email",
+          "started_at": "2026-10-14T10:29:52.697104+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.1552
+        },
+        {
+          "action": "กรอกช่อง",
+          "target": "password",
+          "started_at": "2026-10-14T10:29:52.852287+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.0725
+        },
+        {
+          "action": "คลิก",
+          "target": "form button[type=\"submit\"]",
+          "started_at": "2026-10-14T10:29:52.924844+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.6036,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/013-form-button-type-submit.png"
+        },
+        {
+          "action": "เปิดหน้า",
+          "target": "/admin",
+          "started_at": "2026-10-14T10:29:54.855575+00:00",
+          "status": "PASS",
+          "duration_seconds": 0.7419,
+          "screenshot": "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/015-admin.png"
+        }
+      ],
+      "screenshot_paths": [
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/001-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/002-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/003-A1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/004-admin-categories.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/005-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/006-admin-categories.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/007-E2E-Selenium-Category.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/008-admin-users.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/009-button-normalize-space.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/010-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/011-u3-example-org.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/012-login.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/013-form-button-type-submit.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/014-S1.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/015-admin.png",
+        "/Users/mac/Desktop/workspace/UniResearch/tests/selenium/reports/screenshots/e2e/TC-048/20261014-102745-778362/016-final-result.png"
+      ],
+      "screenshot_errors": [],
+      "screenshot": "TC-048.png",
+      "url": "http://127.0.0.1:59398/admin",
+      "browser_binary": "auto",
+      "driver_version": "155.0.8059.79 (a49e2e3d4addfd84e765b52afe230bedb81096db-refs/branch-heads/8059@{#1239})",
+      "category": "e2e",
+      "expected_result": "admin เพิ่มหมวดหมู่และผู้ใช้ผ่าน UI; student ถูกปฏิเสธ API จัดการ",
+      "actual_result": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+      "ui_supported": true,
+      "ui_tested": true,
+      "execution_status": "PASS",
+      "errors": []
+    }
+  ],
+  "mode": "headed",
+  "summary": {
+    "scoped_test_cases": 18,
+    "ui_automatable_test_cases": 18,
+    "executed_browser_tests": 18,
+    "passed_browser_tests": 18,
+    "failed_browser_tests": 0,
+    "blocked_browser_tests": 0,
+    "api_only_test_cases": 0,
+    "ui_automation_coverage_percent": 100.0
+  }
+}
