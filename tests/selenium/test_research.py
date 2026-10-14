@@ -40,27 +40,6 @@ def test_tc_015_search_or_ranking_and_log(e):
     )
 
 
-def test_tc_016_suggestions_hide_pending(e, page):
-    page.open("/research")
-    # The same endpoint feeds the browser's debounced suggestion widget.
-    search = page.element('input[type="search"], input[placeholder*="ค้นหา"]')
-    search.send_keys("publickeyword")
-    page.wait.until(
-        lambda d: "publickeyword" in d.find_element(By.TAG_NAME, "body").text
-    )
-    assert "pendingsecret" not in page.driver.find_element(By.TAG_NAME, "body").text
-    public = e.call(
-        "GET", "/research/search/suggestions", params={"q": "publickeyword"}
-    )
-    assert "publickeyword" in json.dumps(public)
-    private = e.call(
-        "GET", "/research/search/suggestions", params={"q": "pendingsecret"}
-    )
-    assert "pendingsecret" not in json.dumps(private) and "W2" not in json.dumps(
-        private
-    )
-
-
 def test_tc_017_home_and_stats(e):
     assert [r["id"] for r in e.call("GET", "/home/latest", params={"limit": 1})] == [4]
     assert [r["id"] for r in e.call("GET", "/home/popular", params={"limit": 1})] == [4]
@@ -90,16 +69,6 @@ def test_tc_018_detail_view_logs_and_recommendations(e, page):
     assert e.call("GET", "/research/2")["status"] == "pending"
     e.observe(
         "Guest direct detail API exposes pending W2, as documented; visibility policy needs review."
-    )
-
-
-def test_tc_019_unknown_detail(e, page):
-    e.call("GET", "/research/999999999", status=404)
-    page.open("/research/999999999")
-    page.text("รหัสงานวิจัยนี้ไม่มีอยู่ในระบบ")
-    assert (
-        e.scalar("SELECT count(*) FROM download_view_logs WHERE research_id=999999999")
-        == 0
     )
 
 
@@ -142,11 +111,6 @@ def assert_submission(e, wid):
     assert e.scalar("SELECT count(*) FROM research_works WHERE status='draft'") == 0
 
 
-def test_tc_022_complete_submission(e, page):
-    page.login()
-    assert_submission(e, page.submit())
-
-
 def test_tc_023_guest_cannot_submit(e, page):
     before = e.scalar("SELECT count(*) FROM research_works")
     page.open("/student/research/new")
@@ -171,16 +135,6 @@ def test_tc_024_invalid_participant_ids(e):
     assert (
         e.scalar("SELECT count(*) FROM research_works") == before and e.files() == files
     )
-
-
-def test_tc_025_author_year_prefix(e, page):
-    page.login()
-    selects = page.participants()
-    values = {o.get_attribute("value") for o in selects[0].options}
-    assert {"2", "3"} <= values and "4" not in values
-    before = e.scalar("SELECT count(*) FROM research_works")
-    e.call("POST", "/research/", "S1", status=422, data=e.form(author_ids="[2,4]"))
-    assert e.scalar("SELECT count(*) FROM research_works") == before
 
 
 def test_tc_026_upload_exact_limits(e):
@@ -238,20 +192,6 @@ def test_tc_027_upload_type_signature_and_rollback(e):
         )
 
 
-def test_tc_028_my_research_includes_coauthored(e, page):
-    # This TC's fixture specifies exactly W1/W4, unlike TC-022's pending W2.
-    e.execute("UPDATE research_works SET submitted_by_id=3 WHERE id=2")
-    e.execute("UPDATE research_authors SET user_id=3 WHERE research_id=2")
-    page.login()
-    page.open("/student/research")
-    page.text("W1 งานวิจัย Selenium")
-    page.text("W4 งานวิจัย Selenium")
-    assert (
-        "W3 งานวิจัย Selenium" not in page.driver.find_element(By.TAG_NAME, "body").text
-    )
-    assert ids(e.call("GET", "/research/my", "S1")) == {1, 4}
-
-
 def test_tc_029_edit_resets_pending(e, page):
     page.login()
     page.submit(title="Changed research", edit_id=1)
@@ -268,27 +208,6 @@ def test_tc_030_other_student_cannot_edit(e):
     assert e.work(3) == before
     assert (
         e.rows("SELECT user_id FROM research_authors WHERE research_id=3") == relations
-    )
-
-
-def test_tc_031_revision_archives_previous_file(e, page):
-    e.execute("UPDATE research_works SET status='needs_revision' WHERE id=2")
-    old = e.work(2)["file_path"]
-    e.execute(
-        "INSERT INTO file_revisions(research_id,file_path,version_no,uploaded_by,uploaded_at) VALUES(2,?,1,2,'2026-10-01')",
-        (old,),
-    )
-    page.login()
-    page.submit(title="Revised research", edit_id=2)
-    work = e.work(2)
-    assert work["status"] == "pending" and work["file_path"] != old
-    latest = e.rows(
-        "SELECT file_path,version_no FROM file_revisions WHERE research_id=2 ORDER BY version_no DESC"
-    )[0]
-    assert latest == {"file_path": old, "version_no": 2}
-    assert (
-        e.storage_path(old).exists()
-        and e.storage_path(work["file_path"]).read_bytes() == PDF
     )
 
 
@@ -327,27 +246,6 @@ def test_tc_033_other_student_cannot_delete(e):
     e.call("DELETE", "/research/3", "S1", status=403)
     assert e.work(3) == before
     assert e.scalar("SELECT count(*) FROM research_authors WHERE research_id=3") == 1
-
-
-def test_tc_034_download_counts_and_public_static_file(e, page):
-    page.login()
-    page.open("/research/1")
-    result = e.call("POST", "/research/1/download", "S1")
-    url = result["file_url"]
-    assert (
-        e.http.get(url, headers={"Authorization": "Bearer " + e.token()}).content == PDF
-    )
-    assert e.work(1)["download_count"] == 1
-    assert e.rows(
-        "SELECT user_id,action_type FROM download_view_logs WHERE action_type='download'"
-    ) == [{"user_id": 2, "action_type": "download"}]
-    page.driver.delete_all_cookies()
-    page.driver.get(e.backend + url)
-    assert e.http.get(url).content == PDF
-    assert e.work(1)["download_count"] == 1
-    e.observe(
-        "Static PDF is accessible without authentication; direct access does not increment download_count."
-    )
 
 
 def test_tc_035_download_without_token_or_file(e):

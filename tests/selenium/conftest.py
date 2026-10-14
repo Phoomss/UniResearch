@@ -2,8 +2,8 @@ import json
 import os
 import platform
 import secrets
-import signal
 import shutil
+import signal
 import socket
 import sqlite3
 import subprocess
@@ -27,7 +27,14 @@ RESULTS = {}
 
 
 def pytest_addoption(parser):
-    parser.addoption("--headed", action="store_true", help="Show the configured browser")
+    parser.addoption(
+        "--include-legacy",
+        action="store_true",
+        help="Also collect untouched teammates cases",
+    )
+    parser.addoption(
+        "--headed", action="store_true", help="Show the configured browser"
+    )
     parser.addoption("--artifacts", default=str(Path(__file__).parent / "artifacts"))
 
 
@@ -47,13 +54,66 @@ def pytest_configure(config):
     }
 
 
-def pytest_collection_modifyitems(items):
+def pytest_collection_modifyitems(config, items):
+    selected, deselected = [], []
     for item in items:
         case = int(item.name.split("_")[2])
-        if "page" in item.fixturenames:
-            item.add_marker(pytest.mark.ui)
         if case in NARONGSAK:
             item.add_marker(pytest.mark.narongsak)
+        if any(
+            name in item.fixturenames
+            for name in ("page", "options_page", "document_page", "ai_review_page")
+        ):
+            item.add_marker(pytest.mark.ui)
+        if case in NARONGSAK or config.getoption("--include-legacy"):
+            selected.append(item)
+        else:
+            deselected.append(item)
+    items[:] = selected
+    config.hook.pytest_deselected(items=deselected)
+    for item in selected:
+        case = "TC-" + item.name.split("_")[2]
+        RESULTS.setdefault(
+            case, {"case": case, "test": item.name, "status": "not_run", "events": []}
+        )
+
+
+CATEGORY_IDS = {
+    "auth": [1, 4, 7],
+    "category": [10],
+    "user": [13],
+    "recommendation": [16],
+    "submission": [19, 22, 25, 28, 31, 34],
+    "review": [37, 38],
+    "notification": [43],
+    "ai": [46],
+    "e2e": [47, 48],
+}
+CASE_CATEGORY = {
+    f"TC-{case:03}": category
+    for category, cases in CATEGORY_IDS.items()
+    for case in cases
+}
+EXPECTED = {
+    "TC-001": "สมัครสำเร็จโดยได้สิทธิ์ student แม้ส่ง role admin",
+    "TC-004": "แสดงข้อผิดพลาดและไม่สร้าง session",
+    "TC-007": "ล็อกอินสำเร็จ ออกจากระบบ และหน้าที่ต้องล็อกอินปฏิเสธการเข้าถึง",
+    "TC-010": "อ่านหมวดหมู่สาธารณะได้และ admin เพิ่มหมวดหมู่ผ่าน UI สำเร็จ",
+    "TC-013": "student บันทึกตัวเลือกส่วนกลางไม่ได้ ข้อมูลเดิมไม่เปลี่ยน",
+    "TC-016": "คำแนะนำไม่เผยข้อมูล pending",
+    "TC-019": "แสดงไม่พบงานวิจัยและ API ตอบ 404",
+    "TC-022": "บันทึกข้อมูล ไฟล์ ผู้เขียน และที่ปรึกษาครบ สถานะ pending",
+    "TC-025": "UI ไม่เสนอผู้เขียนคนละปี และ backend ปฏิเสธด้วย 422",
+    "TC-028": "เห็นงานที่ส่งและร่วมเขียน ไม่เห็น pending ของผู้อื่น",
+    "TC-031": "ส่งไฟล์ใหม่สำเร็จ เก็บไฟล์เดิม และกลับเป็น pending",
+    "TC-034": "ดาวน์โหลด PDF ผ่าน UI ได้ บันทึกผู้ใช้และนับหนึ่งครั้ง",
+    "TC-037": "ประวัติแสดงเฉพาะงานที่ผู้ตรวจคนนี้ตรวจ",
+    "TC-038": "ที่ปรึกษาที่ได้รับมอบหมายอนุมัติและบันทึกผลสำเร็จ",
+    "TC-043": "เห็นและทำเครื่องหมายอ่านเฉพาะการแจ้งเตือนของตน",
+    "TC-046": "ทั้งสี่ AI tabs แสดงผล mock จริงและปฏิเสธสิทธิ์ student/anonymous",
+    "TC-047": "ส่งงานผ่าน UI และที่ปรึกษาอนุมัติผ่าน UI สำเร็จ",
+    "TC-048": "admin เพิ่มหมวดหมู่และผู้ใช้ผ่าน UI; student ถูกปฏิเสธ API จัดการ",
+}
 
 
 def port():
@@ -174,6 +234,7 @@ def frontend_server(app_environment, pytestconfig):
 @pytest.fixture
 def e(app_environment, request):
     root, backend, frontend, _, password, hashed = app_environment
+    shutil.rmtree(root / "downloads", ignore_errors=True)
     static = root / "static"
     shutil.rmtree(static, ignore_errors=True)
     static.mkdir()
@@ -284,6 +345,7 @@ def e(app_environment, request):
                 ),
             )
     evidence = Evidence(root, backend, frontend, password)
+    evidence.artifact_dir = request.config.artifact_dir
     request.node.evidence = evidence
     try:
         yield evidence
@@ -359,6 +421,18 @@ def pytest_runtest_makereport(item, call):
         record["reason"] = f"{report.when} failed; see pytest terminal output"
         if call.excinfo:
             record["exception"] = call.excinfo.type.__name__
+            message = str(call.excinfo.value)
+            evidence_for_redaction = getattr(item, "evidence", None)
+            if evidence_for_redaction:
+                for secret in [
+                    evidence_for_redaction.password,
+                    *evidence_for_redaction.tokens.values(),
+                ]:
+                    message = message.replace(secret, "[REDACTED]")
+            with (item.config.artifact_dir / "errors.log").open("a") as log:
+                log.write(
+                    f"{case} {report.when}: {call.excinfo.type.__name__}: {message}\n"
+                )
     elif report.skipped:
         record.update(
             status="skipped",
@@ -372,7 +446,7 @@ def pytest_runtest_makereport(item, call):
     if evidence:
         record["events"] = evidence.events
     browser = getattr(item, "browser", None)
-    if browser and report.when == "call":
+    if browser and (report.when == "call" or report.failed):
         try:
             path = item.config.artifact_dir / f"{case}.png"
             browser.save_screenshot(str(path))
@@ -382,7 +456,9 @@ def pytest_runtest_makereport(item, call):
                 browser=browser.capabilities.get("browserVersion"),
                 browser_name=os.environ.get("SELENIUM_BROWSER_NAME", "Chrome"),
                 browser_binary=os.environ.get("SELENIUM_CHROME_BINARY", "auto"),
-                driver_version=browser.capabilities.get("chrome", {}).get("chromedriverVersion"),
+                driver_version=browser.capabilities.get("chrome", {}).get(
+                    "chromedriverVersion"
+                ),
             )
             if report.failed:
                 record["visible_buttons"] = [
@@ -412,6 +488,20 @@ def pytest_sessionfinish(session, exitstatus):
         ).strip()
     except (subprocess.SubprocessError, OSError):
         pass
+    for case, category in CASE_CATEGORY.items():
+        record = RESULTS.setdefault(
+            case, {"case": case, "status": "not_run", "events": []}
+        )
+        record.update(session.config.case_catalog[case])
+        record["category"] = category
+        record["expected_result"] = EXPECTED[case]
+        record["actual_result"] = {
+            "passed": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+            "failed": "ขั้นตอนหรือ assertion ล้มเหลว",
+            "blocked": "setup/cleanup ล้มเหลว",
+            "skipped": "ไม่สามารถรันได้",
+            "not_run": "ไม่ได้รัน",
+        }[record["status"]]
     summary = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "commit": commit,
@@ -427,29 +517,92 @@ def pytest_sessionfinish(session, exitstatus):
     (directory / "results.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2)
     )
+    statuses = {
+        "passed": "PASS",
+        "failed": "FAIL",
+        "blocked": "BLOCKED",
+        "skipped": "BLOCKED",
+        "not_run": "NOT RUN",
+    }
     lines = [
-        "# Selenium execution report",
+        "# รายงานการทดสอบ Narongsak ด้วย Selenium",
         "",
-        f"Commit: `{commit}` (working tree included)",
-        f"Browser: {summary['browser_name']} (`{summary['browser_binary']}`)",
-        f"Browser release: {browser_release}",
+        f"เวลารัน UTC: {summary['generated_at']}",
+        f"Commit: `{commit}` (รวมการแก้ไขใน working tree)",
+        f"เบราว์เซอร์: {summary['browser_name']} / {browser_release}",
         "",
-        "Database: disposable SQLite. This run does not certify PostgreSQL/pgvector or a live AI provider.",
+        "ใช้ฐานข้อมูล SQLite และไฟล์ชั่วคราว; AI เป็น deterministic mock ไม่ยืนยันคุณภาพผู้ให้บริการจริงหรือ PostgreSQL/pgvector",
+        "ผล PASS ในเอกสารเดิมเป็นประวัติเท่านั้น ไม่ใช้แทนผลการรันครั้งนี้",
         "",
-        "| Case | Requirement | Result | Evidence |",
-        "|---|---|---|---|",
+        "| Test Case ID | หมวดหมู่ | สถานการณ์ | ผลที่คาดหวัง | ผลจริง | สถานะ | หลักฐาน |",
+        "|---|---|---|---|---|---|---|",
     ]
-    for r in summary["cases"]:
+    for case in sorted(CASE_CATEGORY):
+        r = RESULTS.get(case, {"case": case, "status": "not_run"})
+        catalog = session.config.case_catalog[case]
+        status = statuses[r["status"]]
+        actual = {
+            "PASS": "ขั้นตอนและ assertions ผ่านทั้งหมด",
+            "FAIL": "assertion หรือขั้นตอน UI ล้มเหลว",
+            "BLOCKED": "ไม่สามารถดำเนินการได้",
+            "NOT RUN": "ไม่ได้รันในครั้งนี้",
+        }[status]
+        if r.get("exception"):
+            actual += " (" + r["exception"] + ")"
         evidence = (
             f"[{r['screenshot']}]({r['screenshot']})"
             if r.get("screenshot", "").endswith(".png")
-            else r.get("reason", "API/database assertions")
+            else "—"
         )
+        if status in {"FAIL", "BLOCKED"}:
+            evidence += " / [error log](errors.log) / [backend](backend.log) / [frontend](frontend.log)"
         lines.append(
-            f"| {r['case']} | {r['requirement']} | {r['status']} | {evidence} |"
+            f"| {case} | {CASE_CATEGORY[case].upper()} | {catalog['title']} | {EXPECTED[case]} | {actual} | {status} | {evidence} |"
         )
     (directory / "report.md").write_text("\n".join(lines) + "\n")
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     terminalreporter.write_line(f"Selenium evidence: {config.artifact_dir}")
+
+
+@pytest.fixture
+def session_page(page):
+    from .pages import SessionPage
+
+    return SessionPage(page.driver, page.e)
+
+
+@pytest.fixture
+def options_page(page):
+    from .pages import OptionsPage
+
+    return OptionsPage(page.driver, page.e)
+
+
+@pytest.fixture
+def document_page(page):
+    from .pages import DocumentPage
+
+    return DocumentPage(page.driver, page.e)
+
+
+@pytest.fixture
+def ai_review_page(page):
+    from .pages import AIReviewPage
+
+    return AIReviewPage(page.driver, page.e)
+
+
+@pytest.fixture
+def registration_page(page):
+    from .pages import RegistrationPage
+
+    return RegistrationPage(page.driver, page.e)
+
+
+@pytest.fixture
+def submission_page(page):
+    from .pages import SubmissionPage
+
+    return SubmissionPage(page.driver, page.e)

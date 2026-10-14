@@ -30,9 +30,36 @@ AI_RESULTS = {
     "suggest_keywords": ["selenium", "research"],
     "check_writing": {"issues": [], "improved_text": "Test writing", "score": 90},
     "generate_dashboard_insights": {"summary": "Deterministic dashboard insight"},
-    "pre_review_analysis": {"overall_score": 80, "summary": "Deterministic pre-review"},
-    "plagiarism_check": {"similarity_score": 0, "summary": "Deterministic similarity"},
-    "reviewer_match": {"matches": [], "summary": "Deterministic reviewer match"},
+    "pre_review_analysis": {
+        "overall_score": 80,
+        "summary": "Deterministic pre-review",
+        "structure_score": 80,
+        "methodology_score": 80,
+        "language_score": 80,
+        "strengths": ["Controlled fixture"],
+        "weaknesses": [],
+        "suggestions": [],
+        "methodology_feedback": "Deterministic methodology",
+        "overall_evaluation": "Deterministic pre-review",
+    },
+    "plagiarism_check": {
+        "similarity_score": 0,
+        "summary": "Deterministic similarity",
+        "overall_similarity_score": 0,
+        "matches": [],
+        "verdict": "Deterministic similarity",
+    },
+    "reviewer_match": {
+        "matches": [
+            {
+                "advisor_id": 5,
+                "name": "Deterministic advisor",
+                "score": 90,
+                "reason": "Controlled match",
+            }
+        ],
+        "summary": "Deterministic reviewer match",
+    },
     "review_summary": {
         "executive_summary": "Deterministic review summary",
         "key_issues_raised": [],
