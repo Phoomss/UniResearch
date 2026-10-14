@@ -1,5 +1,7 @@
 # Selenium tests — Narongsak
 
+คู่มือสำหรับผู้ทดสอบ: [คู่มือการทดสอบภาษาไทย](../../docs/testing/narongsak/TESTING-GUIDE.md) ครอบคลุมการเตรียมเครื่อง คำสั่งรัน อ่านหลักฐาน และแก้ปัญหาที่พบบ่อย
+
 ชุดทดสอบที่รันโดยค่าเริ่มต้นครอบคลุมเฉพาะ 18 Test Cases ของ Narongsak ใช้ Python + Selenium + Pytest เดิม ไม่แก้ business logic ของแอป
 
 | หมวดหมู่ / marker | Test Case IDs |
