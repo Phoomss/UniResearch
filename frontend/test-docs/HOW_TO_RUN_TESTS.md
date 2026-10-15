@@ -38,7 +38,7 @@ npm run dev -- --port 3000
 เปิด Terminal หน้าต่างใหม่ แล้วเข้าไปยังโฟลเดอร์ทดสอบ:
 
 ```bash
-cd /Users/technology06/674259024/UniResearch/frontend/selenium_tests
+cd frontend/e2e_tests
 ```
 
 #### 2.1 สร้างและเปิดใช้งาน Virtual Environment
@@ -56,7 +56,7 @@ pip install -r requirements.txt
 ```
 
 #### 2.3 ตรวจสอบค่าคอนฟิก (.env)
-ไฟล์ `.env` อยู่ใน `frontend/selenium_tests/.env` สามารถปรับแต่งค่าได้ตามต้องการ เช่น:
+ไฟล์ `.env` อยู่ใน `frontend/e2e_tests/.env` สามารถปรับแต่งค่าได้ตามต้องการ เช่น:
 ```env
 BASE_URL=http://127.0.0.1:3000
 STUDENT_EMAIL=s1@webmail.ac.th
