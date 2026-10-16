@@ -43,6 +43,22 @@ marker ที่เหลือ (`category`, `user`, `recommendation`, `notifica
 
 หากใช้ virtualenv เดิมของ repository เรียก `backend/test_venv/bin/python -m pytest` แทน `pytest` ได้
 
+### รันรายเคสด้วยเลข TC
+
+รันจาก root ของโปรเจกต์ ใช้ `-k` เพื่อเลือกเคสโดยไม่ต้องจำ path ของหมวดหมู่:
+
+```bash
+backend/test_venv/bin/python -m pytest tests/selenium/ -k test_tc_001 -v --headed
+backend/test_venv/bin/python -m pytest tests/selenium/ -k test_tc_004 -v --headed
+backend/test_venv/bin/python -m pytest tests/selenium/ -k test_tc_013 -v --headed
+backend/test_venv/bin/python -m pytest tests/selenium/ -k test_tc_046 -v --headed
+backend/test_venv/bin/python -m pytest tests/selenium/ -k test_tc_048 -v --headed
+```
+
+ดูคำสั่งแบบระบุไฟล์ครบทั้ง 18 เคสใน [คู่มือข้อ 5](../../docs/testing/narongsak/TESTING-GUIDE.md#5-รัน-test-case-เดียว) TC-001/004 อยู่ `auth`, TC-013 อยู่ `user`, TC-046 อยู่ `ai` และ TC-048 อยู่ `e2e` หากระบุ path ที่ไม่มีอยู่ pytest อาจไม่โหลด `conftest.py` ของ Selenium และแสดง `unrecognized arguments: --headed` พร้อม `inifile: None` ให้ตรวจ path หรือใช้ `-k` ตามตัวอย่าง
+
+TC-004 ทดสอบรหัสผ่านผิด จึงคาดหวัง HTTP `400 Bad Request`, ข้อความผิดพลาด, อยู่หน้า Login และไม่มี session/token ผล `PASSED` หมายถึงระบบปฏิเสธการเข้าสู่ระบบได้ตามที่คาดหวัง
+
 กำหนด `SELENIUM_CHROMEDRIVER` เป็น absolute path ของ driver ที่ตรงกับ browser เพื่อรันแบบ offline; หากไม่กำหนด Selenium Manager จะค้นหา/ดาวน์โหลดให้ กำหนด `SELENIUM_CHROME_BINARY` และ `SELENIUM_BROWSER_NAME=Brave` สำหรับ Brave
 
 Runner เปิด FastAPI และ Next.js เองบนพอร์ต loopback ไม่ต้องเปิดแอปเพิ่ม ต้องไม่มี Next.js dev server ของ checkout นี้ทำงานอยู่ เพราะใช้ `.next` และ dev lock ร่วมกัน

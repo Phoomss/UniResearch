@@ -144,25 +144,36 @@ backend/test_venv/bin/python -m pytest tests/selenium/ -m "auth or review" -v --
 
 ## 5. รัน Test Case เดียว
 
-รูปแบบ path คือ `tests/selenium/categories/{category}/test_tc_{id}.py`
-
-TC-004 — Login ด้วยรหัสผ่านไม่ถูกต้อง:
+เลือกด้วยเลขเคสโดยไม่ต้องจำหมวดหมู่ เช่น TC-004 (ใช้เลขสามหลัก `004`):
 
 ```bash
-backend/test_venv/bin/python -m pytest tests/selenium/categories/auth/test_tc_004.py -v --headed
+backend/test_venv/bin/python -m pytest tests/selenium/ -k test_tc_004 -v --headed
 ```
 
-TC-038 — ที่ปรึกษาอนุมัติผลงาน pending:
+เปลี่ยน `test_tc_004` เป็นเลขเคสที่ต้องการ เช่น `test_tc_001`, `test_tc_013`, `test_tc_046` หรือ `test_tc_048` คง path `tests/selenium/` ไว้เพื่อให้ pytest โหลด configuration และ option `--headed` ของชุด Selenium
 
-```bash
-backend/test_venv/bin/python -m pytest tests/selenium/categories/review/test_tc_038.py -v --headed
-```
+หากต้องการรันด้วย path ของไฟล์โดยตรง ใช้คำสั่งในตารางนี้จาก root ของโปรเจกต์ หมวดหมู่ต้องตรงกับไฟล์จริง:
 
-TC-047 — ส่งงานและตรวจอนุมัติครบ workflow:
-
-```bash
-backend/test_venv/bin/python -m pytest tests/selenium/categories/e2e/test_tc_047.py -v --headed
-```
+| Test Case | หมวดหมู่ | คำสั่งรันแบบเปิด Chrome |
+|---|---|---|
+| TC-001 | `auth` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/auth/test_tc_001.py -v --headed` |
+| TC-004 | `auth` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/auth/test_tc_004.py -v --headed` |
+| TC-007 | `auth` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/auth/test_tc_007.py -v --headed` |
+| TC-010 | `category` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/category/test_tc_010.py -v --headed` |
+| TC-013 | `user` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/user/test_tc_013.py -v --headed` |
+| TC-016 | `recommendation` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/recommendation/test_tc_016.py -v --headed` |
+| TC-019 | `submission` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/submission/test_tc_019.py -v --headed` |
+| TC-022 | `submission` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/submission/test_tc_022.py -v --headed` |
+| TC-025 | `submission` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/submission/test_tc_025.py -v --headed` |
+| TC-028 | `submission` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/submission/test_tc_028.py -v --headed` |
+| TC-031 | `submission` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/submission/test_tc_031.py -v --headed` |
+| TC-034 | `submission` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/submission/test_tc_034.py -v --headed` |
+| TC-037 | `review` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/review/test_tc_037.py -v --headed` |
+| TC-038 | `review` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/review/test_tc_038.py -v --headed` |
+| TC-043 | `notification` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/notification/test_tc_043.py -v --headed` |
+| TC-046 | `ai` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/ai/test_tc_046.py -v --headed` |
+| TC-047 | `e2e` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/e2e/test_tc_047.py -v --headed` |
+| TC-048 | `e2e` | `backend/test_venv/bin/python -m pytest tests/selenium/categories/e2e/test_tc_048.py -v --headed` |
 
 ตรวจรายการเคสก่อนรัน โดยยังไม่เปิด browser:
 
@@ -191,6 +202,12 @@ backend/test_venv/bin/python -m pytest tests/selenium/ --collect-only -q
 | `collected` | พบเคสตามการเลือก ยังไม่ได้แปลว่ารันผ่าน |
 
 ในรายงานจะใช้ `PASS`, `FAIL`, `BLOCKED` และ `NOT RUN` โดย setup/cleanup error จะแสดงเป็น `BLOCKED` หากสร้าง browser ไม่สำเร็จ จะไม่มี screenshot ของเคสนั้น แต่ยังมีรายละเอียด error ตามที่ระบบเก็บได้
+
+### ทำไม TC-004 แสดง Bad Request แต่ PASSED
+
+TC-004 ตั้งใจกรอกรหัสผ่านผิด จึงคาดหวังให้ระบบปฏิเสธการเข้าสู่ระบบ เทสต์ตรวจข้อความ “อีเมลหรือรหัสผ่านไม่ถูกต้อง”, ยังคงอยู่หน้า `/login`, ไม่มี cookie สำหรับเข้าสู่ระบบ และเรียก API ด้วยรหัสผ่านผิดแล้วได้ HTTP `400 Bad Request` โดยไม่มี `access_token`
+
+`PASSED` หมายถึงผลตรงกับ assertions ของเคส สำหรับ TC-004 คือปฏิเสธการเข้าสู่ระบบตามที่คาดหวัง ไม่ได้หมายถึง Login สำเร็จ หากเข้าระบบได้ด้วยรหัสผ่านผิด เคสนี้ควร `FAILED`
 
 ให้ตรวจทั้งสถานะและหลักฐานของ session เดียวกัน ผล PASS จากรายงานก่อนหน้าไม่ยืนยันผลการรันครั้งใหม่
 
@@ -259,6 +276,7 @@ Selenium Manager จะเลือก ChromeDriver ให้เมื่อไ�
 | อาการ | วิธีตรวจและแก้ |
 |---|---|
 | `backend/test_venv/bin/python: No such file or directory` | ตรวจว่าอยู่ที่ root ของโปรเจกต์ หากไม่มี environment เดิม ให้สร้างใหม่ตามข้อ 2 |
+| `unrecognized arguments: --headed` พร้อม `inifile: None` | ตรวจ path และหมวดหมู่ตามตารางข้อ 5 เช่น TC-001/004 อยู่ `auth`, TC-013 อยู่ `user`, TC-046 อยู่ `ai`, TC-048 อยู่ `e2e`; path ที่ไม่มีอยู่ทำให้ pytest ไม่โหลด Selenium configuration ลองใช้ `backend/test_venv/bin/python -m pytest tests/selenium/ -k test_tc_004 -v --headed` แล้วเปลี่ยนเลขเคสตามต้องการ |
 | `pytest: command not found` | ใช้ `backend/test_venv/bin/python -m pytest` หรือ activate environment ใหม่ก่อน |
 | `ModuleNotFoundError` | ติดตั้ง `tests/selenium/requirements.txt` ด้วย Python environment ที่ใช้รัน |
 | ไม่พบ frontend dependencies | รัน `pnpm install` ใน `frontend` แล้วกลับมาที่ root |
