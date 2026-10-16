@@ -1,7 +1,7 @@
 # รายงานการรันทดสอบ UI — Narongsak
 
-เวลารัน UTC: 2026-10-16T03:07:19.651024+00:00
-โหมด: **headed**; Browser: chrome; commit: `78592ea8de45f2bb29d2b5d41162e8379d5218cc` (รวม working tree)
+เวลารัน UTC: 2026-10-16T09:46:09.178357+00:00
+โหมด: **headed**; Browser: chrome; commit: `f435e68deb29a5c6531012e877c7b8f7e9be9209` (รวม working tree)
 
 ผลจาก session นี้เท่านั้น ไม่ใช้ PASS ในเอกสารประวัติ; ใช้ Chrome/Chromium จริงกับ Next.js และ FastAPI บน localhost ข้อมูลและไฟล์อยู่ในฐานทดสอบชั่วคราว AI ใช้ deterministic provider mock
 
@@ -17,7 +17,7 @@ Coverage หมายถึงจำนวนเคสที่รันขั�
 | TC ID | Category | UI Tested | Status | Evidence |
 |---|---|---|---|---|
 | TC-001 | AUTH | No | NOT RUN | ยังไม่มี browser evidence |
-| TC-004 | AUTH | Yes | PASS | [Screenshot 1](../../../tests/selenium/reports/screenshots/auth/TC-004/20261016-030711-485106/004-final-result.png) |
+| TC-004 | AUTH | No | NOT RUN | ยังไม่มี browser evidence |
 | TC-007 | AUTH | No | NOT RUN | ยังไม่มี browser evidence |
 | TC-010 | CATEGORY | No | NOT RUN | ยังไม่มี browser evidence |
 | TC-013 | USER | No | NOT RUN | ยังไม่มี browser evidence |
@@ -29,7 +29,7 @@ Coverage หมายถึงจำนวนเคสที่รันขั�
 | TC-031 | SUBMISSION | No | NOT RUN | ยังไม่มี browser evidence |
 | TC-034 | SUBMISSION | No | NOT RUN | ยังไม่มี browser evidence |
 | TC-037 | REVIEW | No | NOT RUN | ยังไม่มี browser evidence |
-| TC-038 | REVIEW | No | NOT RUN | ยังไม่มี browser evidence |
+| TC-038 | REVIEW | Yes | PASS | [Screenshot 1](../../../tests/selenium/reports/screenshots/review/TC-038/20261016-094537-437659/014-final-result.png) |
 | TC-043 | NOTIFICATION | No | NOT RUN | ยังไม่มี browser evidence |
 | TC-046 | AI | No | NOT RUN | ยังไม่มี browser evidence |
 | TC-047 | E2E | No | NOT RUN | ยังไม่มี browser evidence |
@@ -37,7 +37,7 @@ Coverage หมายถึงจำนวนเคสที่รันขั�
 
 ## ขั้นตอนและผลที่ตรวจ
 
-[Structured execution report (JSON)](../../../tests/selenium/reports/20261016-030711-485106/ui-results.json)
+[Structured execution report (JSON)](../../../tests/selenium/reports/20261016-094537-437659/ui-results.json)
 
 ### TC-001 — สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin
 
@@ -48,15 +48,10 @@ Browser: chrome ยังไม่เริ่ม browser; ระยะเวล
 
 ### TC-004 — รหัสผ่านผิด
 
-Browser: chrome 155.0.8059.41; ระยะเวลา 8.004 วินาที
+Browser: chrome ยังไม่เริ่ม browser; ระยะเวลา 0 วินาที
 ผลที่คาดหวัง: แสดงข้อผิดพลาดและไม่สร้าง session
-ผลจริง: ขั้นตอนและ assertions ผ่านทั้งหมด (PASS)
+ผลจริง: ไม่ได้รัน (NOT RUN)
 
-1. เปิดหน้า: /login — PASS
-2. กรอกช่อง: email — PASS
-3. กรอกช่อง: password — PASS
-4. คลิก: //button[normalize-space(.)='เข้าสู่ระบบ'] — PASS
-5. อ่านข้อความปฏิเสธ: toast-error — PASS
 
 ### TC-007 — ล็อกอินแล้วออกจากระบบ
 
@@ -137,10 +132,27 @@ Browser: chrome ยังไม่เริ่ม browser; ระยะเวล
 
 ### TC-038 — advisor ที่ได้รับมอบหมายอนุมัติ pending
 
-Browser: chrome ยังไม่เริ่ม browser; ระยะเวลา 0 วินาที
+Browser: chrome 155.0.8059.82; ระยะเวลา 31.49 วินาที
 ผลที่คาดหวัง: ที่ปรึกษาที่ได้รับมอบหมายอนุมัติและบันทึกผลสำเร็จ
-ผลจริง: ไม่ได้รัน (NOT RUN)
+ผลจริง: ขั้นตอนและ assertions ผ่านทั้งหมด (PASS)
 
+1. ล็อกอินผ่านฟอร์ม: D1 — PASS
+2. เปิดหน้า: /login — PASS
+3. กรอกช่อง: email — PASS
+4. กรอกช่อง: password — PASS
+5. คลิก: form button[type="submit"] — PASS
+6. เปิดหน้า: /advisor/reviews — PASS
+7. คลิก: a[href="/advisor/reviews/2"] — PASS
+8. รอข้อความที่มองเห็น: W2 งานวิจัย Selenium — PASS
+9. เลือกตัวเลือก: [name="status_result"]=approved — PASS
+10. กรอกช่อง: score — PASS
+11. กรอกช่อง: comment_text — PASS
+12. คลิก: //button[normalize-space(.)='ยืนยันผลการประเมิน'] — PASS
+13. รอข้อความที่มองเห็น: ยืนยันการอนุมัติผลงาน — PASS
+14. คลิก: //button[normalize-space(.)='ยืนยัน'] — PASS
+15. รอข้อความที่มองเห็น: บันทึกผลการประเมินผลงานสำเร็จ — PASS
+16. เปิดหน้า: /research/2 — PASS
+17. ตรวจสถานะบนหน้าจอ: อนุมัติแล้ว — PASS
 
 ### TC-043 — อ่านเฉพาะของตนและ mark read
 
