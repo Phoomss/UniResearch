@@ -1,0 +1,395 @@
+/workspace/backend/app/services/ai_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+INFO:     Started server process [9]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:45207 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54196 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39778 - "POST /auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:39792 - "POST /auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34566 - "POST /auth/login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:34568 - "POST /auth/login HTTP/1.1" 400 Bad Request
+INFO:     127.0.0.1:34566 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34566 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34570 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34566 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34566 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34570 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /stats/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47650 - "GET /research/pending HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "POST /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47666 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47674 - "GET /options/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47674 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47674 - "POST /options/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:47674 - "GET /options/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44622 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44632 - "GET /research/search/suggestions?q=publickeyword HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44632 - "GET /research/search/suggestions?q=pendingsecret HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44640 - "GET /research/999999999 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:44622 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /research/999999999 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:47638 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44622 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44622 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44646 - "GET /research/participants HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47638 - "GET /options/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35706 - "POST /research/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35706 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35706 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35706 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35712 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35706 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35712 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49702 - "GET /research/participants HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35706 - "GET /options/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49706 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49706 - "POST /research/ HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:49716 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49716 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49716 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49732 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49716 - "GET /research/my HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49716 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49746 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49746 - "GET /research/my HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49716 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49716 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49716 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57750 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49716 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57756 - "GET /research/participants HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57750 - "GET /research/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49716 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49716 - "GET /options/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37286 - "PUT /research/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37286 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37286 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37286 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37292 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37292 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37286 - "GET /research/1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37292 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37286 - "GET /research/1/recommendations HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1794, in _execute_context
+    context = constructor(
+              ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 1692, in _init_compiled
+    self.cursor = self.create_cursor()
+                  ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 2031, in create_cursor
+    return self.create_default_cursor()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 2037, in create_default_cursor
+    return self._dbapi_connection.cursor()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1524, in cursor
+    return self.dbapi_connection.cursor(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 391, in cursor
+    return self._cursor_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 178, in __init__
+    self._cursor = self._aenter_cursor(cursor)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 187, in _aenter_cursor
+    self._adapt_connection._handle_exception(error)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 412, in _handle_exception
+    self._handle_exception_no_connection(self.dbapi, error)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 237, in _handle_exception_no_connection
+    super()._handle_exception_no_connection(dbapi, error)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 409, in _handle_exception_no_connection
+    raise error.with_traceback(exc_info[2])
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 185, in _aenter_cursor
+    return await_(cursor.__aenter__())  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/util/concurrency.py", line 157, in await_
+    raise exc.MissingGreenlet(
+sqlalchemy.exc.MissingGreenlet: greenlet_spawn has not been called; can't call await_() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/21/xd2s)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/uvicorn/protocols/http/h11_impl.py", line 411, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/uvicorn/middleware/proxy_headers.py", line 63, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/fastapi/applications.py", line 1216, in __call__
+    await super().__call__(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/starlette/applications.py", line 96, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 186, in __call__
+    raise exc
+  File "/usr/local/lib/python3.11/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/telemetry/_asgi.py", line 151, in __call__
+    await self.app(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/starlette/routing.py", line 676, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2791, in app
+    await route.handle(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1819, in handle
+    await self.original_router.handle(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 2874, in handle
+    await included_router._handle_selected(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1845, in _handle_selected
+    await original_route.handle(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 1308, in handle
+    await effective_context.app(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 165, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 53, in wrapped_app
+    raise exc
+  File "/usr/local/lib/python3.11/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 151, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 727, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/fastapi/routing.py", line 360, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/backend/app/routers/research.py", line 166, in get_related_recommendations
+    return await research_service.get_related_recommendations(db, research_id)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/backend/app/services/research_service.py", line 592, in get_related_recommendations
+    curr_advs = {a.user_id for a in current_work.advisors}
+                                    ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/attributes.py", line 575, in __get__
+    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/attributes.py", line 1091, in get
+    value = self._fire_loader_callables(state, key, passive)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/attributes.py", line 1126, in _fire_loader_callables
+    return self.callable_(state, passive)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/strategies.py", line 1013, in _load_for_state
+    return self._emit_lazyload(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/strategies.py", line 1172, in _emit_lazyload
+    result = session.execute(
+             ^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2473, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2363, in _execute_internal
+    compile_state_cls.orm_execute_statement(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 316, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1451, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 533, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1671, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1800, in _execute_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2335, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1794, in _execute_context
+    context = constructor(
+              ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 1692, in _init_compiled
+    self.cursor = self.create_cursor()
+                  ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 2031, in create_cursor
+    return self.create_default_cursor()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 2037, in create_default_cursor
+    return self._dbapi_connection.cursor()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1524, in cursor
+    return self.dbapi_connection.cursor(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 391, in cursor
+    return self._cursor_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 178, in __init__
+    self._cursor = self._aenter_cursor(cursor)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 187, in _aenter_cursor
+    self._adapt_connection._handle_exception(error)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 412, in _handle_exception
+    self._handle_exception_no_connection(self.dbapi, error)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/dialects/sqlite/aiosqlite.py", line 237, in _handle_exception_no_connection
+    super()._handle_exception_no_connection(dbapi, error)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 409, in _handle_exception_no_connection
+    raise error.with_traceback(exc_info[2])
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/connectors/asyncio.py", line 185, in _aenter_cursor
+    return await_(cursor.__aenter__())  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/util/concurrency.py", line 157, in await_
+    raise exc.MissingGreenlet(
+sqlalchemy.exc.StatementError: (sqlalchemy.exc.MissingGreenlet) greenlet_spawn has not been called; can't call await_() here. Was IO attempted in an unexpected place?
+[SQL: SELECT research_advisors.id, research_advisors.research_id, research_advisors.user_id 
+FROM research_advisors 
+WHERE ? = research_advisors.research_id]
+[parameters: [{'%(139553923381392 param)s': 1}]]
+(Background on this error at: https://sqlalche.me/e/21/xd2s)
+/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/loading.py:966: RuntimeWarning: coroutine 'Connection.cursor' was never awaited
+  prop.create_row_processor(
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback
+INFO:     127.0.0.1:37292 - "GET /home/latest?limit=4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "GET /static/fixture.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37314 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37314 - "POST /research/1/download HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37314 - "GET /static/fixture.pdf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37324 - "GET /static/fixture.pdf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37314 - "GET /static/fixture.pdf HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42442 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42430 - "GET /research/my HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42424 - "GET /research/pending HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42412 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42424 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42412 - "GET /research/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42458 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42458 - "GET /research/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42458 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42458 - "GET /research/history HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42458 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42458 - "GET /research/history HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:37304 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42480 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42468 - "GET /research/my HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42424 - "GET /research/pending HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42412 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42412 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42424 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "GET /research/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "POST /research/2/review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42412 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48616 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48604 - "GET /research/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "GET /research/2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48622 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48622 - "GET /notifications/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48622 - "POST /notifications/2/read HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:48622 - "POST /notifications/1/read HTTP/1.1" 200 OK
+INFO:     127.0.0.1:48622 - "POST /notifications/read-all HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:37304 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:42412 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33394 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33394 - "POST /research/1/ai-pre-review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33394 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33394 - "POST /research/1/ai-pre-review HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:33394 - "POST /research/999999999/ai-pre-review HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:33394 - "POST /research/1/ai-plagiarism HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33394 - "POST /research/1/ai-plagiarism HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:33394 - "POST /research/999999999/ai-plagiarism HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:33394 - "POST /research/1/ai-reviewer-match HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33394 - "POST /research/1/ai-reviewer-match HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:33394 - "POST /research/999999999/ai-reviewer-match HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:33394 - "POST /research/1/ai-review-summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:33394 - "POST /research/1/ai-review-summary HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:33394 - "POST /research/999999999/ai-review-summary HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:49228 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49228 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49228 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49240 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49228 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49240 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49256 - "GET /research/participants HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49228 - "GET /options/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "POST /research/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /research/my HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41844 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41838 - "GET /research/my HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41830 - "GET /research/pending HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41828 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41848 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41848 - "GET /research/pending HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41830 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41828 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41828 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41830 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /research/6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "POST /research/6/review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41828 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41830 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /research/6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47412 - "GET /research/6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41828 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /research/my HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /stats/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47424 - "GET /research/pending HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "POST /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /users/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "POST /users/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:34526 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /users/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34526 - "GET /users/9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34526 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34538 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41822 - "GET /stats/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34538 - "GET /research/pending HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:41822 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34526 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:34526 - "GET /users/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:34526 - "POST /users/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:34526 - "POST /categories/ HTTP/1.1" 403 Forbidden
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [9]

@@ -1,0 +1,92 @@
+/workspace/backend/app/services/ai_service.py:1: FutureWarning: 
+
+All support for the `google.generativeai` package has ended. It will no longer be receiving 
+updates or bug fixes. Please switch to the `google.genai` package as soon as possible.
+See README for more details:
+
+https://github.com/google-gemini/deprecated-generative-ai-python/blob/main/README.md
+
+  import google.generativeai as genai
+INFO:     Started server process [9]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:59349 (Press CTRL+C to quit)
+INFO:     127.0.0.1:41162 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57182 - "POST /auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57196 - "POST /auth/register HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57182 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57182 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57204 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57182 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57182 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57204 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57210 - "GET /research/participants HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57182 - "GET /options/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56594 - "POST /research/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56594 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56594 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56594 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50110 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56594 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50110 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50122 - "GET /research/participants HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56594 - "GET /options/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "POST /research/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /research/my HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36628 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36614 - "GET /research/my HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36604 - "GET /research/pending HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36594 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36644 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36644 - "GET /research/pending HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36604 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36594 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36594 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36604 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /research/6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "POST /research/6/review HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36594 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36604 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /research/6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43336 - "GET /research/6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36594 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /research/my HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /stats/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:43338 - "GET /research/pending HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "POST /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /users/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "POST /users/ HTTP/1.1" 201 Created
+INFO:     127.0.0.1:36592 - "GET /users/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41472 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41472 - "GET /users/9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41472 - "GET /categories/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /auth/me HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41476 - "GET /favorites/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:36592 - "GET /stats/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41476 - "GET /research/pending HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:36592 - "GET /research/search HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41472 - "POST /auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41472 - "GET /users/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:41472 - "POST /users/ HTTP/1.1" 403 Forbidden
+INFO:     127.0.0.1:41472 - "POST /categories/ HTTP/1.1" 403 Forbidden
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [9]

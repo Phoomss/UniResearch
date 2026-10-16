@@ -1,0 +1,42 @@
+{
+  "generated_at": "2026-10-16T08:07:28.521668+00:00",
+  "commit": "unknown",
+  "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+  "database": "disposable SQLite; PostgreSQL/pgvector not certified",
+  "ai": "deterministic test double; text retrieval fallback",
+  "exit_code": 0,
+  "cases": [
+    {
+      "case": "TC-001",
+      "test": "test_tc_001_register_forces_student",
+      "status": "passed",
+      "events": [
+        {
+          "method": "POST",
+          "path": "/auth/register",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT role FROM users WHERE email IN ('newui@example.org','newapi@example.org')",
+          "row_count": 2,
+          "rows": [
+            {
+              "role": "student"
+            },
+            {
+              "role": "student"
+            }
+          ]
+        }
+      ],
+      "title": "สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin",
+      "group": "บัญชี",
+      "requirement": "FR-001",
+      "priority": "สูง",
+      "type": "Positive / Web/API",
+      "screenshot": "TC-001.png",
+      "url": "http://127.0.0.1:36375/login?registered=1",
+      "browser": "155.0.8059.39"
+    }
+  ]
+}

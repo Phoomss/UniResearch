@@ -1,0 +1,15 @@
+services:
+  selenium-tests:
+    image: uniresearch-selenium-tests:latest
+    working_dir: /workspace/e2e_suite
+    entrypoint: ["python", "-m", "pytest"]
+    volumes:
+      - .:/workspace
+
+  selenium-tests-all:
+    image: uniresearch-selenium-tests:latest
+    working_dir: /workspace/e2e_suite
+    entrypoint: ["python", "-m", "pytest"]
+    command: ["-m", "verified_pass or next_iteration"]
+    volumes:
+      - .:/workspace

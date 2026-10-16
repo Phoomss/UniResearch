@@ -1,0 +1,986 @@
+{
+  "generated_at": "2026-10-16T08:16:15.561550+00:00",
+  "commit": "unknown",
+  "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+  "database": "disposable SQLite; PostgreSQL/pgvector not certified",
+  "ai": "deterministic test double; text retrieval fallback",
+  "exit_code": 1,
+  "cases": [
+    {
+      "case": "TC-001",
+      "test": "test_tc_001_register_forces_student",
+      "status": "passed",
+      "events": [
+        {
+          "method": "POST",
+          "path": "/auth/register",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT role FROM users WHERE email IN ('newui@example.org','newapi@example.org')",
+          "row_count": 2,
+          "rows": [
+            {
+              "role": "student"
+            },
+            {
+              "role": "student"
+            }
+          ]
+        }
+      ],
+      "title": "สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin",
+      "group": "บัญชี",
+      "requirement": "FR-001",
+      "priority": "สูง",
+      "type": "Positive / Web/API",
+      "screenshot": "TC-001.png",
+      "url": "http://127.0.0.1:45163/login?registered=1",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-004",
+      "test": "test_tc_004_wrong_password",
+      "status": "passed",
+      "events": [
+        {
+          "method": "POST",
+          "path": "/auth/login",
+          "status": 400
+        }
+      ],
+      "title": "รหัสผ่านผิด",
+      "group": "บัญชี",
+      "requirement": "FR-002",
+      "priority": "สูง",
+      "type": "Negative / Web/API",
+      "screenshot": "TC-004.png",
+      "url": "http://127.0.0.1:45163/login",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-007",
+      "test": "test_tc_007_logout_removes_httponly_session",
+      "status": "passed",
+      "events": [],
+      "title": "ล็อกอินแล้วออกจากระบบ",
+      "group": "เว็บบัญชี",
+      "requirement": "FR-004",
+      "priority": "สูง",
+      "type": "Positive / Web/API",
+      "screenshot": "TC-007.png",
+      "url": "http://127.0.0.1:45163/login?next=%2Faccount%2Fsaved",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-010",
+      "test": "test_tc_010_admin_category_public_read",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT count(*) FROM categories WHERE category_name=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM categories WHERE category_name=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 1
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/categories/",
+          "status": 200
+        }
+      ],
+      "title": "อ่านสาธารณะและเพิ่มโดย admin",
+      "group": "หมวดหมู่",
+      "requirement": "FR-006",
+      "priority": "กลาง",
+      "type": "Positive / Web/API",
+      "screenshot": "TC-010.png",
+      "url": "http://127.0.0.1:45163/admin/categories",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-013",
+      "test": "test_tc_013_student_cannot_replace_options",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/options/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/options/",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "path": "/options/",
+          "status": 200
+        }
+      ],
+      "title": "student เปลี่ยนตัวเลือก",
+      "group": "ตัวเลือก",
+      "requirement": "FR-007",
+      "priority": "สูง",
+      "type": "Negative / API/RBAC"
+    },
+    {
+      "case": "TC-016",
+      "test": "test_tc_016_suggestions_hide_pending",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/research/search/suggestions",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/research/search/suggestions",
+          "status": 200
+        }
+      ],
+      "title": "คำแนะนำไม่เผยงาน pending",
+      "group": "ค้นหา",
+      "requirement": "FR-009",
+      "priority": "สูง",
+      "type": "Negative / Web/API",
+      "screenshot": "TC-016.png",
+      "url": "http://127.0.0.1:45163/research",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-019",
+      "test": "test_tc_019_unknown_detail",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/research/999999999",
+          "status": 404
+        },
+        {
+          "database_query": "SELECT count(*) FROM download_view_logs WHERE research_id=999999999",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        }
+      ],
+      "title": "ID ไม่มีอยู่",
+      "group": "รายละเอียด",
+      "requirement": "FR-011",
+      "priority": "กลาง",
+      "type": "Negative / Web/API",
+      "screenshot": "TC-019.png",
+      "url": "http://127.0.0.1:45163/research/999999999",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-022",
+      "test": "test_tc_022_complete_submission",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT id FROM research_works WHERE title_th=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 6
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 6,
+              "title_th": "งานวิจัยทดสอบ Selenium",
+              "title_en": "Selenium Research",
+              "abstract": "บทคัดย่อสำหรับการทดสอบ Selenium กับ backend จริง",
+              "category_id": 1,
+              "department": null,
+              "work_type": null,
+              "academic_year": null,
+              "keywords": null,
+              "cover_image_path": "static/uploads/covers/73431e2886994baf973a3f3a4c187ef5.png",
+              "file_path": "static/uploads/docs/c724dca661564838891405fcba34b079.pdf",
+              "status": "pending",
+              "view_count": 0,
+              "download_count": 0,
+              "published_at": null,
+              "created_at": "2026-10-16 08:14:15.844905",
+              "updated_at": "2026-10-16 08:14:15.844907",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT user_id FROM research_authors WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "user_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT user_id FROM research_advisors WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "user_id": 5
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM research_works WHERE status='draft'",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        }
+      ],
+      "title": "ส่งงานครบข้อมูลและผู้เกี่ยวข้อง",
+      "group": "ส่งผลงาน",
+      "requirement": "FR-014",
+      "priority": "สูง",
+      "type": "Positive / Web/API",
+      "screenshot": "TC-022.png",
+      "url": "http://127.0.0.1:45163/student/research/new",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-025",
+      "test": "test_tc_025_author_year_prefix",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT count(*) FROM research_works",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 5
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/research/",
+          "status": 422
+        },
+        {
+          "database_query": "SELECT count(*) FROM research_works",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 5
+            }
+          ]
+        }
+      ],
+      "title": "ผู้เขียนคนละ prefix ปี",
+      "group": "Validation",
+      "requirement": "FR-015",
+      "priority": "กลาง",
+      "type": "Negative / Web/API/Validation",
+      "screenshot": "TC-025.png",
+      "url": "http://127.0.0.1:45163/student/research/new",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-028",
+      "test": "test_tc_028_my_research_includes_coauthored",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/research/my",
+          "status": 200
+        }
+      ],
+      "title": "ผู้ส่ง/author เห็นงานใน /my",
+      "group": "ผลงานของฉัน",
+      "requirement": "FR-017",
+      "priority": "สูง",
+      "type": "Positive / Web/API",
+      "screenshot": "TC-028.png",
+      "url": "http://127.0.0.1:45163/student/research",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-031",
+      "test": "test_tc_031_revision_archives_previous_file",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 2,
+              "title_th": "W2 งานวิจัย Selenium",
+              "title_en": "W2 Research",
+              "abstract": "research selenium abstract",
+              "category_id": 1,
+              "department": "วิทยาการคอมพิวเตอร์",
+              "work_type": "วิทยานิพนธ์",
+              "academic_year": 2569,
+              "keywords": "pendingsecret",
+              "cover_image_path": "static/fixture.png",
+              "file_path": "static/fixture.pdf",
+              "status": "needs_revision",
+              "view_count": 0,
+              "download_count": 0,
+              "published_at": null,
+              "created_at": "2026-10-01 00:00:00",
+              "updated_at": "2026-10-01 00:00:00",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT id FROM research_works WHERE title_th=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 2,
+              "title_th": "Revised research",
+              "title_en": "Selenium Research",
+              "abstract": "บทคัดย่อสำหรับการทดสอบ Selenium กับ backend จริง",
+              "category_id": 1,
+              "department": "วิทยาการคอมพิวเตอร์",
+              "work_type": "วิทยานิพนธ์",
+              "academic_year": 2569,
+              "keywords": "pendingsecret",
+              "cover_image_path": "static/uploads/covers/b4df6a2d61a64fd38f68079e2b14cccc.png",
+              "file_path": "static/uploads/docs/c3e0f728e3ed42a18d3a520d0d1b4e6c.pdf",
+              "status": "pending",
+              "view_count": 1,
+              "download_count": 0,
+              "published_at": null,
+              "created_at": "2026-10-01 00:00:00",
+              "updated_at": "2026-10-16 08:14:39.789289",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT file_path,version_no FROM file_revisions WHERE research_id=2 ORDER BY version_no DESC",
+          "row_count": 2,
+          "rows": [
+            {
+              "file_path": "static/fixture.pdf",
+              "version_no": 2
+            },
+            {
+              "file_path": "static/fixture.pdf",
+              "version_no": 1
+            }
+          ]
+        }
+      ],
+      "title": "ส่งเอกสารใหม่หลัง needs_revision",
+      "group": "Revision",
+      "requirement": "FR-019",
+      "priority": "สูง",
+      "type": "Positive / Web/API/Integration",
+      "screenshot": "TC-031.png",
+      "url": "http://127.0.0.1:45163/student/research/edit/2",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-034",
+      "test": "test_tc_034_download_counts_and_public_static_file",
+      "status": "passed",
+      "events": [
+        {
+          "method": "POST",
+          "path": "/research/1/download",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 1,
+              "title_th": "W1 งานวิจัย Selenium",
+              "title_en": "W1 Research",
+              "abstract": "research selenium abstract",
+              "category_id": 1,
+              "department": "วิทยาการคอมพิวเตอร์",
+              "work_type": "วิทยานิพนธ์",
+              "academic_year": 2569,
+              "keywords": "publickeyword,research",
+              "cover_image_path": "static/fixture.png",
+              "file_path": "static/fixture.pdf",
+              "status": "approved",
+              "view_count": 21,
+              "download_count": 1,
+              "published_at": "2026-10-01 00:00:00",
+              "created_at": "2026-10-01 00:00:00",
+              "updated_at": "2026-10-16 08:14:44.526364",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT user_id,action_type FROM download_view_logs WHERE action_type='download'",
+          "row_count": 1,
+          "rows": [
+            {
+              "user_id": 2,
+              "action_type": "download"
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 1,
+              "title_th": "W1 งานวิจัย Selenium",
+              "title_en": "W1 Research",
+              "abstract": "research selenium abstract",
+              "category_id": 1,
+              "department": "วิทยาการคอมพิวเตอร์",
+              "work_type": "วิทยานิพนธ์",
+              "academic_year": 2569,
+              "keywords": "publickeyword,research",
+              "cover_image_path": "static/fixture.png",
+              "file_path": "static/fixture.pdf",
+              "status": "approved",
+              "view_count": 21,
+              "download_count": 1,
+              "published_at": "2026-10-01 00:00:00",
+              "created_at": "2026-10-01 00:00:00",
+              "updated_at": "2026-10-16 08:14:44.526364",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "observation": "Static PDF is accessible without authentication; direct access does not increment download_count."
+        }
+      ],
+      "title": "ผู้ใช้ active ดาวน์โหลดงานมีไฟล์",
+      "group": "ดาวน์โหลด",
+      "requirement": "FR-021",
+      "priority": "กลาง",
+      "type": "Positive / Web/API",
+      "screenshot": "TC-034.png",
+      "url": "http://127.0.0.1:45163/research/1",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-037",
+      "test": "test_tc_037_reviewer_history_is_personal",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/research/history",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/research/history",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/research/history",
+          "status": 403
+        }
+      ],
+      "title": "ผู้ตรวจเห็นประวัติของตน",
+      "group": "ประวัติตรวจ",
+      "requirement": "FR-023",
+      "priority": "กลาง",
+      "type": "Positive / Web/API/RBAC",
+      "screenshot": "TC-037.png",
+      "url": "http://127.0.0.1:45163/advisor/history",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-038",
+      "test": "test_tc_038_assigned_advisor_approves",
+      "status": "passed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/research/2",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT reviewer_id,comment_text,score,status_result FROM review_comments WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "reviewer_id": 5,
+              "comment_text": "Selenium verified review",
+              "score": 80,
+              "status_result": "approved"
+            }
+          ]
+        }
+      ],
+      "title": "advisor ที่ได้รับมอบหมายอนุมัติ pending",
+      "group": "ตรวจงาน",
+      "requirement": "FR-024",
+      "priority": "สูง",
+      "type": "Positive / Web/API",
+      "screenshot": "TC-038.png",
+      "url": "http://127.0.0.1:45163/advisor/reviews/2",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-043",
+      "test": "test_tc_043_private_notifications_and_read",
+      "status": "failed",
+      "events": [
+        {
+          "method": "GET",
+          "path": "/notifications/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/notifications/2/read",
+          "status": 404
+        },
+        {
+          "database_query": "SELECT is_read FROM notifications WHERE id=2",
+          "row_count": 1,
+          "rows": [
+            {
+              "is_read": 0
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/notifications/1/read",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/notifications/read-all",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT is_read FROM notifications WHERE id=1",
+          "row_count": 1,
+          "rows": [
+            {
+              "is_read": 1
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT is_read FROM notifications WHERE id=2",
+          "row_count": 1,
+          "rows": [
+            {
+              "is_read": 0
+            }
+          ]
+        }
+      ],
+      "title": "อ่านเฉพาะของตนและ mark read",
+      "group": "แจ้งเตือน",
+      "requirement": "FR-028",
+      "priority": "สูง",
+      "type": "Positive / Web/API/RBAC",
+      "reason": "call failed; see pytest terminal output",
+      "exception": "TimeoutException",
+      "screenshot": "TC-043.png",
+      "url": "http://127.0.0.1:45163/account/saved",
+      "browser": "155.0.8059.39",
+      "visible_buttons": [
+        "",
+        "ทั้งหมด",
+        "ยังไม่อ่าน (0)",
+        "ออกจากระบบ",
+        ""
+      ]
+    },
+    {
+      "case": "TC-046",
+      "test": "test_tc_046_ai_review_contracts_and_permissions",
+      "status": "passed",
+      "events": [
+        {
+          "method": "POST",
+          "path": "/research/1/ai-pre-review",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-pre-review",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/research/999999999/ai-pre-review",
+          "status": 404
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-plagiarism",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-plagiarism",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/research/999999999/ai-plagiarism",
+          "status": 404
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-reviewer-match",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-reviewer-match",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/research/999999999/ai-reviewer-match",
+          "status": 404
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-review-summary",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/research/1/ai-review-summary",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/research/999999999/ai-review-summary",
+          "status": 404
+        }
+      ],
+      "title": "สี่ endpoint วิเคราะห์ผลงานและสิทธิ์",
+      "group": "AI ตรวจงาน",
+      "requirement": "FR-031",
+      "priority": "กลาง",
+      "type": "Positive / Web/API/AI"
+    },
+    {
+      "case": "TC-047",
+      "test": "test_tc_047_student_submission_to_advisor_review",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT id FROM research_works WHERE title_th=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 6
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 6,
+              "title_th": "Cross-role Selenium Research",
+              "title_en": "Selenium Research",
+              "abstract": "บทคัดย่อสำหรับการทดสอบ Selenium กับ backend จริง",
+              "category_id": 1,
+              "department": null,
+              "work_type": null,
+              "academic_year": null,
+              "keywords": null,
+              "cover_image_path": "static/uploads/covers/541995d58e874a1d809df1874a639f01.png",
+              "file_path": "static/uploads/docs/83723ed0fc2b4e05a11f669215692f76.pdf",
+              "status": "pending",
+              "view_count": 0,
+              "download_count": 0,
+              "published_at": null,
+              "created_at": "2026-10-16 08:15:47.286362",
+              "updated_at": "2026-10-16 08:15:47.286365",
+              "submitted_by_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT user_id FROM research_authors WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "user_id": 2
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT user_id FROM research_advisors WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "user_id": 5
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM research_works WHERE status='draft'",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/research/pending",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/research/6",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT reviewer_id,comment_text,score,status_result FROM review_comments WHERE research_id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "reviewer_id": 5,
+              "comment_text": "Selenium verified review",
+              "score": 80,
+              "status_result": "approved"
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT * FROM research_works WHERE id=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 6,
+              "title_th": "Cross-role Selenium Research",
+              "title_en": "Selenium Research",
+              "abstract": "บทคัดย่อสำหรับการทดสอบ Selenium กับ backend จริง",
+              "category_id": 1,
+              "department": null,
+              "work_type": null,
+              "academic_year": null,
+              "keywords": null,
+              "cover_image_path": "static/uploads/covers/541995d58e874a1d809df1874a639f01.png",
+              "file_path": "static/uploads/docs/83723ed0fc2b4e05a11f669215692f76.pdf",
+              "status": "approved",
+              "view_count": 3,
+              "download_count": 0,
+              "published_at": "2026-10-16 08:15:56.086900",
+              "created_at": "2026-10-16 08:15:47.286362",
+              "updated_at": "2026-10-16 08:15:56.680422",
+              "submitted_by_id": 2
+            }
+          ]
+        }
+      ],
+      "title": "เว็บส่งงานแล้ว advisor ตรวจ",
+      "group": "E2E",
+      "requirement": "FR-032",
+      "priority": "สูง",
+      "type": "Positive / E2E",
+      "screenshot": "TC-047.png",
+      "url": "http://127.0.0.1:45163/student/research",
+      "browser": "155.0.8059.39"
+    },
+    {
+      "case": "TC-048",
+      "test": "test_tc_048_admin_category_user_workflow_and_rbac",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT count(*) FROM categories WHERE category_name=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM categories WHERE category_name=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM categories WHERE category_name=?",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 1
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM users WHERE email='u3@example.org'",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM users WHERE email='u3@example.org'",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM users WHERE email='u3@example.org'",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 0
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM users WHERE email='u3@example.org'",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 1
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT id FROM users WHERE email='u3@example.org'",
+          "row_count": 1,
+          "rows": [
+            {
+              "id": 9
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/users/9",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "path": "/categories/",
+          "status": 200
+        },
+        {
+          "database_query": "SELECT count(*) FROM users",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 9
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM categories",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 3
+            }
+          ]
+        },
+        {
+          "observation": "Student /admin UI final URL: http://127.0.0.1:45163/admin"
+        },
+        {
+          "method": "GET",
+          "path": "/users/",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/users/",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "path": "/categories/",
+          "status": 403
+        },
+        {
+          "database_query": "SELECT count(*) FROM users",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 9
+            }
+          ]
+        },
+        {
+          "database_query": "SELECT count(*) FROM categories",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 3
+            }
+          ]
+        }
+      ],
+      "title": "เว็บ admin จัดการหมวดหมู่/ผู้ใช้",
+      "group": "E2E",
+      "requirement": "FR-032",
+      "priority": "กลาง",
+      "type": "Positive / E2E/RBAC",
+      "screenshot": "TC-048.png",
+      "url": "http://127.0.0.1:45163/admin",
+      "browser": "155.0.8059.39"
+    }
+  ]
+}

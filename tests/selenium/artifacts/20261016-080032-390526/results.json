@@ -1,0 +1,45 @@
+{
+  "generated_at": "2026-10-16T08:00:34.458906+00:00",
+  "commit": "unknown",
+  "os": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.36",
+  "database": "disposable SQLite; PostgreSQL/pgvector not certified",
+  "ai": "deterministic test double; text retrieval fallback",
+  "exit_code": 0,
+  "cases": [
+    {
+      "case": "TC-002",
+      "test": "test_tc_002_duplicate_registration",
+      "status": "passed",
+      "events": [
+        {
+          "database_query": "SELECT count(*) FROM users",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 8
+            }
+          ]
+        },
+        {
+          "method": "POST",
+          "path": "/auth/register",
+          "status": 400
+        },
+        {
+          "database_query": "SELECT count(*) FROM users",
+          "row_count": 1,
+          "rows": [
+            {
+              "count(*)": 8
+            }
+          ]
+        }
+      ],
+      "title": "สมัคร email ซ้ำ",
+      "group": "บัญชี",
+      "requirement": "FR-001",
+      "priority": "สูง",
+      "type": "Negative / API"
+    }
+  ]
+}

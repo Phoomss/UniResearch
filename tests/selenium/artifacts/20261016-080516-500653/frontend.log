@@ -1,0 +1,12 @@
+▲ Next.js 16.2.12 (webpack)
+- Local:         http://127.0.0.1:44559
+- Network:       http://127.0.0.1:44559
+✓ Ready in 313ms
+
+○ Compiling /login ...
+ GET /login 200 in 1765ms (next.js: 1525ms, application-code: 240ms)
+ GET /login 200 in 79ms (next.js: 3ms, application-code: 76ms)
+ GET /register 200 in 1966ms (next.js: 1835ms, application-code: 131ms)
+ POST /api/auth/register 200 in 737ms (next.js: 474ms, application-code: 263ms)
+ GET /login?registered=1 200 in 194ms (next.js: 45ms, application-code: 149ms)
+[?25h
