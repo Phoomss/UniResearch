@@ -1,7 +1,6 @@
 import json
 import os
 import platform
-import secrets
 import shutil
 import signal
 import socket
@@ -19,6 +18,7 @@ from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.service import Service
 
+from .dataset import CATEGORIES, DEFAULT_TEST_PASSWORD, fixture_accounts, fixture_works
 from .support import PDF, PNG, Evidence
 from .ui_runtime import BrowserEvidence, BrowserSettings, account_email
 
@@ -30,8 +30,9 @@ RESULTS = {}
 def pytest_addoption(parser):
     parser.addoption(
         "--include-legacy",
+        "--all-cases",
         action="store_true",
-        help="Also collect untouched teammates cases",
+        help="Collect all 48 documented cases (default: 18 Narongsak cases)",
     )
     modes = parser.getgroup("browser modes")
     modes.addoption("--headed", action="store_true", help="Show Chrome (local default)")
@@ -60,6 +61,7 @@ def pytest_configure(config):
 
 def pytest_collection_modifyitems(config, items):
     selected, deselected = [], []
+    config.ui_case_ids = set()
     for item in items:
         case = int(item.name.split("_")[2])
         if case in NARONGSAK:
@@ -69,6 +71,7 @@ def pytest_collection_modifyitems(config, items):
             for name in ("page", "options_page", "document_page", "ai_review_page")
         ):
             item.add_marker(pytest.mark.ui)
+            config.ui_case_ids.add(f"TC-{case:03}")
         if case in NARONGSAK or config.getoption("--include-legacy"):
             selected.append(item)
         else:
@@ -98,26 +101,21 @@ CASE_CATEGORY = {
     for category, cases in CATEGORY_IDS.items()
     for case in cases
 }
-EXPECTED = {
-    "TC-001": "สมัครสำเร็จโดยได้สิทธิ์ student แม้ส่ง role admin",
-    "TC-004": "แสดงข้อผิดพลาดและไม่สร้าง session",
-    "TC-007": "ล็อกอินสำเร็จ ออกจากระบบ และหน้าที่ต้องล็อกอินปฏิเสธการเข้าถึง",
-    "TC-010": "อ่านหมวดหมู่สาธารณะได้และ admin เพิ่มหมวดหมู่ผ่าน UI สำเร็จ",
-    "TC-013": "student บันทึกตัวเลือกส่วนกลางไม่ได้ ข้อมูลเดิมไม่เปลี่ยน",
-    "TC-016": "คำแนะนำไม่เผยข้อมูล pending",
-    "TC-019": "แสดงไม่พบงานวิจัยและ API ตอบ 404",
-    "TC-022": "บันทึกข้อมูล ไฟล์ ผู้เขียน และที่ปรึกษาครบ สถานะ pending",
-    "TC-025": "UI ไม่เสนอผู้เขียนคนละปี และ backend ปฏิเสธด้วย 422",
-    "TC-028": "เห็นงานที่ส่งและร่วมเขียน ไม่เห็น pending ของผู้อื่น",
-    "TC-031": "ส่งไฟล์ใหม่สำเร็จ เก็บไฟล์เดิม และกลับเป็น pending",
-    "TC-034": "ดาวน์โหลด PDF ผ่าน UI ได้ บันทึกผู้ใช้และนับหนึ่งครั้ง",
-    "TC-037": "ประวัติแสดงเฉพาะงานที่ผู้ตรวจคนนี้ตรวจ",
-    "TC-038": "ที่ปรึกษาที่ได้รับมอบหมายอนุมัติและบันทึกผลสำเร็จ",
-    "TC-043": "เห็นและทำเครื่องหมายอ่านเฉพาะการแจ้งเตือนของตน",
-    "TC-046": "ทั้งสี่ AI tabs แสดงผล mock จริงและปฏิเสธสิทธิ์ student/anonymous",
-    "TC-047": "ส่งงานผ่าน UI และที่ปรึกษาอนุมัติผ่าน UI สำเร็จ",
-    "TC-048": "admin เพิ่มหมวดหมู่และผู้ใช้ผ่าน UI; student ถูกปฏิเสธ API จัดการ",
-}
+for category, first, last in [
+    ("auth", 1, 7),
+    ("user", 8, 9),
+    ("category", 10, 11),
+    ("user", 12, 13),
+    ("recommendation", 14, 20),
+    ("submission", 21, 35),
+    ("review", 36, 41),
+    ("favorite", 42, 42),
+    ("notification", 43, 43),
+    ("ai", 44, 46),
+    ("e2e", 47, 48),
+]:
+    for number in range(first, last + 1):
+        CASE_CATEGORY.setdefault(f"TC-{number:03}", category)
 
 
 def port():
@@ -205,7 +203,7 @@ def app_environment(pytestconfig):
             backend + "/health",
             pytestconfig.artifact_dir / "backend.log",
         )
-        password = os.environ.get("TEST_PASSWORD") or secrets.token_urlsafe(18)
+        password = os.environ.get("TEST_PASSWORD") or DEFAULT_TEST_PASSWORD
         # Hash without importing application config into pytest or reading .env.
         from passlib.context import CryptContext
 
@@ -272,75 +270,68 @@ def e(app_environment, request):
             "users",
         ]:
             db.execute(f"DELETE FROM {table}")
-        for uid, key, role, sid, active in [
-            (1, "A1", "admin", None, 1),
-            (2, "S1", "student", "64001", 1),
-            (3, "S2", "student", "64002", 1),
-            (4, "S3", "student", "65003", 1),
-            (5, "D1", "advisor", None, 1),
-            (6, "D2", "advisor", None, 1),
-            (7, "G1", "guest", None, 1),
-            (8, "U2", "student", "64004", 0),
-        ]:
+        for row in fixture_accounts():
             db.execute(
                 "INSERT INTO users(id,email,hashed_password,role,student_id,first_name,last_name,department,is_active) VALUES(?,?,?,?,?,?,?,?,?)",
                 (
-                    uid,
-                    account_email(key),
+                    row["id"],
+                    account_email(row["key"]),
                     hashed,
-                    role,
-                    sid,
-                    key,
-                    "Selenium",
-                    "วิทยาการคอมพิวเตอร์",
-                    active,
+                    row["role"],
+                    row["student_id"],
+                    row["first_name"],
+                    row["last_name"],
+                    row["department"],
+                    row["is_active"],
                 ),
             )
         db.executemany(
             "INSERT INTO categories(id,category_name,description) VALUES(?,?,?)",
-            [(1, "C1 Selenium", "test"), (2, "C2 Selenium", "test")],
+            [
+                (index + 1, row["category_name"], row["description"])
+                for index, row in enumerate(CATEGORIES)
+            ],
         )
-        db.execute("INSERT INTO departments(name) VALUES('วิทยาการคอมพิวเตอร์')")
-        db.execute("INSERT INTO work_types(name) VALUES('วิทยานิพนธ์')")
-        for wid, status, owner, category, views, published, keywords in [
-            (1, "approved", 2, 1, 20, "2026-10-01 00:00:00", "publickeyword,research"),
-            (2, "pending", 2, 1, 0, None, "pendingsecret"),
-            (3, "pending", 3, 2, 0, None, "otherpending"),
-            (4, "approved", 3, 2, 40, "2026-10-02 00:00:00", "publickeyword,selenium"),
-            (5, "approved", 3, 1, 10, "2026-09-30 00:00:00", "research"),
-        ]:
+        db.executemany(
+            "INSERT INTO departments(name) VALUES(?)",
+            [("วิศวกรรมซอฟต์แวร์",), ("วิทยาการคอมพิวเตอร์",), ("วิศวกรรมคอมพิวเตอร์",)],
+        )
+        db.executemany(
+            "INSERT INTO work_types(name) VALUES(?)", [("วิทยานิพนธ์",), ("โครงงานวิจัย",)]
+        )
+        for row in fixture_works():
             db.execute(
                 """INSERT INTO research_works(id,title_th,title_en,abstract,category_id,department,work_type,
                 academic_year,keywords,cover_image_path,file_path,status,view_count,download_count,published_at,
                 created_at,updated_at,submitted_by_id) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
                 (
-                    wid,
-                    f"W{wid} งานวิจัย Selenium",
-                    f"W{wid} Research",
-                    "research selenium abstract",
-                    category,
-                    "วิทยาการคอมพิวเตอร์",
-                    "วิทยานิพนธ์",
-                    2569,
-                    keywords,
+                    row["id"],
+                    row["title_th"],
+                    row["title_en"],
+                    row["abstract"],
+                    row["category_id"],
+                    row["department"],
+                    row["work_type"],
+                    row["academic_year"],
+                    row["keywords"],
                     "static/fixture.png",
-                    "static/fixture.pdf" if wid != 5 else None,
-                    status,
-                    views,
+                    "static/fixture.pdf" if row["id"] != 5 else None,
+                    row["status"],
+                    row["view_count"],
                     0,
-                    published,
+                    row["published_at"],
                     "2026-10-01 00:00:00",
                     "2026-10-01 00:00:00",
-                    owner,
+                    row["submitted_by_id"],
                 ),
             )
             db.execute(
                 "INSERT INTO research_authors(research_id,user_id,role_in_work) VALUES(?,?,?)",
-                (wid, owner, "primary"),
+                (row["id"], row["submitted_by_id"], "primary"),
             )
             db.execute(
                 "INSERT INTO research_advisors(research_id,user_id) VALUES(?,?)",
-                (wid, 6 if wid == 3 else 5),
+                (row["id"], row["advisor_id"]),
             )
         db.execute(
             "INSERT INTO research_authors(research_id,user_id,role_in_work) VALUES(4,2,'co-author')"
@@ -526,6 +517,13 @@ def pytest_runtest_makereport(item, call):
 
 
 def pytest_sessionfinish(session, exitstatus):
+    if session.config.option.collectonly:
+        return
+    case_categories = {
+        case: category
+        for case, category in CASE_CATEGORY.items()
+        if session.config.getoption("include_legacy") or int(case[3:]) in NARONGSAK
+    }
     directory = session.config.artifact_dir
     binary = os.environ.get("SELENIUM_CHROME_BINARY")
     browser_release = "auto"
@@ -543,13 +541,13 @@ def pytest_sessionfinish(session, exitstatus):
         ).strip()
     except (subprocess.SubprocessError, OSError):
         pass
-    for case, category in CASE_CATEGORY.items():
+    for case, category in case_categories.items():
         record = RESULTS.setdefault(
             case, {"case": case, "status": "not_run", "events": []}
         )
         record.update(session.config.case_catalog[case])
         record["category"] = category
-        record["expected_result"] = EXPECTED[case]
+        record["expected_result"] = session.config.case_catalog[case]["expected_result"]
         record["actual_result"] = {
             "passed": "ขั้นตอนและ assertions ผ่านทั้งหมด",
             "failed": "ขั้นตอนหรือ assertion ล้มเหลว",
@@ -567,6 +565,15 @@ def pytest_sessionfinish(session, exitstatus):
         "database": "disposable SQLite; PostgreSQL/pgvector not certified",
         "ai": "deterministic test double; text retrieval fallback",
         "exit_code": int(exitstatus),
+        "data_sources": [
+            "backend/app/scripts/student.csv",
+            "backend/app/scripts/advisors.csv",
+            "backend/app/scripts/migrate.py",
+        ],
+        "specification": "docs/system-audit/TEST-CASES.md",
+        "scope": "all_48"
+        if session.config.getoption("include_legacy")
+        else "narongsak_18",
         "cases": sorted(RESULTS.values(), key=lambda x: x["case"]),
     }
     (directory / "results.json").write_text(
@@ -580,7 +587,7 @@ def pytest_sessionfinish(session, exitstatus):
         "not_run": "NOT RUN",
     }
     lines = [
-        "# รายงานการทดสอบ Narongsak ด้วย Selenium",
+        "# รายงานการทดสอบ UniResearch ด้วย Selenium",
         "",
         f"เวลารัน UTC: {summary['generated_at']}",
         f"Commit: `{commit}` (รวมการแก้ไขใน working tree)",
@@ -592,7 +599,7 @@ def pytest_sessionfinish(session, exitstatus):
         "| Test Case ID | หมวดหมู่ | สถานการณ์ | ผลที่คาดหวัง | ผลจริง | สถานะ | หลักฐาน |",
         "|---|---|---|---|---|---|---|",
     ]
-    for case in sorted(CASE_CATEGORY):
+    for case in sorted(case_categories):
         r = RESULTS.get(case, {"case": case, "status": "not_run"})
         catalog = session.config.case_catalog[case]
         status = statuses[r["status"]]
@@ -612,12 +619,12 @@ def pytest_sessionfinish(session, exitstatus):
         if status in {"FAIL", "BLOCKED"}:
             evidence += " / [error log](errors.log) / [backend](backend.log) / [frontend](frontend.log)"
         lines.append(
-            f"| {case} | {CASE_CATEGORY[case].upper()} | {catalog['title']} | {EXPECTED[case]} | {actual} | {status} | {evidence} |"
+            f"| {case} | {CASE_CATEGORY[case].upper()} | {catalog['title']} | {catalog['expected_result']} | {actual} | {status} | {evidence} |"
         )
     (directory / "report.md").write_text("\n".join(lines) + "\n")
     from .ui_reporting import write_ui_report
 
-    write_ui_report(session.config, summary, REPO, CASE_CATEGORY)
+    write_ui_report(session.config, summary, REPO, case_categories)
 
 
 def pytest_terminal_summary(terminalreporter, exitstatus, config):

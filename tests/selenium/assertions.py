@@ -1,5 +1,6 @@
 """Independent persistence assertions shared by Narongsak browser cases."""
 
+from .dataset import submission_fields
 from .support import PDF, PNG
 
 
@@ -12,22 +13,23 @@ def assert_submission(e, wid):
     assert work["status"] == "pending" and work["submitted_by_id"] == 2, (
         "Submission must be pending and owned by S1"
     )
-    expected = {
-        "title_en": "Selenium Research",
-        "category_id": 1,
-        "department": "วิทยาการคอมพิวเตอร์",
-        "work_type": "วิทยานิพนธ์",
-        "academic_year": 2569,
-    }
-    for field, value in expected.items():
-        assert work[field] == value, (
-            f"Submission field {field}: expected {value!r}, got {work[field]!r}"
+    values = submission_fields(work["title_th"])
+    for field in (
+        "title_en",
+        "category_id",
+        "department",
+        "work_type",
+        "academic_year",
+    ):
+        assert work[field] == values[field], (
+            f"Submission field {field} differs from migration source"
         )
-    assert [keyword.strip() for keyword in work["keywords"].split(",")] == [
-        "selenium",
-        "research",
-    ], "Submission must persist both keywords in order"
-    assert work["abstract"], "Complete submission must retain the abstract"
+    assert [k.strip() for k in work["keywords"].split(",")] == [
+        k.strip() for k in values["keywords"].split(",")
+    ]
+    assert work["abstract"] == values["abstract"], (
+        "Submission abstract differs from the migration source"
+    )
     assert e.rows(
         "SELECT user_id FROM research_authors WHERE research_id=?", (wid,)
     ) == [{"user_id": 2}], "Submission must retain S1 as author"

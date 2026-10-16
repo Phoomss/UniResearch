@@ -4,17 +4,17 @@
 
 ใช้คู่กับ [Test Cases](TEST-CASES.md) และ [Traceability](TRACEABILITY.md) เอกสารนี้รวมเนื้อหาจาก [TEST-PLAN.md](TEST-PLAN.md) และ [TEST-REPORT.md](TEST-REPORT.md) โดยคงหัวข้อย่อย 1.1–1.10 / 2.1–2.8 ตรงกัน
 
-การทบทวนครั้งนี้ไม่ได้รันทดสอบใหม่ ผลย้อนหลังแยกตาม session/commit; ผลทั้ง 48 กรณีที่ใช้เป็น baseline คือ 44 PASS / 4 FAIL วันที่ 8 ตุลาคม ส่วน UI 18/18 วันที่ 14 ตุลาคมเป็น subset และ session ล่าสุดวันที่ 16 ตุลาคมมี 1 PASS / 17 NOT RUN ของ subset เงื่อนไขที่เพิ่มในฉบับปรับปรุงยังต้อง execute ก่อนรับรอง
+ปรับสคริปต์และรันข้อมูล CSV/migration แล้ว ดูผล C16/R16/R16B และข้อผิดพลาดระบบที่ยังเปิดในส่วนรายงาน ผลแยกตาม session โดยไม่รวมกับ baseline เดิม ยังไม่รับรองระบบครบทุกขั้นตอน
 
 ## ส่วนที่ 1 — แผนการทดสอบ
 
 ชื่องานปัจจุบันใช้ชื่อเต็มจาก [migrate.py/seed_thai_data.py](TEST-RESEARCH-DATA.md) พร้อมระบุสำเนาที่เตรียมเพิ่ม สถานะและการเชื่อมบัญชี CSV เป็นเงื่อนไขบนฐานทดสอบ ไม่ใช่ผล migration หรือผลทดสอบย้อนหลังของบุคคลนั้น
 
-ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.2](TEST-CASES.md#12-สภาพแวดล้อมและข้อมูลร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลรันย้อนหลังใช้บัญชีตัวอย่างของรอบเดิมและยังไม่ได้ทดสอบชุด CSV นี้
+ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.2](TEST-CASES.md#12-สภาพแวดล้อมและข้อมูลร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลย้อนหลังอ้างข้อมูลของรอบเดิม ส่วนผลรันด้วยบัญชี CSV และ migration ปัจจุบันแยกใน [รายงานปรับสคริปต์ 16 ตุลาคม](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md)
 
 ฉบับทบทวนเนื้อหา: **16 ตุลาคม 2026** · ขอบเขต **48 TC / 32 FR**
 
-ส่วนที่ 1 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md) ใช้กับ [TEST-CASES.md](TEST-CASES.md) ฉบับวันที่เดียวกัน แผนนี้ระบุวิธีและเกณฑ์ที่จะใช้; ผลการดำเนินการย้อนหลังอยู่ใน [TEST-REPORT.md](TEST-REPORT.md) การแก้เอกสารครั้งนี้ไม่ได้รันทดสอบใหม่หรือรับรองระบบแทนผู้อนุมัติ
+ส่วนที่ 1 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md) ใช้กับ [TEST-CASES.md](TEST-CASES.md) ฉบับวันที่เดียวกัน แผนนี้ระบุวิธีและเกณฑ์ที่จะใช้; ผลการดำเนินการย้อนหลังอยู่ใน [TEST-REPORT.md](TEST-REPORT.md) การทบทวนเอกสารเดิมไม่ได้ execute ใหม่ ต่อมามีการปรับสคริปต์และรันทดสอบตาม [รายงานปรับสคริปต์](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md) ผลยังต้องให้ผู้รับผิดชอบรับรองตามเกณฑ์
 
 ## 1.1 วัตถุประสงค์และฐานอ้างอิง
 
@@ -148,7 +148,7 @@ HTTP/DB assertions ที่อยู่ร่วม Selenium เป็นหล
 ```sh
 pytest tests/selenium/ -v --headed
 pytest tests/selenium/ -m ai -v --headless
-pytest tests/selenium/ --include-legacy -v --headless
+pytest tests/selenium/ --all-cases -v --headless
 ```
 
 คำสั่งแรกปัจจุบันเลือก 18 TC; คำสั่งสุดท้ายขอรวม legacy แต่ต้องตรวจ collection/จำนวน unique TC ก่อนเรียกผลว่า 48/48 ห้ามรวม duplicate ID หรือแปลง deselected เป็น PASS Runner local ใช้ `.next`/dev lock ร่วมกับ checkout จึงรัน serial และจัดการ dev server เดิมก่อน; ไม่รัน pytest-xdist กับ fixture reset นี้
@@ -171,7 +171,8 @@ pytest tests/selenium/ --include-legacy -v --headless
 | Docker baseline | 4 ต.ค. 2026 ดำเนินการแล้ว | 17 PASS / 31 ข้าม; quality gates ตามหลักฐานเดิม |
 | Selenium full baseline และ notification retest | 8 ต.ค. 2026 ดำเนินการแล้ว | ผลทั้ง 48 และผล focused แยก session |
 | ปรับ Selenium/UI subset | 14 ต.ค. 2026 ดำเนินการแล้ว | session 18/18 และหลักฐาน UI |
-| Focused UI retest | 16 ต.ค. 2026 มีผลบาง TC | latest session TC-038 PASS, อีก 17 NOT RUN |
+| Focused UI retest | 16 ต.ค. 2026 มีผลบาง TC | U16 ก่อนปรับสคริปต์: TC-038 PASS, อีก 17 NOT RUN |
+| ปรับข้อมูล CSV/migration และสคริปต์ | 16 ต.ค. 2026 ดำเนินการแล้ว | C16 ครบ 48 (43 PASS/5 FAIL), R16/R16B focused แยก; ติดตาม TC-018/027/045 |
 | ทบทวนเนื้อหาเอกสาร | 16 ต.ค. 2026 | ฉบับนี้; ไม่มี execution ใหม่ |
 | รันเงื่อนไขที่เพิ่มครบ 48 TC / PostgreSQL | รอจัดกำหนดการ | evidence ของฉบับปรับปรุงและ defect log |
 | Regression / รับรอง | หลังแก้ defect และผ่าน gates | ผลรอบใหม่พร้อมการลงนาม |
@@ -206,20 +207,19 @@ pytest tests/selenium/ --include-legacy -v --headless
 | ผู้ทบทวนแผน | รอระบุ | รอตรวจ |
 | ผู้อนุมัติ scope/exit criteria/นโยบาย | รอระบุ | ยังไม่มีการรับรอง |
 
-
 ## ส่วนที่ 2 — รายงานผลการทดสอบ
 
 ชื่องานปัจจุบันใช้ชื่อเต็มจาก [migrate.py/seed_thai_data.py](TEST-RESEARCH-DATA.md) พร้อมระบุสำเนาที่เตรียมเพิ่ม สถานะและการเชื่อมบัญชี CSV เป็นเงื่อนไขบนฐานทดสอบ ไม่ใช่ผล migration หรือผลทดสอบย้อนหลังของบุคคลนั้น
 
-ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.2](TEST-CASES.md#12-สภาพแวดล้อมและข้อมูลร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลรันย้อนหลังใช้บัญชีตัวอย่างของรอบเดิมและยังไม่ได้ทดสอบชุด CSV นี้
+ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.2](TEST-CASES.md#12-สภาพแวดล้อมและข้อมูลร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลย้อนหลังอ้างข้อมูลของรอบเดิม ส่วนผลรันด้วยบัญชี CSV และ migration ปัจจุบันแยกใน [รายงานปรับสคริปต์ 16 ตุลาคม](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md)
 
 ฉบับทบทวนเนื้อหา: **16 ตุลาคม 2026** · ส่วนที่ 2 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md)
 
-**ข้อสรุป:** มีหลักฐาน Selenium baseline ทั้ง 48 กรณีวันที่ 8 ตุลาคม: **44 PASS / 4 FAIL** และมีผล UI subset 18 กรณีวันที่ 14 ตุลาคม: **18 PASS** ใน session เดียว ส่วน session ล่าสุดที่ตรวจพบวันที่ 16 ตุลาคมรันเฉพาะ TC-038: **1 PASS / 17 NOT RUN** ไม่มีหลักฐานว่ารันเงื่อนไขที่เพิ่มใน Test Cases ฉบับทบทวนครบแล้ว จึงยังรับรองระบบครบขอบเขตไม่ได้
+**ข้อสรุปปัจจุบัน:** ปรับสคริปต์ให้ใช้บัญชี CSV และชื่องานจาก migration แล้ว รอบเต็ม C16 วันที่ 16 ตุลาคมได้ **43 PASS / 5 FAIL จาก 48** หลังแก้ปัญหาสคริปต์ TC-015/032 และเพิ่มขั้นตอน UI มีรอบ R16 **4 PASS / 1 FAIL** แล้วทวน TC-002 ซึ่งคาดข้อความผิดภาษาใน R16B **1 PASS** ยังมีข้อผิดพลาดระบบ TC-018/027/045 เปิดอยู่ ดู [ผลปรับสคริปต์และผลรายกรณี](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md)
 
-รายงานนี้ตรวจและเรียบเรียงจากผลที่มีอยู่ **ไม่ได้รันทดสอบใหม่** ไม่รวม PASS ข้าม session/commit เป็นผลรันเดียว และไม่ถือว่า NOT RUN ใน session ใหม่ลบล้างประวัติรอบเก่า
+ผล C16/R16/R16B ไม่รวมเป็น session เดียว ส่วน S08/U14/U16 ด้านล่างเป็นประวัติของสคริปต์และข้อมูลรอบเดิม ไม่ใช้รับรองข้อมูล CSV โดยอัตโนมัติ ทุกขั้นตอน manual/ส่วนเสริมที่ไม่ได้ assert ยังต้องทวนก่อนลงนามรับรอง
 
-สี่หัวข้อหลักของ Test Cases ปัจจุบันเป็นคู่มือกดหน้าเว็บด้วยบัญชี CSV และชื่อเมนูจาก frontend source; รายละเอียด API/DB/ไฟล์อยู่ใน [คู่มือจุดตรวจเสริม](TEST-CASES-TECHNICAL-CHECKS.md) การเรียบเรียงครั้งนี้ไม่ได้เปิด browser execute ใหม่ และผลย้อนหลังไม่รับรองลำดับกด/บัญชี/รหัสผ่านสำเนาฉบับนี้โดยอัตโนมัติ
+สี่หัวข้อหลักของ Test Cases เป็นคู่มือกดหน้าเว็บ รายละเอียด API/DB/ไฟล์อยู่ใน [คู่มือจุดตรวจเสริม](TEST-CASES-TECHNICAL-CHECKS.md) สคริปต์ปัจจุบันมี UI 34 กรณีและ API-only 14 กรณี การรันครบ 48 ไม่ใช่หลักฐานว่าเดิน UI ครบทั้ง 48
 
 ## 2.1 ข้อมูลรอบทดสอบและหลักฐาน
 
@@ -231,6 +231,7 @@ pytest tests/selenium/ --include-legacy -v --headless
 | A08 — assignment subset | 18 TC ของ Narongsak; Chrome/SQLite/mock | `c6e941ebc0794323ca24a82405efcf1b059aee93` + working tree | [รายงาน](../../tests/selenium/artifacts/20261008-042008-398982/report.md), [JSON](../../tests/selenium/artifacts/20261008-042008-398982/results.json) |
 | U14 — 14 ต.ค. 2026 | 18 TC; UI จริง Chrome headed 155.0.8059.41; macOS 27.0.1; SQLite/mock | `7ff6c6750f0982ca4a34834daf5dee5ff223e976` + working tree | [UI report](../../tests/selenium/reports/20261014-102745-778362/UI-TEST-EXECUTION.md), [JSON](../../tests/selenium/reports/20261014-102745-778362/ui-results.json) |
 | U16 — 16 ต.ค. 2026 | TC-038; Chrome headed 155.0.8059.82; SQLite/mock | `f435e68deb29a5c6531012e877c7b8f7e9be9209` + working tree | [UI report](../../tests/selenium/reports/20261016-094537-437659/UI-TEST-EXECUTION.md), [JSON](../../tests/selenium/reports/20261016-094537-437659/ui-results.json) |
+| C16/R16/R16B — 16 ต.ค. 2026 | ข้อมูล CSV/migration; full 48 และ focused retests; Chrome headless/SQLite/mock | `16490e54bd66bb12e0affb3ea16ac1a9bc1b3f57` + working tree แต่ละรอบ | [รายงานปรับสคริปต์](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md) |
 
 ผู้รันอัตโนมัติย้อนหลัง: Codex ตามรายงานเดิม ชื่อ Narongsak/Sommai Kitikorn/Natthaporn ใน Test Cases เป็นการจัดสรรงาน ไม่ใช่หลักฐานว่ารันด้วยตนเอง ผู้รับรองผลยังไม่ระบุ
 
@@ -248,7 +249,10 @@ pytest tests/selenium/ --include-legacy -v --headless
 | A08 | 18 ที่เลือก | 18 | 0 | 0 | 0 | อีก 30 ไม่อยู่ในรอบ | 18 | 100% |
 | U14 | 18 | 18 | 0 | 0 | 0 | 0 ใน subset; อีก 30 นอก scope | 18 | 100% |
 | U16 | 18 | 1 | 0 | 0 | 0 | 17 ใน subset; อีก 30 นอก scope | 1 | 100% |
-| เงื่อนไขฉบับทบทวน 16 ต.ค. | 48 | 0 | 0 | 0 | 0 | 48 ยังไม่ได้รันครบฉบับนี้ | 0 | N/A |
+| C16 — CSV/migration full | 48 | 43 | 5 | 0 | 0 | 0 | 48 | 89.58% |
+| R16 — focused หลังปรับสคริปต์ | 5 ที่เลือก | 4 | 1 | 0 | 0 | อีก 43 ไม่อยู่ในรอบ | 5 | 80% |
+| R16B — ข้อความสมัครซ้ำ | 1 ที่เลือก | 1 | 0 | 0 | 0 | อีก 47 ไม่อยู่ในรอบ | 1 | 100% |
+| ทวนครบทุกขั้นตอน manual/ส่วนเสริม | 48 | ยังไม่รับรอง | ยังไม่รับรอง | — | — | รอผู้ทดสอบทวนสิ่งที่ไม่ได้ assert | — | N/A |
 
 D04 execution coverage = 17/48 = 35.42%; S08 = 48/48 = 100%; U14 UI coverage = 18/18 = 100% ของ subset; U16 UI coverage = 1/18 = 5.56% ของ subset ตัวเลข 100% ของ subset ไม่ใช่ coverage ของทั้ง 48 หรือทุก subcase ที่เพิ่มภายหลัง
 
@@ -277,7 +281,7 @@ D04 execution coverage = 17/48 = 35.42%; S08 = 48/48 = 100%; U14 UI coverage = 1
 
 ชื่อกรณีในตารางใช้ชื่อฉบับทบทวนเพื่อค้นหาด้วย TC ID; ผลย้อนหลังรับรองเฉพาะ assertions ของสคริปต์รอบเดิม ไม่รับรองข้อมูลเตรียมเพิ่มทุกข้อ
 
-S08 = baseline 48 TC; U14 = session UI subset 18 TC; U16 = session ล่าสุดที่ตรวจพบในหลักฐาน UI เครื่องหมาย “นอก scope” ไม่ใช่ FAIL/NOT RUN ของ subset 18 ข้อ แต่หมายถึงไม่ได้อยู่ในชุดนั้น ทุกแถวของฉบับ specification ปรับปรุงยังเป็น NOT RUN จนกว่าจะตรวจ assertions ที่เพิ่มครบ
+S08 = baseline 48 TC; U14 = session UI subset 18 TC; U16 = focused session ก่อนปรับสคริปต์ เครื่องหมาย “นอก scope” ไม่ใช่ FAIL/NOT RUN ของ subset 18 ข้อ แต่หมายถึงไม่ได้อยู่ในชุดนั้น ผล C16/R16/R16B ของข้อมูลและสคริปต์ปัจจุบันอยู่ในรายงานปรับสคริปต์ที่ลิงก์ด้านบน การตรวจครบทุกขั้นตอนและการลงนามแยกจากสถานะในตารางประวัตินี้
 
 | TC | FR | ชื่อกรณี | S08 | U14 | U16 | หมายเหตุผล S08 |
 |---|---|---|---|---|---|---|
@@ -295,7 +299,7 @@ S08 = baseline 48 TC; U14 = session UI subset 18 TC; U16 = session ล่าส�
 | TC-012 | FR-007 | ผู้ดูแลระบบแทนรายการภาควิชาและประเภทงานด้วย New Department กับ New Type พร้อมตัดช่องว่าง | PASS | นอก scope | นอก scope | assertions ของสคริปต์รอบ S08 ผ่าน |
 | TC-013 | FR-007 | นักศึกษา 674259009@webmail.npru.ac.th บันทึกตัวเลือกส่วนกลางผ่านหน้าเว็บและ API ไม่ได้ | PASS | PASS | NOT RUN | assertions ของสคริปต์รอบ S08 ผ่าน |
 | TC-014 | FR-008 | ตรวจสิทธิ์การค้นหางานที่เผยแพร่และรอตรวจแยกตามผู้เยี่ยมชม นักศึกษา ที่ปรึกษา และผู้ดูแลระบบ | PASS | นอก scope | นอก scope | assertions ของสคริปต์รอบ S08 ผ่าน |
-| TC-015 | FR-008 | ค้นคำว่า ranktitle rankabstract แบบจับคู่คำใดคำหนึ่งและตรวจลำดับกับการบันทึกประวัติค้นหา | PASS | นอก scope | นอก scope | assertions ของสคริปต์รอบ S08 ผ่าน |
+| TC-015 | FR-008 | ค้นคำจากชื่อระบบแนะนำหัวข้อโครงงานวิจัยและบทคัดย่อคลังความรู้ดิจิทัลแบบ OR พร้อมตรวจลำดับและประวัติค้นหา | PASS | นอก scope | นอก scope | assertions ของสคริปต์รอบ S08 ผ่าน |
 | TC-016 | FR-009 | คำแนะนำการค้นหาคืนเฉพาะชื่อและคำสำคัญของงานที่เผยแพร่เมื่อค้น publickeyword หรือ pendingsecret | PASS | PASS | NOT RUN | assertions ของสคริปต์รอบ S08 ผ่าน |
 | TC-017 | FR-010 | หน้าแรกจัดงานล่าสุดและยอดนิยมถูกลำดับพร้อมสถิติรวมตรงกับข้อมูลผู้ใช้และผลงานทั้งหมด | PASS | นอก scope | นอก scope | assertions ของสคริปต์รอบ S08 ผ่าน |
 | TC-018 | FR-011 | เปิดรายละเอียดงานเลข 1 แล้วเพิ่มยอดดูและแนะนำงานที่เกี่ยวข้องโดยไม่รวมงานรอตรวจ | FAIL | นอก scope | นอก scope | 500 recommendations / MissingGreenlet |
@@ -330,7 +334,7 @@ S08 = baseline 48 TC; U14 = session UI subset 18 TC; U16 = session ล่าส�
 | TC-047 | FR-032 | นักศึกษาส่ง การพัฒนาคลังความรู้ดิจิทัลเพื่อการสืบค้นงานวิจัยทางการศึกษาของสถาบันอุดมศึกษา (สำเนาทดสอบส่งและตรวจประเมิน) แล้วที่ปรึกษาอนุมัติผ่านคิวจนผู้ส่งเห็นสถานะเผยแพร่ | PASS | PASS | NOT RUN | assertions ของสคริปต์รอบ S08 ผ่าน |
 | TC-048 | FR-032 | ผู้ดูแลระบบเพิ่ม E2E Selenium Category และบัญชี 674259002@webmail.npru.ac.th ผ่านเว็บพร้อมปฏิเสธ API จัดการของนักศึกษา | PASS | PASS | NOT RUN | assertions ของสคริปต์รอบ S08 ผ่าน |
 
-ผล/ขั้นตอน/ภาพราย TC เปิดจากรายงานและ JSON ของแต่ละรอบในข้อ 2.1 ตัวอย่าง TC-038 ล่าสุดมี 17 UI steps และผล PASS ใช้เวลาราย TC 31.49 วินาที; เวลา UI steps/ราย TC ไม่ใช่ระยะเวลารวมเปิดบริการของ session สำหรับ TC-040/043 ผล N08 เป็น PASS ทั้งสองกรณีหลังแก้ notification แต่ไม่เปลี่ยน FAIL ของ S08 ที่บันทึกไว้
+ผล/ขั้นตอน/ภาพราย TC เปิดจากรายงานและ JSON ของแต่ละรอบในข้อ 2.1 ตัวอย่าง TC-038 ของ U16 มี 17 UI steps และผล PASS ใช้เวลาราย TC 31.49 วินาที; เวลา UI steps/ราย TC ไม่ใช่ระยะเวลารวมเปิดบริการของ session สำหรับ TC-040/043 ผล N08 เป็น PASS ทั้งสองกรณีหลังแก้ notification แต่ไม่เปลี่ยน FAIL ของ S08 ที่บันทึกไว้
 
 ### 2.3.1 ประวัติอื่นที่เกี่ยวข้อง
 
@@ -350,13 +354,13 @@ S08 = baseline 48 TC; U14 = session UI subset 18 TC; U16 = session ล่าส�
 | AUD-03 | TC-045 public chat fallback 500 | S08; category relationship ไม่โหลดก่อนสร้าง metadata | พบ FAIL; ไม่มีหลักฐาน retest ผ่านของ TC-045 ในรอบอ้าง | แก้ category loading และทดสอบ fallback/vector branch แยก |
 | AUD-04 | frontend lint ไม่ผ่าน | D04: 16 errors/8 warnings | เป็นผลเก่า; ยังไม่ทราบ gate ปัจจุบัน | รัน lint/typecheck/tests/build กับ commit ที่จะรับรอง |
 
-### 2.4.1 ข้อสงสัยจากโค้ดและนโยบายที่ยังไม่ใช่ FAIL ใหม่
+### 2.4.1 ข้อสังเกตจากโค้ด นโยบาย และการยืนยันเพิ่มเติม
 
 | ประเด็น | สิ่งที่โค้ด/หลักฐานบ่งชี้ | วิธีตรวจและผู้ตัดสิน |
 |---|---|---|
 | Public pending/static | รายละเอียด pending และไฟล์ static เปิดตรงได้; static ไม่เพิ่ม download_count | TC-018/034 และเจ้าของนโยบายการเผยแพร่ |
 | Admin/queue visibility | admin layout ตรวจ session; advisor UI queue ใช้ search ที่กว้างกว่า pending API | TC-036/048 ตรวจ UI/API แล้วให้เจ้าของระบบตัดสิน |
-| Update rollback กับไฟล์เดิม | service อาจลบ cover เดิมก่อน document ใหม่ตรวจผ่าน; DB rollback ไม่คืน bytes อัตโนมัติ | TC-027 เพิ่ม snapshot ของไฟล์เก่า; ยังไม่ได้ reproduce ในการทบทวนเอกสาร |
+| Update rollback กับไฟล์เดิม | service อาจลบ cover เดิมก่อน document ใหม่ตรวจผ่าน; DB rollback ไม่คืน bytes อัตโนมัติ | C16 reproduce แล้ว: DB เก็บ path เดิมแต่ไฟล์ปกเดิมหาย เป็น FAIL ใหม่ตาม [รายงานปรับสคริปต์](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md) |
 | Revision cleanup | ลบแถว file_revisions แต่ service ลบเฉพาะไฟล์ cover/document ปัจจุบัน | TC-032 ตรวจ orphan files; ต้องกำหนด retention/cleanup policy |
 | Schema/validation | suggest-titles/keywords รับ {} ได้; score review ไม่จำกัด 0–100 ใน schema | แก้ expectation ตาม schema และกำหนด requirement เพิ่มหากต้องการบังคับ |
 
@@ -374,7 +378,7 @@ SQLite functional evidence ไม่รับรอง PostgreSQL FK/transaction
 
 | เกณฑ์ฉบับทบทวน | ผลประเมิน | เหตุผล |
 |---|---|---|
-| Execute 48/48 พร้อม subcase ฉบับนี้ | ยังไม่ผ่าน | มี S08 48 TC ของ specification เดิม; ฉบับปรับปรุงยัง NOT RUN |
+| Execute 48/48 พร้อม subcase ฉบับนี้ | ยังไม่ผ่าน | C16 รัน assertions 48 TC แล้ว (43 PASS/5 FAIL); focused retests แยกและยังไม่ยืนยันทุกขั้นตอน manual |
 | Priority สูง 31 TC ผ่านและจัดการ defect | ยังยืนยันไม่ได้ | baseline มี FAIL และยังไม่มี regression ครบฉบับนี้ |
 | ทุก FR มีแผน/หลักฐาน | แผนครบ; หลักฐานรับรองยังไม่ครบ | 32/32 มีแผน แต่ TC-018/045 และเงื่อนไขเพิ่มยังไม่ยืนยันผ่าน |
 | Quality gates ของ revision ที่รับรอง | ยังไม่ยืนยัน | มีผลเก่าบาง gate ไม่ผ่าน; ไม่ได้รัน gates ปัจจุบัน |
@@ -383,7 +387,7 @@ SQLite functional evidence ไม่รับรอง PostgreSQL FK/transaction
 
 ## 2.7 ข้อสรุปและงานติดตาม
 
-**ผลตัดสิน: ยังไม่รับรองความครบของระบบทั้ง 48 TC ตามฉบับปรับปรุง** ผล U14 ผ่าน 18/18 เป็นหลักฐานที่ใช้ทบทวน subset ได้ ส่วน U16 ยืนยัน TC-038 เฉพาะ session ล่าสุด การเพิ่มความละเอียดเอกสารไม่ใช่การปิดข้อบกพร่อง
+**ผลตัดสิน: ยังไม่รับรองระบบครบ 48 TC ตามเกณฑ์ฉบับปรับปรุง** มีผลรันข้อมูล CSV/migration ใหม่และแก้สคริปต์ที่ไม่ตรง UI แล้ว แต่ยังมีข้อผิดพลาดระบบ TC-018/027/045 และต้องทวนเงื่อนไขที่ไม่ได้ assert รวมถึง integration ตามแผน
 
 1. จัด run manifest และกำหนดผู้ทบทวน/ผู้อนุมัติ scope/นโยบาย pending URL, static files และ queue
 2. รันทดสอบ TC-018/045 เพื่อยืนยันสถานะปัจจุบัน พร้อมแก้และ retest เมื่อยังผิด

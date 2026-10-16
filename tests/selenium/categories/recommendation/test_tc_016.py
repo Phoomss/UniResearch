@@ -3,6 +3,8 @@ import json
 import pytest
 from selenium.webdriver.common.by import By
 
+from tests.selenium.dataset import WORK_TITLES
+
 
 @pytest.mark.recommendation
 def test_tc_016_suggestions_hide_pending(e, page):
@@ -19,9 +21,9 @@ def test_tc_016_suggestions_hide_pending(e, page):
     assert "pendingsecret" not in page.driver.find_element(By.TAG_NAME, "body").text, (
         "TC-016: expected 'pendingsecret' not in page.driver.find_element(By.TAG_NAME, 'body').text"
     )
-    assert (
-        "W2 งานวิจัย Selenium" not in page.driver.find_element(By.TAG_NAME, "body").text
-    ), "Matching pending submission must not appear in visible suggestions"
+    assert WORK_TITLES[2] not in page.driver.find_element(By.TAG_NAME, "body").text, (
+        "Matching pending submission must not appear in visible suggestions"
+    )
     public = e.call(
         "GET", "/research/search/suggestions", params={"q": "publickeyword"}
     )
@@ -31,8 +33,8 @@ def test_tc_016_suggestions_hide_pending(e, page):
     private = e.call(
         "GET", "/research/search/suggestions", params={"q": "pendingsecret"}
     )
-    assert "pendingsecret" not in json.dumps(private) and "W2" not in json.dumps(
-        private
-    ), (
-        "TC-016: expected 'pendingsecret' not in json.dumps(private) and 'W2' not in json.dumps(private)"
+    assert "pendingsecret" not in json.dumps(private) and WORK_TITLES[
+        2
+    ] not in json.dumps(private), (
+        "Pending keywords and the full pending paper title must not appear in suggestions"
     )

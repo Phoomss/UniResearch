@@ -4,6 +4,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select, WebDriverWait
 
+from .dataset import EXTRA_EMAILS, SUBMISSION_TITLE, identity
 from .support import Pages
 
 
@@ -33,7 +34,7 @@ class UIPage(Pages):
             super().text(text)
 
     def login(self, role="S1", password=None):
-        with self.recorder.step("ล็อกอินผ่านฟอร์ม", role, screenshot=True):
+        with self.recorder.step("ล็อกอินผ่านฟอร์ม", self.e.email(role), screenshot=True):
             super().login(role, password)
 
     def select(self, css, value):
@@ -74,47 +75,71 @@ class UIPage(Pages):
         with self.recorder.step("อ่านสถานะในผลงานของฉัน", title, screenshot=True):
             return self.wait.until(EC.visibility_of_element_located(locator)).text
 
-    def submit(self, title="งานวิจัยทดสอบ Selenium", edit_id=None):
+    def submit(self, title=SUBMISSION_TITLE, edit_id=None):
         with self.recorder.step("ส่งฟอร์มพร้อมผู้เขียน ที่ปรึกษาและไฟล์", title, screenshot=True):
             return super().submit(title, edit_id)
 
     def create_user(self):
         uid = super().create_user()
-        self.text("u3@example.org")
+        self.text(EXTRA_EMAILS["new_user"])
         return uid
 
     def error_message(self):
         with self.recorder.step("อ่านข้อความปฏิเสธ", "toast-error", screenshot=True):
             return self.element(".toast-error .toast-message").text
 
-    def mark_notification_read(self, all_notifications=False):
+    def mark_notification_read(self, all_notifications=False, title=None):
+        selector = 'button[title="ทำเครื่องหมายว่าอ่านแล้ว"]'
         if all_notifications:
             self.button("อ่านทั้งหมด")
             self.text("ทำเครื่องหมายว่าอ่านแล้วทั้งหมด")
+            locator = (By.CSS_SELECTOR, selector)
         else:
-            self.button_by_css('button[title="ทำเครื่องหมายว่าอ่านแล้ว"]')
-            self.text("ทำเครื่องหมายว่าอ่านแล้ว")
-        self.wait.until(
-            lambda d: (
-                not d.find_elements(
-                    By.CSS_SELECTOR, 'button[title="ทำเครื่องหมายว่าอ่านแล้ว"]'
+            locator = (
+                (
+                    By.XPATH,
+                    f"//div[h4[normalize-space(.)='{title}']]//button[@title='ทำเครื่องหมายว่าอ่านแล้ว']",
                 )
+                if title
+                else (By.CSS_SELECTOR, selector)
             )
-        )
+            self.click(locator)
+            self.text("ทำเครื่องหมายว่าอ่านแล้ว")
+        self.wait.until(lambda d: not d.find_elements(*locator))
 
 
 class ReviewPage(UIPage):
-    def review_from_queue(self, wid=2):
-        self.open("/advisor/reviews")
+    def open_review(self, wid=2, library=False):
+        route = "/advisor/research" if library else "/advisor/reviews"
+        if not self.driver.find_elements(By.CSS_SELECTOR, f'a[href="{route}"]'):
+            self.open("/advisor")
+        self.click((By.CSS_SELECTOR, f'a[href="{route}"]'))
         self.click((By.CSS_SELECTOR, f'a[href="/advisor/reviews/{wid}"]'))
         self.wait.until(lambda d: d.current_url.endswith(f"/advisor/reviews/{wid}"))
-        self.text("W2 งานวิจัย Selenium" if wid == 2 else "Cross-role Selenium Research")
-        self.select('[name="status_result"]', "approved")
+        self.text(self.e.work(wid)["title_th"])
+
+    def submit_decision(self, status="approved", comment="Selenium verified review"):
+        self.select('[name="status_result"]', status)
         self.fill("score", 80)
-        self.fill("comment_text", "Selenium verified review")
+        self.fill("comment_text", comment)
         self.button("ยืนยันผลการประเมิน")
-        self.text("ยืนยันการอนุมัติผลงาน")
+        self.text(
+            {
+                "approved": "ยืนยันการอนุมัติผลงาน",
+                "rejected": "ยืนยันการปฏิเสธผลงาน",
+                "needs_revision": "ยืนยันการส่งกลับแก้ไข",
+            }[status]
+        )
         self.button("ยืนยัน")
+
+    def review_from_queue(self, wid=2):
+        self.open_review(wid)
+        self.submit_decision()
+        self.text("บันทึกผลการประเมินผลงานสำเร็จ")
+
+    def review_from_library(self, wid=2):
+        self.open_review(wid, library=True)
+        self.submit_decision()
         self.text("บันทึกผลการประเมินผลงานสำเร็จ")
 
 
@@ -149,7 +174,8 @@ class DocumentPage(UIPage):
 
 class AIReviewPage(UIPage):
     def analyze(self, wid, tab, expected):
-        self.open(f"/advisor/reviews/{wid}")
+        if not self.driver.current_url.endswith(f"/advisor/reviews/{wid}"):
+            ReviewPage(self.driver, self.e).open_review(wid, library=True)
         self.text("AI Peer Review Assistant")
         self.button(tab)
         self.text(expected)
@@ -162,58 +188,47 @@ class AIReviewPage(UIPage):
 
 
 class RegistrationPage(UIPage):
-    def register_with_admin_role(self):
-        self.open("/register")
+    def register(self, kind="registration", forge_admin=False):
+        person = identity(EXTRA_EMAILS[kind])
+        self.open("/login")
+        self.click((By.CSS_SELECTOR, 'a[href="/register"]'))
         self.element('form[data-hydrated="true"]')
         for name, value in {
-            "first_name": "ทดสอบ",
-            "last_name": "ระบบ",
-            "email": "newui@example.org",
+            "first_name": person["first_name"],
+            "last_name": person["last_name"],
+            "email": person["email"],
             "password": self.e.password,
             "confirmPassword": self.e.password,
         }.items():
             self.fill(name, value)
-        # Simulate a malicious client at the real form's network boundary.
-        # The frontend proxy and backend authorization remain unmodified.
-        self.driver.execute_script("""
-            const originalFetch = window.fetch.bind(window);
-            window.fetch = (url, options) => {
-                if (url === '/api/auth/register' && options?.body) {
-                    const body = JSON.parse(options.body);
-                    body.role = 'admin';
-                    sessionStorage.setItem('selenium_registration_role', body.role);
-                    options = {...options, body: JSON.stringify(body)};
-                }
-                return originalFetch(url, options);
-            };
-        """)
+        if forge_admin:
+            self.driver.execute_script("""
+                const originalFetch = window.fetch.bind(window);
+                window.fetch = (url, options) => {
+                    if (url === '/api/auth/register' && options?.body) {
+                        const body = JSON.parse(options.body);
+                        body.role = 'admin';
+                        sessionStorage.setItem('selenium_registration_role', body.role);
+                        options = {...options, body: JSON.stringify(body)};
+                    }
+                    return originalFetch(url, options);
+                };
+            """)
         self.button("สร้างบัญชี")
         self.wait.until(lambda d: "/login?registered=1" in d.current_url)
-        assert (
-            self.driver.execute_script(
-                "return sessionStorage.getItem('selenium_registration_role')"
+        if forge_admin:
+            assert (
+                self.driver.execute_script(
+                    "return sessionStorage.getItem('selenium_registration_role')"
+                )
+                == "admin"
             )
-            == "admin"
-        ), "Registration UI request must actually submit the forged admin role"
-        self.e.observe(
-            "Browser registration form submitted role=admin; persisted role checked separately"
-        )
+        self.text("สร้างบัญชีนักศึกษาแล้ว กรุณาเข้าสู่ระบบ")
+        return person
+
+    def register_with_admin_role(self):
+        return self.register("registration_admin", forge_admin=True)
 
 
 class SubmissionPage(ReviewPage):
-    def submission_ready(self):
-        from selenium.webdriver.support.ui import Select
-
-        super().submission_ready()
-        Select(self.element('[name="department"]')).select_by_visible_text(
-            "วิทยาการคอมพิวเตอร์"
-        )
-        Select(self.element('[name="work_type"]')).select_by_visible_text("วิทยานิพนธ์")
-        self.fill("academic_year", "2569")
-
-    def fill(self, name, value):
-        super().fill(name, value)
-        if name == "abstract":
-            for keyword in ["selenium", "research"]:
-                super().fill("keyword_input_temp", keyword)
-                self.button("เพิ่ม")
+    """Shares the documented five-step form without side effects in fill()."""

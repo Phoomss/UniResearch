@@ -1,11 +1,13 @@
 import pytest
 
+from tests.selenium.dataset import CATEGORIES
+
 
 @pytest.mark.category
 def test_tc_010_admin_category_public_read(e, page):
     page.open("/research")
-    page.text("C1 Selenium")
-    page.text("C2 Selenium")
+    page.text(CATEGORIES[0]["category_name"])
+    page.text(CATEGORIES[1]["category_name"])
     page.login("A1")
     page.category()
     categories = e.call("GET", "/categories/")

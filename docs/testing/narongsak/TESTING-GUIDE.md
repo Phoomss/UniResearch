@@ -28,6 +28,15 @@ backend/test_venv/bin/python -m pytest tests/selenium/ -v --headed
 
 ระหว่างรัน headed ให้ปล่อย Selenium ควบคุมหน้าต่าง Chrome จนจบ ขั้นตอน Login, กรอกฟอร์ม, อัปโหลด, ดาวน์โหลด และอนุมัติจะทำเองตามเคสที่เลือก
 
+รันครบทั้ง 48 กรณี (รวมกรณีของสมาชิกอื่นที่ปรับข้อมูลให้ตรงเอกสารแล้ว):
+
+```bash
+backend/test_venv/bin/python -m pytest tests/selenium --all-cases -v --headless
+backend/test_venv/bin/python -m pytest tests/selenium --all-cases -k test_tc_027 -v --headless
+```
+
+ข้อมูลกลางอ่านจาก `tests/selenium/dataset.py` ใช้ชื่อ/อีเมล/รหัสนักศึกษาจาก CSV และชื่องานจาก migration รายงาน full suite อยู่ที่ `docs/testing/selenium/UI-TEST-EXECUTION.md` แยกจาก subset นี้ `--include-legacy` เป็นชื่อทางเลือกของ `--all-cases` กรณีนอก subset ต้องใส่ flag แม้เลือก `-k` รายกรณี
+
 ## 2. เตรียมเครื่องครั้งแรก
 
 ต้องมี:
@@ -237,7 +246,7 @@ TC-004 ตั้งใจกรอกรหัสผ่านผิด จึง
 
 ## 8. ตั้งค่าที่ใช้บ่อย
 
-ไม่ต้องตั้งค่าเพิ่มเติมสำหรับการรันปกติ ระบบใช้ localhost และสร้าง test accounts พร้อมรหัสผ่านสุ่มใหม่ทุก session
+ไม่ต้องตั้งค่าเพิ่มเติมสำหรับการรันปกติ ระบบใช้ localhost และสร้าง test accounts จาก CSV ในฐานชั่วคราวพร้อมรหัสผ่านสำหรับทดสอบ `UniResearchTest2026!`
 
 | Environment variable | ค่าเริ่มต้น / การใช้ |
 |---|---|
@@ -250,10 +259,10 @@ TC-004 ตั้งใจกรอกรหัสผ่านผิด จึง
 | `SCREENSHOTS_DIR` | `tests/selenium/reports/screenshots` |
 | `SELENIUM_CHROME_BINARY` | path ของ browser; ต้องกำหนดเมื่อใช้ Brave |
 | `SELENIUM_CHROMEDRIVER` | path ของ ChromeDriver ที่เข้ากันกับ browser สำหรับการรัน offline |
-| `TEST_STUDENT_EMAIL` | `s1@example.org` |
-| `TEST_ADMIN_EMAIL` | `a1@example.org` |
-| `TEST_ADVISOR_EMAIL` | `d1@example.org` |
-| `TEST_PASSWORD` | ไม่กำหนด = สุ่มรหัสผ่าน; หากจำเป็นต้องกำหนด ให้ส่งผ่าน environment หรือ CI secret |
+| `TEST_STUDENT_EMAIL` | `674259009@webmail.npru.ac.th` |
+| `TEST_ADMIN_EMAIL` | `admin@uniresearch.ac.th` |
+| `TEST_ADVISOR_EMAIL` | `udsanee@webmail.npru.ac.th` |
+| `TEST_PASSWORD` | ไม่กำหนด = `UniResearchTest2026!` เฉพาะฐานทดสอบ; override ผ่าน environment ได้แต่ต้องบันทึกว่าต่างจากเอกสาร |
 
 ตัวอย่างกำหนดหน้าต่างและเวลารอ:
 

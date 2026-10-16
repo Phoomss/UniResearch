@@ -1,5 +1,7 @@
 # การตรวจสอบย้อนกลับ FR → TC
 
+ผลทดสอบอัตโนมัติหลังปรับบัญชี CSV และชื่อ migration ดู [รายงานปรับสคริปต์](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md) แยกจาก baseline เดิมและการรับรองทุกขั้นตอนตามแผน
+
 ฉบับทบทวน 16 ตุลาคม 2026: Coverage ในตารางหมายถึงมี **แผนกรณีทดสอบ** ครอบคลุม FR ไม่ใช่การยืนยันผ่านทุก assertion ผล S08 วันที่ 8 ตุลาคม execute 48 TC (44 PASS / 4 FAIL); UI subset U14 วันที่ 14 ตุลาคมผ่าน 18/18 ครอบคลุม 17 FR ส่วนเงื่อนไขเพิ่มใน specification ฉบับนี้ยัง NOT RUN ทั้ง 48 TC ดู [รายงานแยกรอบ](TEST-REPORT.md)
 
 | FR | Requirement | Test Cases | Coverage |

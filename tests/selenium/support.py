@@ -9,10 +9,18 @@ from selenium.common.exceptions import (
     StaleElementReferenceException,
 )
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select, WebDriverWait
 
 from .assets import PDF, PNG
+from .dataset import (
+    EXTRA_EMAILS,
+    SOURCE_WORKS,
+    SUBMISSION_TITLE,
+    identity,
+    submission_fields,
+)
 
 COOKIE = "uniresearch_access_token"
 
@@ -85,19 +93,8 @@ class Evidence:
         return r.json() if r.content else None
 
     def form(self, **changes):
-        return {
-            "title_th": "งานวิจัยทดสอบ Selenium",
-            "title_en": "Selenium Research",
-            "abstract": "Test abstract",
-            "category_id": "1",
-            "department": "วิทยาการคอมพิวเตอร์",
-            "work_type": "วิทยานิพนธ์",
-            "academic_year": "2569",
-            "keywords": "selenium,research",
-            "author_ids": "[2]",
-            "advisor_ids": "[5]",
-            **changes,
-        }
+        fields = submission_fields(changes.get("title_th", SUBMISSION_TITLE))
+        return {**{key: str(value) for key, value in fields.items()}, **changes}
 
     def work(self, wid):
         return self.rows("SELECT * FROM research_works WHERE id=?", (wid,))[0]
@@ -194,8 +191,8 @@ class Pages:
     def participants(self):
         self.open("/student/research/new")
         self.submission_ready()
-        self.fill("title_th", "งานวิจัยทดสอบ Selenium")
-        self.fill("title_en", "Selenium Research")
+        self.fill("title_th", SUBMISSION_TITLE)
+        self.fill("title_en", SOURCE_WORKS[0]["title_en"])
         Select(self.element('[name="category_id"]')).select_by_value("1")
         self.button("ดำเนินการต่อ")
         self.element(".people-fields")
@@ -206,25 +203,42 @@ class Pages:
             )
         ]
 
-    def submit(self, title="งานวิจัยทดสอบ Selenium", edit_id=None):
-        self.open(
-            f"/student/research/edit/{edit_id}" if edit_id else "/student/research/new"
-        )
+    def submit(self, title=SUBMISSION_TITLE, edit_id=None):
+        values = submission_fields(title)
+        if edit_id:
+            # Navigate through the personal list, using the real edit control.
+            self.open("/student/research")
+            self.click((By.CSS_SELECTOR, f'a[href="/student/research/edit/{edit_id}"]'))
+        else:
+            if not self.driver.find_elements(
+                By.CSS_SELECTOR, 'a[href="/student/research"]'
+            ):
+                self.open("/account/saved")
+            self.click((By.CSS_SELECTOR, 'a[href="/student/research"]'))
+            self.click((By.CSS_SELECTOR, 'a[href="/student/research/new"]'))
         self.submission_ready()
-        self.fill("title_th", title)
-        self.fill("title_en", "Selenium Research")
-        Select(self.element('[name="category_id"]')).select_by_value("1")
+        for field in ("title_th", "title_en", "academic_year"):
+            self.fill(field, values[field])
+        for field in ("category_id", "department", "work_type"):
+            self.select_element(self.element(f'[name="{field}"]'), str(values[field]))
         self.button("ดำเนินการต่อ")
         self.element(".people-fields")
         selects = self.driver.find_elements(By.CSS_SELECTOR, ".people-fields select")
         self.select_element(selects[0], "2")
         self.select_element(selects[-1], "5")
         self.button("ดำเนินการต่อ")
-        self.fill("abstract", "บทคัดย่อสำหรับการทดสอบ Selenium กับ backend จริง")
+        self.fill("abstract", values["abstract"])
+        for keyword in values["keywords"].split(","):
+            self.fill("keyword_input_temp", keyword.strip())
+            self.element('[name="keyword_input_temp"]').send_keys(Keys.ENTER)
         self.button("ดำเนินการต่อ")
         for field, filename, content in [
             ("cover_image", "cover.png", PNG),
-            ("document", "paper.pdf", getattr(self.e, "document_content", PDF)),
+            (
+                "document",
+                "paper-revised.pdf" if edit_id else "paper.pdf",
+                getattr(self.e, "document_content", PDF),
+            ),
         ]:
             path = self.e.root / filename
             path.write_bytes(content)
@@ -285,21 +299,25 @@ class Pages:
         self.click((By.CSS_SELECTOR, css))
 
     def create_user(self):
-        self.open("/admin/users")
+        person = identity(EXTRA_EMAILS["new_user"])
+        if not self.driver.find_elements(By.CSS_SELECTOR, 'a[href="/admin/users"]'):
+            self.open("/admin")
+        self.click((By.CSS_SELECTOR, 'a[href="/admin/users"]'))
         self.button("เพิ่มผู้ใช้ใหม่")
-        for name, value in {
-            "email": "u3@example.org",
-            "password": self.e.password,
-            "first_name": "Selenium",
-            "last_name": "User",
-        }.items():
-            self.fill(name, value)
-        Select(self.element('[name="role"]')).select_by_value("student")
+        for name in ("email", "first_name", "last_name", "student_id"):
+            self.fill(name, person[name])
+        self.fill("password", self.e.password)
+        self.select_element(self.element('[name="role"]'), person["role"])
+        self.select_element(self.element('[name="department"]'), person["department"])
         self.button_by_css('form button[type="submit"]')
         self.wait.until(
             lambda _: (
-                self.e.scalar("SELECT count(*) FROM users WHERE email='u3@example.org'")
+                self.e.scalar(
+                    "SELECT count(*) FROM users WHERE email=?", (person["email"],)
+                )
                 == 1
             )
         )
-        return self.e.rows("SELECT id FROM users WHERE email='u3@example.org'")[0]["id"]
+        return self.e.rows("SELECT id FROM users WHERE email=?", (person["email"],))[0][
+            "id"
+        ]

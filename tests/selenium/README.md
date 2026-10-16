@@ -1,4 +1,4 @@
-# Selenium tests — Narongsak
+# Selenium tests — UniResearch
 
 คู่มือสำหรับผู้ทดสอบ: [คู่มือการทดสอบภาษาไทย](../../docs/testing/narongsak/TESTING-GUIDE.md) ครอบคลุมการเตรียมเครื่อง คำสั่งรัน อ่านหลักฐาน และแก้ปัญหาที่พบบ่อย
 
@@ -31,6 +31,7 @@ pnpm install
 cd ..
 
 pytest tests/selenium/ -v
+pytest tests/selenium/ --all-cases -v --headless
 pytest tests/selenium/ -m auth -v
 pytest tests/selenium/ -m ai -v
 pytest tests/selenium/ -m submission -v
@@ -73,11 +74,23 @@ docker compose -f docker-compose.selenium.yml run --rm selenium-tests -m submiss
 
 ## ข้อมูลทดสอบและการแยกเคส
 
-`conftest.py` สร้างฐานข้อมูล SQLite และไฟล์ใน directory ชั่วคราว `uniresearch-selenium-*` ไม่รับ URL/database ของระบบ production ทุกเคส reset เฉพาะฐานข้อมูลนี้และ seed ผู้ใช้ A1, S1/S2/S3, D1/D2, G1, U2; หมวดหมู่ C1/C2; ผลงาน W1–W5; การแจ้งเตือน N1/N2 รหัสผ่านสร้างใหม่ทุก session และ Chrome profile ใหม่ทุกเคส
+`conftest.py` สร้าง SQLite และที่เก็บไฟล์ชั่วคราวใหม่ แต่ละกรณี reset เฉพาะฐานนี้และใช้ Chrome profile ใหม่ ข้อมูลกลางอยู่ใน [`dataset.py`](dataset.py): อ่านชื่อ อีเมล รหัสนักศึกษา ภาควิชา และบทบาทจาก `backend/app/scripts/student.csv` / `advisors.csv` โดยไม่ใช้รหัสผ่านจาก CSV อ่าน metadata ผลงานและหมวดหมู่จาก AST ของ `migrate.py` โดยไม่เรียก migration
 
-แต่ละไฟล์ตั้ง precondition เพิ่มเท่าที่จำเป็นก่อน interaction และตรวจผล UI พร้อมหลักฐาน API/database เพิ่มเติม Browser, HTTP client, service และ directory ชั่วคราวถูก cleanup โดย fixtures ไม่มี dependency ลำดับเคส รันแบบ serial; pytest-xdist ถูกปฏิเสธเพื่อป้องกันการ reset ข้อมูลชนกัน
+บัญชีนักศึกษาหลักคือ `674259009@webmail.npru.ac.th`, `674259003@webmail.npru.ac.th`, `644259003@webmail.npru.ac.th`; ที่ปรึกษาคือ `udsanee@webmail.npru.ac.th`, `wuttha@webmail.npru.ac.th` ผู้ดูแล `admin@uniresearch.ac.th` และบัญชี guest เป็นข้อมูลที่สร้างสำหรับฐานทดสอบ บัญชี `674259013@webmail.npru.ac.th` ถูกตั้ง inactive เฉพาะสำเนานี้ รหัสผ่านฐานทดสอบทุกบัญชีคือ `UniResearchTest2026!` หรือกำหนด `TEST_PASSWORD` โดยต้องบันทึกการเปลี่ยนจากเอกสาร
 
-สคริปต์ของสมาชิกคนอื่นยังอยู่ใน `test_accounts.py`, `test_research.py`, `test_reviews.py` และไม่ถูกรันโดยค่าเริ่มต้น ใช้ `--include-legacy` เพื่อเรียกพฤติกรรม full-suite เดิมเมื่อจำเป็น (อยู่นอกขอบเขตงานนี้)
+ชื่อผลงานใช้สี่เรื่องจาก migration เช่น “การพัฒนาระบบแนะนำหัวข้อโครงงานวิจัยอัตโนมัติโดยใช้ปัญญาประดิษฐ์” พร้อมสำเนาทดสอบไม่มีไฟล์ ชื่อสำเนาสำหรับส่ง แก้ไข และ E2E ระบุวัตถุประสงค์ต่อท้ายตาม [รายการข้อมูล](../../docs/system-audit/TEST-RESEARCH-DATA.md) ID และ key บัญชีภายในสคริปต์เป็น mapping ของฐานชั่วคราว หลักฐานหน้าเว็บบันทึกอีเมลและชื่อเรื่องเต็ม
+
+ค่าเริ่มต้นยังเป็น 18 กรณีของ Narongsak ใช้ `--all-cases` เพื่อรันครบ 48 กรณี รวม `test_accounts.py`, `test_research.py`, `test_reviews.py` ที่ปรับข้อมูลร่วมแล้ว `--include-legacy` เป็นชื่อทางเลือกของ flag เดียวกัน กรณีนอก subset ต้องใส่ flag นี้เมื่อเลือกด้วย `-k` ด้วย
+
+```bash
+backend/test_venv/bin/python -m pytest tests/selenium --all-cases -v --headless
+backend/test_venv/bin/python -m pytest tests/selenium --all-cases -k test_tc_027 -v --headless
+backend/test_venv/bin/python -m pytest tests/test_selenium_dataset.py -q
+```
+
+Browser/HTTP clients/services และข้อมูลชั่วคราว cleanup ผ่าน fixtures รัน serial เพราะแต่ละเคส reset ฐานร่วมกัน AI ใช้ deterministic mock; ผลไม่รับรอง live AI หรือ PostgreSQL/pgvector
+
+รายงานใช้ชื่อและผลคาดหวังจาก `cases.json` ตรงกับ Test Cases รายงานทั้ง 48 อยู่ที่ `docs/testing/selenium/UI-TEST-EXECUTION.md`; subset อยู่ที่ `docs/testing/narongsak/UI-TEST-EXECUTION.md` หลักฐานของแต่ละรอบเก็บใต้ `tests/selenium/artifacts/<run-id>` และ `reports/<run-id>` โดยแยกจำนวนเคสที่ใช้ browser กับ API-only ตามการรันจริง ไม่รวม PASS ข้าม session
 
 ## TC-046 และ authorization
 
@@ -121,10 +134,10 @@ pytest tests/selenium/ -v --headless
 | `BROWSER_WINDOW_SIZE` | `1440,1000` (width,height) |
 | `SELENIUM_TIMEOUT` | `30` วินาที สำหรับ explicit UI waits |
 | `SCREENSHOTS_DIR` | `tests/selenium/reports/screenshots` |
-| `TEST_PASSWORD` | ไม่กำหนด = สุ่มรหัสผ่าน fixture ใหม่ทุก session; หากต้องกำหนดให้ใช้ environment/CI secret |
-| `TEST_STUDENT_EMAIL` | `s1@example.org` สำหรับ S1 |
-| `TEST_ADMIN_EMAIL` | `a1@example.org` สำหรับ A1 |
-| `TEST_ADVISOR_EMAIL` | `d1@example.org` สำหรับ D1 |
+| `TEST_PASSWORD` | ไม่กำหนด = `UniResearchTest2026!` สำหรับสำเนาฐานทดสอบ; override ได้และต้องบันทึกว่าต่างจากเอกสาร |
+| `TEST_STUDENT_EMAIL` | `674259009@webmail.npru.ac.th` |
+| `TEST_ADMIN_EMAIL` | `admin@uniresearch.ac.th` |
+| `TEST_ADVISOR_EMAIL` | `udsanee@webmail.npru.ac.th` |
 | `TEST_{role}_EMAIL` | override email ราย fixture เช่น `TEST_S2_EMAIL`; มีลำดับความสำคัญสูงกว่า alias |
 | `SELENIUM_CHROME_BINARY` | optional Chrome binary; required เมื่อ `BROWSER=brave` |
 | `SELENIUM_CHROMEDRIVER` | optional absolute driver path สำหรับ offline execution |
@@ -142,9 +155,10 @@ tests/selenium/reports/screenshots/{category}/{TC-ID}/{unique-session-id}/
   ...-final-result.png
   ...-failure-call.png          # เมื่อเคสล้มเหลวและยังมี browser
 tests/selenium/reports/{unique-session-id}/ui-results.json
-docs/testing/narongsak/UI-TEST-EXECUTION.md
+docs/testing/narongsak/UI-TEST-EXECUTION.md  # ค่าเริ่มต้น 18 กรณี
+docs/testing/selenium/UI-TEST-EXECUTION.md  # เมื่อใช้ --all-cases
 ```
 
 Screenshots ครอบคลุม initial pages, important interactions, ผลที่มองเห็น, final result และ failure โดยชื่อมี session timestamp กับลำดับจึงไม่ทับผลครั้งก่อน JSON มี TC ID, category, browser/version/mode, steps, expected/actual result, status, duration, screenshot paths และ errors รายงานภาษาไทยแสดงผลเฉพาะ session ล่าสุด รวม NOT RUN ของเคสที่ไม่ได้เลือก; `--collect-only` จะไม่เขียนทับรายงานผลรันจริง
 
-TC-038 และ TC-047 เปิดคิว review แล้วคลิกลิงก์ผลงานจริงก่อนเลือก Approve และยืนยัน TC-022/031 ตรวจสถานะในผลงานของฉันหลังส่งข้อมูลและไฟล์ TC-043 ตรวจ toast และการเปลี่ยน control ของรายการอ่านแล้ว TC-001 ส่ง role=admin ที่ boundary ของ request จากฟอร์มจริง และตรวจข้อความการสร้างบัญชี student พร้อม role ที่บันทึก; ไม่มีการให้สิทธิ์ admin กับบัญชีที่สมัคร
+TC-038 เปิดเมนูเอกสารทั้งหมดแล้วคลิกตรวจสอบแถวงานจริง ส่วน TC-047 เปิดคิว review ก่อนเลือกอนุมัติและยืนยัน TC-022/031 ตรวจสถานะในผลงานของฉันหลังส่งข้อมูลและไฟล์ TC-043 ตรวจ toast และการเปลี่ยน control ของรายการอ่านแล้ว TC-001 ส่ง role=admin ที่ boundary ของ request จากฟอร์มจริง และตรวจข้อความการสร้างบัญชี student พร้อม role ที่บันทึก; ไม่มีการให้สิทธิ์ admin กับบัญชีที่สมัคร

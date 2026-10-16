@@ -1,13 +1,15 @@
 import pytest
 
+from tests.selenium.dataset import EXTRA_EMAILS
+
 
 @pytest.mark.e2e
 def test_tc_048_admin_category_user_workflow_and_rbac(e, page):
     page.login("A1")
     page.category("E2E Selenium Category")
     uid = page.create_user()
-    assert e.call("GET", f"/users/{uid}", "A1")["email"] == "u3@example.org", (
-        "TC-048: expected e.call('GET', f'/users/{uid}', 'A1')['email'] == 'u3@example.org'"
+    assert e.call("GET", f"/users/{uid}", "A1")["email"] == EXTRA_EMAILS["new_user"], (
+        "Created user email must match the selected CSV identity"
     )
     assert any(
         c["category_name"] == "E2E Selenium Category"
@@ -27,7 +29,7 @@ def test_tc_048_admin_category_user_workflow_and_rbac(e, page):
         "/users/",
         "S1",
         status=403,
-        json={"email": "denied@example.org", "password": e.password},
+        json={"email": EXTRA_EMAILS["denied_user"], "password": e.password},
     )
     e.call(
         "POST", "/categories/", "S1", status=403, json={"category_name": "Denied E2E"}

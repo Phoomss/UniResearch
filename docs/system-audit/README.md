@@ -1,6 +1,6 @@
 # เอกสารตรวจระบบและทดสอบ UniResearch
 
-ฉบับทบทวนเนื้อหา **16 ตุลาคม 2026** แก้เฉพาะ Markdown โดยตรวจจาก source code และหลักฐานการรันที่มีอยู่ ไม่ได้รันทดสอบระบบใหม่ และไม่ได้ปรับ Word/PDF
+ฉบับทบทวนเนื้อหา **16 ตุลาคม 2026** เอกสารเป็น Markdown และปรับสคริปต์ Selenium ให้ใช้ข้อมูล CSV/migration พร้อมรันทดสอบจริง แยกผลรอบใหม่จากประวัติเดิม ไม่ได้ปรับ Word/PDF
 
 ข้อมูลบัญชีฉบับปัจจุบันเลือกจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) โดยระบุชื่อ–อีเมล–รหัสนักศึกษาและแหล่งข้อมูลใน Test Cases ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน ผลย้อนหลังยังเป็นข้อมูลของรอบเดิม ไม่ใช่ผลรันด้วยบัญชี CSV
 
@@ -10,6 +10,7 @@
 
 | เอกสาร | เนื้อหา |
 |---|---|
+| [SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md) | รายการปรับสคริปต์ ผล full suite/retest และข้อผิดพลาดที่พบ |
 | [TEST-RESEARCH-DATA.md](TEST-RESEARCH-DATA.md) | ชื่อเต็มภาษาไทย/อังกฤษและข้อมูลต้นทางจาก migration พร้อมขอบเขตสำเนาทดสอบ |
 | [TEST-CASES.md](TEST-CASES.md) | 48 TC แบบเดินหน้าเว็บ: บัญชี/รหัสผ่านสำเนา เมนูที่กด ค่าที่กรอก การยืนยัน และผลบนหน้าจอ |
 | [TEST-CASES-TECHNICAL-CHECKS.md](TEST-CASES-TECHNICAL-CHECKS.md) | จุดตรวจ API/RBAC/DB/ไฟล์ที่ต้องทำประกอบ ไม่แทนด้วยผล UI |
@@ -31,8 +32,8 @@
 | Selenium baseline 8 ต.ค. | 44 PASS / 4 FAIL จาก 48 | [รายงาน Selenium](SELENIUM-TEST-REPORT-2026-10-08.md) |
 | Notification retest 8 ต.ค. | TC-040/043 PASS ทั้งสองหลังแก้ proxy | [รายงาน focused](../../tests/selenium/artifacts/20261008-041822-000844/report.md) |
 | UI subset 14 ต.ค. | 18 PASS ใน session เดียว | [U14 UI report](../../tests/selenium/reports/20261014-102745-778362/UI-TEST-EXECUTION.md) |
-| UI focused ล่าสุดที่ตรวจพบ 16 ต.ค. | TC-038 PASS; อีก 17 NOT RUN ใน subset | [U16 UI report](../../tests/selenium/reports/20261016-094537-437659/UI-TEST-EXECUTION.md) |
-| Specification ฉบับทบทวนนี้ | ยังไม่ได้ execute assertions ที่เพิ่มครบทั้ง 48 TC | [ข้อจำกัดและงานติดตาม](TEST-REPORT.md) |
+| UI focused ก่อนปรับสคริปต์ 16 ต.ค. | TC-038 PASS; อีก 17 NOT RUN ใน subset | [U16 UI report](../../tests/selenium/reports/20261016-094537-437659/UI-TEST-EXECUTION.md) |
+| CSV/migration 16 ต.ค. | C16 43 PASS/5 FAIL; focused retests แยก; ระบบยังมีข้อผิดพลาด TC-018/027/045 | [ผลปรับสคริปต์](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md) |
 
 ผลต่าง session/commit ไม่รวมเป็นผลรันเดียว U14 ที่ผ่าน 18/18 ไม่ได้รับรอง TC ที่เหลืออีก 30 ข้อ U16 ที่ NOT RUN ไม่ได้ลบ PASS ย้อนหลัง แต่ก็ไม่ใช้ PASS เก่าแทนผล session ใหม่ ผล SQLite และ AI test double ไม่รับรอง PostgreSQL/pgvector หรือ live AI
 
@@ -40,7 +41,7 @@
 
 ## การรันและความหมายของ coverage
 
-ดู [Selenium README](../../tests/selenium/README.md) ค่าเริ่มต้นปัจจุบันเลือก 18 TC ของ Narongsak ส่วนอีก 30 TC อยู่ใน legacy suite ต้องเลือกและตรวจ collection ให้ชัด ก่อนรายงานว่าครบ 48 unique TC ทุก session เก็บ screenshots, sanitized API/DB evidence และ JSON แยก directory; artifacts บางส่วนไม่ติดตาม Git ให้แนบเมื่อต้องส่งทบทวน
+ดู [Selenium README](../../tests/selenium/README.md) ค่าเริ่มต้นปัจจุบันเลือก 18 TC ของ Narongsak ใช้ `--all-cases` เพื่อเลือกครบทั้ง 48 (`--include-legacy` เป็นชื่อทางเลือก) และตรวจ collection ให้ชัด ก่อนรายงานว่าครบ 48 unique TC ทุก session เก็บ screenshots, sanitized API/DB evidence และ JSON แยก directory; artifacts บางส่วนไม่ติดตาม Git ให้แนบเมื่อต้องส่งทบทวน
 
 Coverage 32/32 FR ใน Traceability หมายถึงมี TC ตามแผน ไม่ใช่ทุก FR ผ่าน หรือทุก branch ถูก execute พฤติกรรมที่ต้องยืนยันนโยบาย เช่น pending URL/static สาธารณะ, advisor queue และ admin route guard ระบุในแผนแยกจาก defect ที่เกิด assertion failure
 

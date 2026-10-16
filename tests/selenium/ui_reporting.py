@@ -23,7 +23,7 @@ def write_ui_report(config, summary, repo, categories):
         records.append(
             {
                 **record,
-                "ui_supported": True,
+                "ui_supported": record["case"] in config.ui_case_ids,
                 "ui_tested": ui_tested,
                 "execution_status": STATUS[record["status"]],
                 "duration_seconds": round(record.get("duration_seconds", 0), 3),
@@ -35,16 +35,16 @@ def write_ui_report(config, summary, repo, categories):
     executed = [r for r in records if r["ui_tested"]]
     counts = {
         "scoped_test_cases": len(categories),
-        "ui_automatable_test_cases": len(categories),
+        "ui_automatable_test_cases": sum(r["ui_supported"] for r in records),
         "executed_browser_tests": len(executed),
         "passed_browser_tests": sum(r["execution_status"] == "PASS" for r in executed),
         "failed_browser_tests": sum(r["execution_status"] == "FAIL" for r in executed),
         "blocked_browser_tests": sum(
-            r["execution_status"] == "BLOCKED" for r in records
+            r["execution_status"] == "BLOCKED" and r["ui_supported"] for r in records
         ),
-        "api_only_test_cases": 0,
+        "api_only_test_cases": sum(not r["ui_supported"] for r in records),
         "ui_automation_coverage_percent": round(
-            100 * len(executed) / len(categories), 2
+            100 * len(executed) / max(1, sum(r["ui_supported"] for r in records)), 2
         ),
     }
     data = {
@@ -59,7 +59,11 @@ def write_ui_report(config, summary, repo, categories):
     structured.write_text(json.dumps(data, ensure_ascii=False, indent=2))
     if config.option.collectonly:
         return
-    destination = repo / "docs/testing/narongsak/UI-TEST-EXECUTION.md"
+    destination = repo / (
+        "docs/testing/selenium/UI-TEST-EXECUTION.md"
+        if summary["scope"] == "all_48"
+        else "docs/testing/narongsak/UI-TEST-EXECUTION.md"
+    )
     destination.parent.mkdir(parents=True, exist_ok=True)
 
     def link(path, label):
@@ -68,7 +72,7 @@ def write_ui_report(config, summary, repo, categories):
         )
 
     lines = [
-        "# รายงานการรันทดสอบ UI — Narongsak",
+        "# รายงานการรันทดสอบ UI/API — UniResearch",
         "",
         f"เวลารัน UTC: {summary['generated_at']}",
         f"โหมด: **{data['mode']}**; Browser: {config.browser_settings.browser}; commit: `{summary['commit']}` (รวม working tree)",
@@ -82,7 +86,7 @@ def write_ui_report(config, summary, repo, categories):
         f"- API-only Test Cases: {counts['api_only_test_cases']}",
         f"- UI automation coverage ใน session นี้: {counts['ui_automation_coverage_percent']}%",
         "",
-        "Coverage หมายถึงจำนวนเคสที่รันขั้นตอน UI จริง ไม่ใช่การยืนยันว่าทุก invariant ตรวจได้ผ่าน UI อย่างเดียว ความสัมพันธ์ในฐานข้อมูล การเก็บ revision สิทธิ์ API และ counters มี assertions เสริมแยกจาก browser evidence ทั้งสี่ AI endpoints มี UI จึงไม่มี API-only case ใน 18 เคสนี้",
+        "Coverage ของ UI นับเฉพาะกรณีที่สคริปต์มี browser fixture และรัน WebDriver จริง API/DB/file assertions แยกเป็นหลักฐานเสริม; ผลผ่านหมายถึง assertions ที่สคริปต์รัน ไม่ใช่การรับรอง PostgreSQL/live AI หรือการลงนามยอมรับระบบ",
         "",
         "| TC ID | Category | UI Tested | Status | Evidence |",
         "|---|---|---|---|---|",

@@ -12,6 +12,8 @@ from urllib.parse import urlparse
 import pytest
 from selenium.common.exceptions import WebDriverException
 
+from .dataset import ACCOUNT_EMAILS
+
 
 @dataclass(frozen=True)
 class BrowserSettings:
@@ -97,7 +99,7 @@ def account_email(role="S1"):
     return (
         os.getenv(f"TEST_{role}_EMAIL")
         or os.getenv(f"TEST_{alias}_EMAIL")
-        or f"{role.lower()}@example.org"
+        or ACCOUNT_EMAILS[role]
     )
 
 
