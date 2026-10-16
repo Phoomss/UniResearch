@@ -1,6 +1,6 @@
 # การตรวจสอบย้อนกลับ FR → TC
 
-Coverage ในตารางนี้หมายถึงมี **แผนกรณีทดสอบ** ครอบคลุม FR ไม่ได้หมายถึงรันผ่าน ผลการ execute ทุกกรณียังเป็น `Not Tested`
+ฉบับทบทวน 16 ตุลาคม 2026: Coverage ในตารางหมายถึงมี **แผนกรณีทดสอบ** ครอบคลุม FR ไม่ใช่การยืนยันผ่านทุก assertion ผล S08 วันที่ 8 ตุลาคม execute 48 TC (44 PASS / 4 FAIL); UI subset U14 วันที่ 14 ตุลาคมผ่าน 18/18 ครอบคลุม 17 FR ส่วนเงื่อนไขเพิ่มใน specification ฉบับนี้ยัง NOT RUN ทั้ง 48 TC ดู [รายงานแยกรอบ](TEST-REPORT.md)
 
 | FR | Requirement | Test Cases | Coverage |
 |---|---|---|---|
@@ -37,4 +37,8 @@ Coverage ในตารางนี้หมายถึงมี **แผน�
 | FR-031 | AI ช่วยตรวจ | TC-046 | มีแผน |
 | FR-032 | หน้าเว็บและ proxy | TC-047, TC-048 | มีแผน |
 
-**Coverage Gaps:** ไม่มี FR ที่ขาด TC ในระดับแผน; execution gap = 48 TC ยังไม่ทดสอบ ประเด็นสิทธิ์ที่ต้องยืนยันและไม่ได้กำหนดเป็น FR ใหม่อยู่ใน [TEST-PLAN.md](TEST-PLAN.md)
+**Coverage Gaps:** ไม่มี FR ที่ขาด TC ในระดับแผน (32/32); ผล S08 มี FAIL ที่ TC-018/040/043/045 ซึ่งสัมพันธ์ FR-011/025/028/030 ผล focused N08 ผ่าน TC-040/043 หลังแก้ notification แต่ไม่ได้เปลี่ยน baseline เป็นผล 48/48 PASS ส่วน U14 ไม่ครอบคลุม TC-018/045
+
+เงื่อนไขที่เพิ่มในฉบับปรับปรุงยังไม่มีผล execute ครบ จึงยังมี verification gap 48 TC ของฉบับนี้ ไม่ใช่กล่าวว่า 48 TC ไม่เคยทดสอบมาก่อน PostgreSQL/pgvector และ live AI ไม่ได้รับรองจาก SQLite/mock ผลล่าสุดใน U16 มี TC-038 PASS อีก 17 NOT RUN ภายใน subset
+
+FR-009 ต้องแยก suggestions ที่ q ไม่ว่างออกจาก q ว่างที่อาจดึงคำจาก search_logs; FR-020 ต้องแยกการลบแถว revision กับไฟล์ revision บน disk ประเด็นนโยบายสิทธิ์/URL สาธารณะและแผนตรวจเพิ่มอยู่ใน [TEST-PLAN.md](TEST-PLAN.md)

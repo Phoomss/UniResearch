@@ -1,131 +1,190 @@
 # แผนการทดสอบ UniResearch
 
-เนื้อหาส่วนที่ 1 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md) ค่าจริงของรอบ Docker วันที่ 4 ตุลาคม 2026 อ้างอิง [หลักฐาน Docker](DOCKER-TEST-EVIDENCE-2026-10-04.md)
+ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.2](TEST-CASES.md#12-สภาพแวดล้อมและข้อมูลร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลรันย้อนหลังใช้บัญชีตัวอย่างของรอบเดิมและยังไม่ได้ทดสอบชุด CSV นี้
 
-## 1.1 วัตถุประสงค์ของการทดสอบ
+ฉบับทบทวนเนื้อหา: **16 ตุลาคม 2026** · ขอบเขต **48 TC / 32 FR**
 
-- ตรวจพฤติกรรมของ FR-001–FR-032 ด้วย TC-001–TC-048 ทั้งเส้นทางหน้าเว็บ API และการบันทึกข้อมูล
-- ตรวจการยืนยันตัวตนด้วย JWT/HttpOnly cookie และสิทธิ์ของ guest, student, advisor, admin ที่ระดับ UI และ HTTP
-- ตรวจ workflow ที่โค้ดใช้จริง: สร้างงานเป็น pending → ตรวจเป็น approved/rejected/needs_revision → แก้ไขแล้วกลับ pending รวมถึงการแจ้งเตือนและ revision ของไฟล์
-- ตรวจการค้นหา การมองเห็นรายละเอียด การดาวน์โหลด การจัดการผู้ใช้/หมวดหมู่/ตัวเลือก และการเชื่อมต่อ AI แบบควบคุมผล
-- บันทึกความต่างระหว่าง frontend กับ backend ตามผลทดสอบจริง โดยเฉพาะหน้า /admin, คิว advisor และ URL ไฟล์
+ส่วนที่ 1 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md) ใช้กับ [TEST-CASES.md](TEST-CASES.md) ฉบับวันที่เดียวกัน แผนนี้ระบุวิธีและเกณฑ์ที่จะใช้; ผลการดำเนินการย้อนหลังอยู่ใน [TEST-REPORT.md](TEST-REPORT.md) การแก้เอกสารครั้งนี้ไม่ได้รันทดสอบใหม่หรือรับรองระบบแทนผู้อนุมัติ
 
-## 1.2 ขอบเขตการทดสอบ
+## 1.1 วัตถุประสงค์และฐานอ้างอิง
 
-### 1.2.1 สิ่งที่อยู่ในขอบเขต (In Scope)
+ตรวจพฤติกรรม FR-001–FR-032 จาก implementation และความต่อเนื่องระหว่าง UI, Next.js proxy, FastAPI, ฐานข้อมูล และไฟล์ โดยมีฐานโค้ดที่ทบทวนคือ commit `343fb57f3b04b756f6f7129154df9649d5177afc` ก่อนแก้เอกสาร ต้องบันทึก commit/working tree ของรอบรันจริงแยกทุกครั้ง
 
-- กรณีทดสอบ TC-001–TC-048: Positive 32 และ Negative 16; ครอบคลุม 32 FR ในเอกสาร Functional Requirements
-- บัญชี/โปรไฟล์/session, RBAC, ผู้ใช้, หมวดหมู่และตัวเลือก, ค้นหาและคำแนะนำ, ผลงานวิจัย, ไฟล์, คิวตรวจ/ผลตรวจ, favorite, notification, AI endpoint และ E2E ข้ามบทบาท
-- ตรวจ HTTP status, response body, UI/redirect, ฐานข้อมูล, file storage และ log ที่เกี่ยวข้องตามแต่ละ TC
-- ทดสอบกรณีข้อมูลผิด ขาด token, role ไม่ถูก, relation ไม่ถูก, ขนาดไฟล์ขอบเขต และ ID ไม่พบ
+เป้าหมายหลักมีดังนี้
 
-### 1.2.2 สิ่งที่อยู่นอกขอบเขต (Out of Scope)
+- ยืนยันการสมัคร/ล็อกอิน/โปรไฟล์/session และ RBAC ของ anonymous, guest, student, advisor, admin; แยก anonymous ออกจากบัญชี role guest
+- ยืนยันการสร้างงาน `pending`, การตรวจเป็น `approved`/`rejected`/`needs_revision`, การแก้แล้วกลับ `pending`, revision และ notification
+- ตรวจการค้นหา/คำแนะนำ/สถิติ การจัดการผู้ใช้/หมวดหมู่/ตัวเลือก favorite และการดาวน์โหลดทั้ง UI/API
+- ตรวจ negative/boundary และผลข้างเคียงหลังคำขอถูกปฏิเสธ รวมถึงไฟล์เดิมเมื่อ update ล้มเหลว
+- ตรวจ AI contract และสิทธิ์ด้วย provider mock โดยไม่ bypass authentication/validation; ประเมิน provider จริงแยก
+- บันทึกพฤติกรรมสาธารณะของ pending URL/static และความต่างของ queue/route guard เพื่อให้ผู้รับผิดชอบตัดสินนโยบาย
 
-- คุณภาพเชิงเนื้อหาของ AI provider จริง; ใช้ test double เพื่อทดสอบ contract และสิทธิ์
-- Load/Stress, penetration test เต็มรูปแบบ, deployment Kubernetes/Terraform และ browser/อุปกรณ์ที่ยังไม่กำหนดในรอบทดสอบ
-- ความสามารถจากตัวอย่าง SPRS ที่ไม่มีใน UniResearch เช่น draft/submitted/completed, committee, คะแนนประเมินสี่ด้าน, activity_logs, tags และรูปโปรไฟล์
+ข้อกำหนดจากโค้ดไม่ใช่หลักฐานว่าเป็นนโยบายธุรกิจที่อนุมัติแล้ว โดยเฉพาะการมองเห็นงานที่ยังไม่เผยแพร่
 
-## 1.3 กลยุทธ์และประเภทการทดสอบ
+## 1.2 ขอบเขตและรายการที่ทดสอบ
 
-คอลัมน์ “ใช้ตามแผน” ระบุวิธีที่ตั้งใจใช้ ไม่ได้หมายถึงทดสอบแล้ว
+### 1.2.1 In Scope
 
-| ประเภทการทดสอบ | วิธีการ | เครื่องมือ/หลักฐาน | ใช้ตามแผน |
-|---|---|---|---|
-| Functional / E2E | เดิน workflow ผ่าน /register, /login, /student/research/new, /advisor/reviews, /admin/* | Browser/Playwright; screenshot, URL, DB | ☑ |
-| API/Integration | เรียก FastAPI และ Next.js proxy โดยตรง แล้วเทียบฐานข้อมูลและไฟล์ | HTTP client, PostgreSQL query, file check | ☑ |
-| Negative / RBAC | ตรวจหน้าเว็บและส่ง HTTP ตรงด้วยไม่มี token หรือ role ไม่ถูก | Browser, HTTP client, before/after snapshot | ☑ |
-| Validation / Boundary | ส่ง JSON ID ผิด, category/role ผิด, ไฟล์ชนิด/ขนาดขอบเขต | HTTP client, ชุดไฟล์ทดสอบ | ☑ |
-| Automated Backend | รันชุด pytest ที่มีอยู่ใน backend/tests | pytest; log และ commit ที่รัน | ☑ |
-| Automated Frontend | typecheck, lint, Node tests และ build ตาม package.json | pnpm; log และ commit ที่รัน | ☑ |
-| Automated E2E | รัน Playwright เฉพาะเมื่อ fixture และ server พร้อม; ตรวจ skip ด้วย | Playwright trace/screenshot | ☑ |
-| AI แบบควบคุม | mock provider และตรวจ schema/RBAC/fallback | Test double, HTTP response | ☑ |
-| Regression | รัน TC ที่ได้รับผลกระทบซ้ำหลังแก้ defect | Test Execution Log และหลักฐานก่อน/หลัง | ☑ |
+| กลุ่ม | Test Cases | จำนวน |
+|---|---|---:|
+| บัญชีและโปรไฟล์ | TC-001–007 | 7 |
+| ผู้ใช้ หมวดหมู่ และตัวเลือก | TC-008–013 | 6 |
+| ค้นหา รายละเอียด และคำแนะนำ | TC-014–020 | 7 |
+| ส่งผลงานและตรวจข้อมูล | TC-021–027 | 7 |
+| ผลงานของฉัน การแก้ไข และไฟล์ | TC-028–035 | 8 |
+| คิวและผลการตรวจ | TC-036–041 | 6 |
+| Favorite และการแจ้งเตือน | TC-042–043 | 2 |
+| AI | TC-044–046 | 3 |
+| E2E ข้ามบทบาท | TC-047–048 | 2 |
+| รวม | TC-001–048 | 48 |
 
-เกณฑ์ผ่านราย TC: ผลจริงตรงทุก Expected Result ที่ระบุ; กรณี Negative ต้องไม่มีการเปลี่ยนข้อมูลที่ถูกปฏิเสธ; ต้องมีหลักฐานตรวจซ้ำได้ ข้อสังเกตจากการอ่านโค้ดยังไม่ใช่ผล Passed หรือ Failed
+ประเภทหลัก Positive 32 / Negative 16; ความสำคัญสูง 31 / กลาง 17 แต่ละ TC อาจมีหลาย subcase และนับเป็น PASS ได้ต่อเมื่อตรวจครบ เงื่อนไขที่เพิ่มในฉบับ 16 ตุลาคมยังไม่มีผล execution ของฉบับนี้
 
-## 1.4 เกณฑ์การเริ่มและสิ้นสุดการทดสอบ
+ขอบเขต source: `backend/app`, `backend/tests`, `frontend/app`, `frontend/src`, `frontend/tests`, `frontend/e2e`, `tests/selenium`, Docker/CI configuration ที่เกี่ยวข้อง ส่วน Selenium ที่รันโดยค่าเริ่มต้นปัจจุบันเป็น **18 TC ของ Narongsak**; อีก 30 TC อยู่ในชุด legacy ต้องเลือกให้ชัดตาม README ของชุดทดสอบ การรัน pytest ค่าเริ่มต้นจึงไม่ใช่ผลครบ 48 TC
 
-### 1.4.1 เกณฑ์การเริ่มทดสอบ (Entry Criteria)
+### 1.2.2 Out of Scope และข้อจำกัด
 
-- ระบุ commit, configuration และ browser/OS ที่ใช้จริง โดยไม่บันทึก secret
-- เริ่ม frontend/backend และ PostgreSQL pgvector บนฐานทดสอบแยกได้; /health ตอบ และตารางที่ backend ใช้พร้อม
-- เตรียม fixture A1/S1/S2/S3/D1/D2/G1/U2, C1/C2, W1–W5, N1/N2 และไฟล์ valid/invalid ตาม [TEST-CASES.md](TEST-CASES.md)
-- มีวิธีควบคุม AI provider และสถานที่เก็บหลักฐานที่ปกปิด token/ข้อมูลลับ
-- ผู้รับผิดชอบอนุมัติ scope และกรณีทดสอบของรอบนั้น: TBD
+ยังไม่รวม load/stress, penetration test เต็มรูปแบบ, compatibility ทุก browser/mobile, Kubernetes/Terraform และการตัดสินความถูกต้องทางวิชาการของ AI ส่วน PostgreSQL/pgvector เป็นขอบเขตรับรองที่ต้องมีรอบ integration จริงก่อนสรุปผลระบบ แต่ **ไม่รวมอยู่ในผล Selenium SQLite ที่มีแล้ว**
 
-### 1.4.2 เกณฑ์การสิ้นสุดการทดสอบ (Exit Criteria)
+ไม่มีการนำ requirement ของระบบตัวอย่าง SPRS มาใช้ เช่น committee, draft/submitted/completed หรือคะแนนประเมินสี่ด้าน หากต้องเพิ่มนโยบายต้องเปลี่ยน requirement และกำหนด TC ก่อน
 
-- มีผลและหลักฐานสำหรับ TC ทั้ง 48 หรือบันทึกเหตุผลของกรณีที่ข้าม/Blocked
-- กรณี Priority สูง 31 ข้อมีผลครบ; เป้าหมายอัตราผ่านและการจัดการ defect ให้ผู้อนุมัติรอบทดสอบกำหนด: TBD
-- ทุก FR มีผลอย่างน้อยหนึ่ง TC; defect สำคัญได้รับการแก้หรือมีการรับความเสี่ยงอย่างชัดเจน
-- รายงานข้อ 2.1–2.8 กรอกผลจริงและผ่านการทบทวน
+## 1.3 กลยุทธ์ เครื่องมือ และหลักฐาน
 
-### 1.4.3 เกณฑ์การระงับและกลับมาทดสอบ (Suspension / Resumption)
+### 1.3.1 ชั้นการทดสอบ
 
-ระงับกรณีที่ขึ้นกับ service เมื่อล็อกอินไม่ได้ ฐานข้อมูล/pgvector ไม่พร้อม fixture ปนข้อมูลจริง หรือ AI test double ใช้ไม่ได้ บันทึกเป็น Blocked พร้อมสาเหตุและเวลา กลับมาทดสอบเมื่อแก้ dependency แล้วผ่าน smoke check ที่เกี่ยวข้อง
-
-## 1.5 สภาพแวดล้อมการทดสอบ
-
-| รายการ | ค่าอ้างอิงจาก Repository | ค่าจริงในรอบทดสอบ |
+| ชั้น | วิธีดำเนินการ | หลักฐานที่ต้องมี |
 |---|---|---|
-| แอปพลิเคชัน | Next.js 16.2.12, React 19.2.4, FastAPI | frontend production image และ backend development image จาก Docker build |
-| Runtime | Node 22 / pnpm 9 / Python 3.11 ตาม CI | Node 22, pnpm 12.9.1 ใน image, Python 3.11 |
-| ฐานข้อมูล | pgvector/pgvector:pg15 ตาม docker-compose.yml | SQLite ชั่วคราวสำหรับ API/E2E; PostgreSQL/pgvector:pg15 บน tmpfs สำหรับ smoke test |
-| การเริ่มระบบ | docker compose up --build; backend เรียก Base.metadata.create_all ระหว่าง startup | `docker build` และ `docker run` แยก network ชั่วคราว; ไม่มีการใช้ Compose volume ปกติ |
-| URL/Port ค่าเริ่มต้น | Frontend 3000, Backend 8000, DB host 5433 | localhost:13000 frontend, localhost:18080 backend/SQLite, localhost:18081 backend/PostgreSQL |
-| เวอร์ชัน/Commit | ต้องบันทึกก่อนรัน | `67dfab6` พร้อมการปรับ E2E specs ใน working tree |
-| Browser/OS | Repository ไม่ระบุรุ่นที่ต้องรับรอง | Chromium จาก Playwright 1.62.1 บน Docker; โฮสต์ macOS |
-| บัญชีทดสอบ | สร้างบนฐานทดสอบตาม role; ไม่ใช้ข้อมูลจริง | admin, student 2 ราย, advisor, guest และ inactive ใน SQLite ชั่วคราว; fixture TC อื่นยังไม่ครบ |
-| AI | test double สำหรับ Functional; smoke จริงแยก | ยังไม่มี AI test double ในรอบนี้; TC ที่ต้องใช้ข้าม |
-| ขนาดไฟล์ค่าเริ่มต้น | cover 5 MiB, document 25 MiB; environment override ได้ | ใช้ไฟล์ PNG/PDF ขนาดเล็ก; ยังไม่ได้ทดสอบขอบเขตขนาด |
+| UI functional / E2E | Selenium WebDriver บน frontend/backend จริง; รอ visible result; ใช้ session แยกตาม role | steps, screenshots, URL, browser/driver/mode, final result |
+| API/Integration | ส่ง HTTP ตรง backend และ proxy แยกกัน; เทียบ persisted state | method/path/status, response ที่ปกปิดข้อมูลลับ, DB/file snapshot |
+| RBAC / negative | body valid ยกเว้นจุดที่ทดสอบ; anonymous/role ผิด/ID ผิดแยก subcase | error ที่ตรงเหตุ, snapshot ก่อนหลัง, UI guard ถ้ามี |
+| Boundary / file | แยก L−1/L/L+1 bytes และ MIME/extension/signature | ขนาดจริง, status, path/bytes หรือ hash, cleanup result |
+| Backend automated | pytest ของ backend/tests บนฐานทดสอบ | command, exit code, test counts, logs และ commit |
+| Frontend quality | typecheck, lint, Node tests, production build | command/exit code, error summary และ commit |
+| Playwright regression | ใช้ specs/fixtures ที่มีอยู่และตรวจ skip | test counts, trace/screenshot, config ที่ใช้จริง |
+| AI controlled | mock provider ให้ผลแน่นอน; ทดสอบ schema/auth/fallback จริง | mock contract/version, HTTP/UI result; ระบุว่าไม่ได้รับรอง live AI |
+| PostgreSQL/pgvector | ฐานแยกพร้อม extension; relation/transaction/vector retrieval จริง | version/schema/extension, query evidence, integration logs |
 
-## 1.6 บทบาทหน้าที่และผู้รับผิดชอบ
+HTTP/DB assertions ที่อยู่ร่วม Selenium เป็นหลักฐานเสริม ไม่ใช่ browser steps การเห็นหน้าเว็บไม่พอพิสูจน์การบันทึก DB และ API สำเร็จไม่พอพิสูจน์ว่า UI แสดงถูก TC-046 ปัจจุบันมี UI ทั้งสี่ AI tabs จึงไม่ใช่ API-only case
 
-| บทบาท | หน้าที่ | ผู้รับผิดชอบ |
+### 1.3.2 ลำดับดำเนินงาน
+
+1. บันทึก run ID, commit/dirty diff, เวอร์ชันและ configuration ที่ไม่รวม secret; ตรวจว่าเป็นฐาน/ไฟล์ทดสอบแยก
+2. ตรวจ frontend/backend health, schema, browser driver และ provider mock; ถ้าทดสอบ PostgreSQL ให้ตรวจ extension เพิ่ม
+3. seed fixture ตามข้อ 1.2 ของ Test Cases และ override เฉพาะกรณี; ตรวจ role/status/relations ก่อนเริ่ม
+4. รันบัญชี/RBAC → ส่งงาน/ไฟล์ → ตรวจงาน/notification → ค้นหา/AI → E2E โดย reset แต่ละกรณี; ห้ามพึ่งผลจาก TC ก่อนหน้า
+5. เก็บผลทุก subcase; เปิด defect เมื่อ assertion ต่าง; แยก failure ของระบบออกจาก locator/wait/fixture
+6. แก้ defect แล้ว rerun TC เดิมพร้อมกรณีที่ได้รับผลกระทบ บันทึกเป็น session ใหม่ ไม่เขียนทับผลเดิม
+7. ตรวจ consistency ของ TC/FR/counts/หลักฐานก่อนสรุป exit criteria และเสนอผู้อนุมัติ
+
+### 1.3.3 สูตรและสถานะผล
+
+`Planned = PASS + FAIL + BLOCKED + SKIPPED + NOT RUN` โดยหนึ่ง TC มีสถานะสุดท้ายหนึ่งค่าในหนึ่ง session; `Executed = PASS + FAIL` และ `Pass rate = PASS / Executed × 100` ถ้า Executed=0 ให้ระบุ N/A ไม่ใช่ 0% หรือ 100% ส่วน `Execution coverage = Executed / Planned × 100`
+
+รายงาน UI ใช้ `UI Tested / UI-automatable cases` เป็นอีก metric หนึ่ง ต้องไม่แทน execution coverage ของทั้ง 48 TC การมี TC ครบทุก FR คือ coverage เชิงแผน ไม่ใช่ coverage ของ assertions หรือผลผ่านของ FR
+
+ถ้าบาง subcase ทำไม่ได้ให้ BLOCKED พร้อมบอกส่วนที่ทำแล้ว หากมีผลผิดแน่ชัดให้ FAIL และบันทึกส่วนที่ blocked เพิ่ม ผลเก่าที่ใช้คำว่า “ข้าม” คงคำเดิม ห้ามตีความเป็น BLOCKED ทุกข้อโดยไม่มีหลักฐาน
+
+## 1.4 เกณฑ์เริ่ม สิ้นสุด ระงับ และกลับมาทดสอบ
+
+### 1.4.1 Entry Criteria
+
+- มี specification version และ scope ของรอบรันชัดเจน; ไม่ใช้คำว่า “ทั้งชุด” โดยไม่ระบุ 18 หรือ 48 TC
+- frontend/backend พร้อมบน loopback/สภาพแวดล้อมแยก; SQLite ใช้ได้สำหรับ functional รอบจำกัด ส่วนรอบ PostgreSQL ต้องเริ่ม DB/pgvector และ schema ของมันได้
+- บัญชี fixture/งาน/relations/ไฟล์และ revision ตรง precondition; ไม่มี dependency กับข้อมูล production
+- browser/driver ใช้งานได้; AI provider mock พร้อม; มี directory หลักฐานที่เขียนได้และเก็บข้อมูลลับแยก
+- ระบุผู้รันจริงและผู้ทบทวน; ผู้อนุมัติแผน/นโยบายที่ยังไม่ระบุให้แสดง “รอระบุ” ไม่ถือว่าอนุมัติแล้ว
+
+### 1.4.2 Exit Criteria
+
+เกณฑ์ด้านล่างเป็น **ข้อเสนอสำหรับฉบับทบทวน** ยังไม่ใช่การอนุมัติย้อนหลัง
+
+- มีสถานะและเหตุผลครบ 48 TC ของฉบับนี้; สำหรับการรับรองครบขอบเขตต้อง execute 48/48 และทำครบ subcases
+- TC ความสำคัญสูงทั้ง 31 ต้อง PASS; กรณี FAIL ที่เหลือต้องมี defect และการตัดสินความเสี่ยงอย่างชัดเจน ไม่ใช้ pass rate กลบ defect สำคัญ
+- ไม่มี defect ที่ทำให้เข้าถึง/แก้ข้อมูลโดยไม่ได้รับสิทธิ์ ข้อมูลหรือไฟล์สูญหาย หรือ workflow หลักใช้งานไม่ได้ค้างโดยไม่จัดการ
+- มีผล backend/frontend quality gates ของ commit ที่จะรับรอง; warning ต้องมีข้อสรุปตามผลกระทบ ผล gate วันที่ 4 ตุลาคมไม่ใช่ gate ของ commit ปัจจุบัน
+- มีผล PostgreSQL/pgvector หากสรุปการรับรองระบบที่ใช้ฐานดังกล่าว; SQLite ผ่านไม่ทดแทนได้
+- รายงานและหลักฐานครบ มีผู้ทบทวน และผู้อนุมัติรับรอง/รับความเสี่ยงพร้อมวันเวลา
+
+ผล 18/18 ของ subset ยืนยันได้เฉพาะ subset และ version นั้น; ไม่ทำให้ exit criteria 48 TC เป็นผ่าน
+
+### 1.4.3 Suspension / Resumption
+
+ระงับกรณีที่พึ่ง dependency เมื่อล็อกอิน fixture ไม่ได้, service/DB/browser ล่ม, schema ไม่ตรง, mock ใช้ไม่ได้ หรือ fixture ปนข้อมูลจริง บันทึก BLOCKED พร้อมเวลาและ error ห้ามเปลี่ยนเป็น FAIL ของระบบโดยอัตโนมัติ กลับมารันเมื่อแก้สาเหตุและผ่าน smoke check ของ dependency แล้ว โดยสร้าง session ใหม่และ reset ข้อมูล
+
+## 1.5 สภาพแวดล้อมและการจัดการข้อมูล
+
+| รายการ | ฐานอ้างอิง/ข้อกำหนดการบันทึก |
+|---|---|
+| แอป | Next.js 16.2.12, React 19.2.4, FastAPI; บันทึก lockfile/image/commit จริง |
+| Runtime | CI อ้าง Node 22 / Python 3.11; local Selenium ที่มีหลักฐานใช้ Python 3.14.5; ไม่ถือว่าผลข้าม runtime เทียบกันได้ทันที |
+| ฐานข้อมูล | Compose อ้าง pgvector/pgvector:pg15; Selenium runner ใช้ SQLite ชั่วคราว ให้ระบุชนิดจริงในรายงาน |
+| Startup | backend ใช้ Base.metadata.create_all; ทดสอบฐานใหม่ไม่ใช่หลักฐานการ migrate ฐานเก่า |
+| Browser | Chrome ค่าเริ่มต้น local headed; CI/container headless; Brave ต้องกำหนด binary/driver; บันทึก browser version จริง |
+| URL | ค่าปกติ 3000/8000/5433; runner ใช้พอร์ตของตนเอง; บันทึก actual origin โดยไม่เผย secret |
+| ข้อมูลทดสอบ | อีเมลจาก CSV/เลขผู้ใช้ที่จัดในฐานทดสอบตามแผน ตามตาราง Test Cases: admin@uniresearch.ac.th เลข 1, 674259009@webmail.npru.ac.th เลข 2, 674259003@webmail.npru.ac.th เลข 3, 644259003@webmail.npru.ac.th เลข 4, udsanee@webmail.npru.ac.th เลข 5, wuttha@webmail.npru.ac.th เลข 6, g1@example.org เลข 7, 674259013@webmail.npru.ac.th เลข 8; หมวดหมู่ 1/2, ผลงาน 1–5, แจ้งเตือน 1/2; เพิ่มข้อมูลตามแต่ละ subcase |
+| Storage | directory ชั่วคราวแยกและ reset; cover 5 MiB / document 25 MiB เป็น default ที่ override ได้ |
+| AI | deterministic provider mock สำหรับ functional; vector fallback และ provider จริงบันทึกเป็นคนละรอบ |
+| Evidence | artifacts และ reports แยกตาม run ID; ห้ามเก็บ password/token/hash/secret ใน Markdown หรือ screenshot |
+
+คำสั่งและ flags ให้ใช้ [tests/selenium/README.md](../../tests/selenium/README.md) เป็นคู่มือปัจจุบัน ตัวอย่างเลือก scope:
+
+```sh
+pytest tests/selenium/ -v --headed
+pytest tests/selenium/ -m ai -v --headless
+pytest tests/selenium/ --include-legacy -v --headless
+```
+
+คำสั่งแรกปัจจุบันเลือก 18 TC; คำสั่งสุดท้ายขอรวม legacy แต่ต้องตรวจ collection/จำนวน unique TC ก่อนเรียกผลว่า 48/48 ห้ามรวม duplicate ID หรือแปลง deselected เป็น PASS Runner local ใช้ `.next`/dev lock ร่วมกับ checkout จึงรัน serial และจัดการ dev server เดิมก่อน; ไม่รัน pytest-xdist กับ fixture reset นี้
+
+## 1.6 บทบาทและผู้รับผิดชอบ
+
+| บทบาท | หน้าที่ | สถานะผู้รับผิดชอบ |
 |---|---|---|
-| Test Manager | กำหนดรอบ ติดตาม entry/exit และสรุปผล | TBD |
-| Tester | เตรียม fixture, execute TC, เก็บหลักฐานและเปิด defect | Narongsak, Sommai Kitikorn, Natthaporn (กำหนดตามแผน); Codex รัน Docker รอบ 4 ตุลาคม 2026 |
-| ผู้ดูแลสภาพแวดล้อม | ดูแลฐานทดสอบและ AI test double | TBD |
-| Developer | วิเคราะห์/แก้ defect และส่ง commit สำหรับ retest | TBD |
-| Approver | รับรองผลหรือรับความเสี่ยงคงค้าง | TBD |
+| Test Manager | กำหนด scope/priority ตรวจ entry/exit และ defect | รอระบุ |
+| Tester | ดำเนินขั้นตอนและเก็บหลักฐาน | Narongsak, Sommai Kitikorn, Natthaporn เป็นการจัดสรรเดิม; ต้องบันทึกผู้รันจริงต่อ session |
+| ผู้รันอัตโนมัติย้อนหลัง | รันเครื่องมือและบันทึกผล | Codex ตามรายงานเดิม; ไม่ใช่ลายเซ็นของสมาชิกที่รับมอบหมาย |
+| Environment owner | ดูแล DB/storage/mock และ reset | รอระบุ |
+| Developer | วิเคราะห์/แก้ defect และระบุ commit สำหรับ retest | รอระบุ |
+| Reviewer / Approver | ตรวจความครบและตัดสินการรับรอง/ความเสี่ยง | รอระบุ |
 
-## 1.7 กำหนดการทดสอบ (Test Schedule)
+## 1.7 กำหนดการและ milestone
 
-| กิจกรรม | วันที่เริ่ม | วันที่สิ้นสุด | ผู้รับผิดชอบ |
-|---|---|---|---|
-| เตรียมสภาพแวดล้อมและข้อมูลทดสอบ | 4 ตุลาคม 2026 | 4 ตุลาคม 2026 | Codex (Docker; fixture บางส่วน) |
-| ทดสอบรอบที่ 1: API/RBAC/Validation | 4 ตุลาคม 2026 | 4 ตุลาคม 2026 | Codex (17 TC ที่มีหลักฐานครบรวม Web/API) |
-| ทดสอบรอบที่ 1: UI/Integration/E2E | 4 ตุลาคม 2026 | 4 ตุลาคม 2026 | Codex (Playwright 10 รายการ; TC อื่นยังข้าม) |
-| แก้ไขข้อบกพร่อง | TBD | TBD | TBD |
-| ทดสอบซ้ำและ Regression | TBD | TBD | TBD |
-| จัดทำรายงานและสรุปผล | 4 ตุลาคม 2026 | 4 ตุลาคม 2026 | Codex; รอผู้รับผิดชอบทบทวน |
+| กิจกรรม | วันที่/สถานะ | ผลงานที่ต้องได้ |
+|---|---|---|
+| Docker baseline | 4 ต.ค. 2026 ดำเนินการแล้ว | 17 PASS / 31 ข้าม; quality gates ตามหลักฐานเดิม |
+| Selenium full baseline และ notification retest | 8 ต.ค. 2026 ดำเนินการแล้ว | ผลทั้ง 48 และผล focused แยก session |
+| ปรับ Selenium/UI subset | 14 ต.ค. 2026 ดำเนินการแล้ว | session 18/18 และหลักฐาน UI |
+| Focused UI retest | 16 ต.ค. 2026 มีผลบาง TC | latest session TC-038 PASS, อีก 17 NOT RUN |
+| ทบทวนเนื้อหาเอกสาร | 16 ต.ค. 2026 | ฉบับนี้; ไม่มี execution ใหม่ |
+| รันเงื่อนไขที่เพิ่มครบ 48 TC / PostgreSQL | รอจัดกำหนดการ | evidence ของฉบับปรับปรุงและ defect log |
+| Regression / รับรอง | หลังแก้ defect และผ่าน gates | ผลรอบใหม่พร้อมการลงนาม |
 
-## 1.8 ความเสี่ยงและแผนรองรับ (Risks & Mitigation)
+## 1.8 ความเสี่ยงและการรองรับ
 
-ระดับผลกระทบ/โอกาสเป็นการประเมินสำหรับแผนทดสอบ ยังไม่ใช่ผล defect
+| ความเสี่ยง | ผลกระทบ | วิธีตรวจ/รองรับ |
+|---|---|---|
+| pending detail และ static URL สาธารณะ | อาจเผยงานที่ยังไม่เผยแพร่/ข้าม download counter | TC-018/034 แยก observation; เจ้าของระบบยืนยันนโยบาย |
+| /admin layout ตรวจเพียง session | UI ดูเข้าถึงได้แม้ API ปฏิเสธ | TC-013/048 ตรวจหน้าและ API แยกกัน |
+| advisor queue ใช้ search ที่กว้างกว่า pending API | เห็นงานนอก assignment | TC-036 เทียบ ID และยืนยันนโยบาย |
+| reviewer role ใน frontend ไม่ตรง backend | เปิด workspace แต่ตรวจงานไม่ได้ | ไม่ใช้ reviewer แทน advisor; เพิ่ม regression เมื่อกำหนด role จริง |
+| update ล้มเหลวหลังลบไฟล์เดิม | DB rollback แต่ bytes เดิมอาจหาย | TC-027 ตรวจ old path/bytes ด้วย; เป็นข้อสงสัยจากโค้ด ยังไม่ใช่ผล FAIL ใหม่ |
+| ลบแถว revision แต่ไม่ลบไฟล์ revision เก่า | ไฟล์ตกค้าง | TC-032 ตรวจ filesystem แยกและกำหนด cleanup policy |
+| SQLite/mock ผ่านแต่ PostgreSQL/vector จริงผิด | ผล functional ไม่แทน deployment | ทดสอบ FK/transaction/pgvector แยก |
+| ผลต่าง commit/working tree/เวลา metadata | สรุป pass จากคนละเวอร์ชันผิด | เก็บ run ID/JSON/UTC; ห้ามรวม PASS หลายรอบเป็นผล session เดียว |
+| retry toggle/side effects GET | favorite กลับค่าเดิม หรือ counter เกิน | TC-018/034/042 คุมจำนวน HTTP และตรวจ DB |
 
-| ความเสี่ยงจาก Implementation | ผลกระทบ | โอกาสเกิด | แผนรองรับ |
-|---|---|---|---|
-| GET /research/{id} และ /static/* ไม่มีการตรวจสถานะหรือสิทธิ์ของงาน | สูง | สูง | TC-018/034 ตรวจ URL ตรง; ให้เจ้าของระบบยืนยันนโยบายก่อนสรุป defect |
-| หน้า /admin ตรวจเพียง session แต่ API admin ตรวจ role | กลาง | สูง | TC-048 ตรวจทั้งหน้าและ HTTP; แยก UI access จาก data access |
-| หน้า /advisor/reviews ใช้ searchResearch ที่ให้ advisor เห็นงานทั้งหมด ต่างจาก /research/pending | กลาง | สูง | TC-036 เทียบ UI กับ API และบันทึกการมองเห็นจริง |
-| role reviewer ปรากฏใน frontend แต่ backend require_role ไม่ให้ตรวจงาน | กลาง | สูง | ตรวจบัญชี role นี้แบบแยกชั้นก่อนใช้เป็น fixture หลัก |
-| AI provider/pgvector ไม่พร้อม | กลาง | กลาง | mock provider, smoke check, บันทึก Blocked เมื่อ dependency ไม่พร้อม |
-| ไม่มี migration file ใน Repository และ startup ใช้ create_all | กลาง | กลาง | ใช้ฐานใหม่แยก ตรวจ schema ก่อนรัน ห้าม reset ฐานจริง |
-| ข้อมูล fixture/ไฟล์ค้างทำให้ผลรอบถัดไปเปลี่ยน | กลาง | กลาง | reset fixture ก่อนแต่ละ TC; เทียบ row/file ก่อนและหลัง |
-| เวลาทดสอบจำกัด | สูง | กลาง | เรียง Priority สูงก่อน แต่บันทึก TC ที่ไม่ได้รันตามจริง |
+## 1.9 สิ่งส่งมอบและการควบคุมการแก้ไข
 
-## 1.9 สิ่งส่งมอบของการทดสอบ (Test Deliverables)
+ส่งมอบเฉพาะ Markdown: Test Cases, Test Plan, Test Report, ฉบับรวม, Traceability และดัชนีอ้างอิง ผลการทดสอบดั้งเดิม/JSON/screenshots คงเป็นหลักฐานของรอบเดิม ไฟล์ Word/PDF ไม่ได้ปรับในงานนี้
 
-- แผนการทดสอบที่อนุมัติแล้วและ [TEST-CASES.md](TEST-CASES.md)
-- ข้อมูล fixture บนฐานทดสอบพร้อมวิธี reset โดยไม่รวม credential ในเอกสาร
-- Test Execution Log พร้อม [หลักฐาน Docker รอบ 4 ตุลาคม 2026](DOCKER-TEST-EVIDENCE-2026-10-04.md) ที่ไม่รวม credential
-- Defect Log, หลักฐาน retest และรายงานสรุปผลตามส่วนที่ 2
+หากเปลี่ยน Expected Result หรือเพิ่ม subcase ต้องระบุ specification version ใหม่และไม่ยก PASS เดิมมาเป็น PASS ของเงื่อนไขใหม่ Defect log ต้องมี TC/subcase, run/commit, steps, expected/actual, severity ที่ประเมิน, owner, status, fix commit และ retest evidence
 
-## 1.10 การอนุมัติแผนการทดสอบ
+`TEST-PLAN.md` และ `TEST-REPORT.md` เป็นแหล่งแก้ไขหลักของแต่ละส่วน; `TEST-PLAN-AND-REPORT.md` ต้องประกอบจากสองไฟล์นี้เมื่อแก้ เพื่อป้องกันข้อมูลต่างกัน
 
-| บทบาท | ชื่อ-นามสกุล | ลายเซ็น/วิธีรับรอง | วันที่ |
-|---|---|---|---|
-| ผู้จัดทำแผน | TBD | TBD | TBD |
-| ผู้ทบทวน | TBD | TBD | TBD |
-| ผู้อนุมัติ | TBD | TBD | TBD |
+## 1.10 การทบทวนและอนุมัติแผน
+
+| บทบาท | ผู้รับผิดชอบ | วิธีรับรอง/วันที่ |
+|---|---|---|
+| ผู้จัดทำฉบับทบทวน | Codex (ตรวจเอกสารตามคำขอ) | 16 ต.ค. 2026; ไม่ใช่ผล execute |
+| ผู้ทบทวนแผน | รอระบุ | รอตรวจ |
+| ผู้อนุมัติ scope/exit criteria/นโยบาย | รอระบุ | ยังไม่มีการรับรอง |
