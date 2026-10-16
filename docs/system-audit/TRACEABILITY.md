@@ -42,3 +42,5 @@
 เงื่อนไขที่เพิ่มในฉบับปรับปรุงยังไม่มีผล execute ครบ จึงยังมี verification gap 48 TC ของฉบับนี้ ไม่ใช่กล่าวว่า 48 TC ไม่เคยทดสอบมาก่อน PostgreSQL/pgvector และ live AI ไม่ได้รับรองจาก SQLite/mock ผลล่าสุดใน U16 มี TC-038 PASS อีก 17 NOT RUN ภายใน subset
 
 FR-009 ต้องแยก suggestions ที่ q ไม่ว่างออกจาก q ว่างที่อาจดึงคำจาก search_logs; FR-020 ต้องแยกการลบแถว revision กับไฟล์ revision บน disk ประเด็นนโยบายสิทธิ์/URL สาธารณะและแผนตรวจเพิ่มอยู่ใน [TEST-PLAN.md](TEST-PLAN.md)
+
+ขั้นตอนหลักใน [Test Cases](TEST-CASES.md) เป็นลำดับกด UI ส่วน assertions ฝั่ง API/DB/ไฟล์ยังคงอยู่ใน [Technical Checks](TEST-CASES-TECHNICAL-CHECKS.md) ต้องมีผลทั้งสองส่วนตามขอบเขต TC ก่อนถือว่าครอบคลุม FR; การแยกคู่มือไม่ได้เพิ่มจำนวน TC หรือเปลี่ยนผลย้อนหลัง

@@ -4,11 +4,15 @@
 
 ข้อมูลบัญชีฉบับปัจจุบันเลือกจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) โดยระบุชื่อ–อีเมล–รหัสนักศึกษาและแหล่งข้อมูลใน Test Cases ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน ผลย้อนหลังยังเป็นข้อมูลของรอบเดิม ไม่ใช่ผลรันด้วยบัญชี CSV
 
+ชื่องานวิจัยและข้อมูลต้นทางตรวจจากสคริปต์ backend ดู [TEST-RESEARCH-DATA.md](TEST-RESEARCH-DATA.md) ซึ่งแยก 4 เรื่องต้นทางออกจากสำเนาที่เตรียมเพิ่มเพื่อทดสอบ
+
 ## เอกสารหลัก
 
 | เอกสาร | เนื้อหา |
 |---|---|
-| [TEST-CASES.md](TEST-CASES.md) | 48 TC พร้อม preconditions, data, steps, expected/assertions, evidence และผลย้อนหลังแยกจากฉบับปรับปรุง |
+| [TEST-RESEARCH-DATA.md](TEST-RESEARCH-DATA.md) | ชื่อเต็มภาษาไทย/อังกฤษและข้อมูลต้นทางจาก migration พร้อมขอบเขตสำเนาทดสอบ |
+| [TEST-CASES.md](TEST-CASES.md) | 48 TC แบบเดินหน้าเว็บ: บัญชี/รหัสผ่านสำเนา เมนูที่กด ค่าที่กรอก การยืนยัน และผลบนหน้าจอ |
+| [TEST-CASES-TECHNICAL-CHECKS.md](TEST-CASES-TECHNICAL-CHECKS.md) | จุดตรวจ API/RBAC/DB/ไฟล์ที่ต้องทำประกอบ ไม่แทนด้วยผล UI |
 | [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md) | ฉบับรวมแผนและรายงานผล ใช้เตรียมเอกสารส่งต่อ |
 | [TEST-PLAN.md](TEST-PLAN.md) | Scope, strategy, fixture, entry/exit, metrics, risks และเกณฑ์รับรอง |
 | [TEST-REPORT.md](TEST-REPORT.md) | ผลแยก session/commit, execution log 48 TC, defect/observation และข้อจำกัด |

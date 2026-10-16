@@ -1,5 +1,7 @@
 # แผนการทดสอบ UniResearch
 
+ชื่องานปัจจุบันใช้ชื่อเต็มจาก [migrate.py/seed_thai_data.py](TEST-RESEARCH-DATA.md) พร้อมระบุสำเนาที่เตรียมเพิ่ม สถานะและการเชื่อมบัญชี CSV เป็นเงื่อนไขบนฐานทดสอบ ไม่ใช่ผล migration หรือผลทดสอบย้อนหลังของบุคคลนั้น
+
 ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.2](TEST-CASES.md#12-สภาพแวดล้อมและข้อมูลร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลรันย้อนหลังใช้บัญชีตัวอย่างของรอบเดิมและยังไม่ได้ทดสอบชุด CSV นี้
 
 ฉบับทบทวนเนื้อหา: **16 ตุลาคม 2026** · ขอบเขต **48 TC / 32 FR**
@@ -68,6 +70,13 @@ HTTP/DB assertions ที่อยู่ร่วม Selenium เป็นหล
 
 ### 1.3.2 ลำดับดำเนินงาน
 
+ผู้ทดสอบที่เดินผ่านหน้าเว็บใช้สี่หัวข้อหลักใน [TEST-CASES.md](TEST-CASES.md): ล็อกอินด้วยอีเมลและรหัสผ่านสำเนาที่กำหนด → กดเมนูจริง → เลือกงาน/กรอกค่า → กดยืนยัน → ตรวจข้อความและสถานะบนหน้า ไม่ใช้ HTTP status หรือคำสั่ง SQL เป็นขั้นตอนที่ผู้ใช้ต้องเดาเอง
+
+ส่วน [TEST-CASES-TECHNICAL-CHECKS.md](TEST-CASES-TECHNICAL-CHECKS.md) เก็บเงื่อนไข API/RBAC/schema/DB/ไฟล์ที่ยังต้องตรวจครบ เช่น token ปลอม malformed IDs และการมอบหมาย advisor ที่ไม่มีปุ่มบนเว็บ ผลของ UI และผลส่วนเสริมต้องบันทึกแยกกัน แล้วจึงตัดสิน TC รวมตามเกณฑ์เดิม
+
+ก่อนรันคู่มือ ผู้เตรียมฐานสำเนาตั้งรหัสผ่าน `UniResearchTest2026!` ให้บัญชีที่เลือกจาก CSV และจัดข้อมูลตาม mapping; ค่านี้เป็นค่าทดสอบที่กำหนดขึ้นสำหรับสำเนา ไม่ใช่รหัสผ่านบัญชีต้นทาง ส่วน TC-005 ใช้รหัสใหม่ตามที่ระบุและ reset หลังจบ
+
+
 1. บันทึก run ID, commit/dirty diff, เวอร์ชันและ configuration ที่ไม่รวม secret; ตรวจว่าเป็นฐาน/ไฟล์ทดสอบแยก
 2. ตรวจ frontend/backend health, schema, browser driver และ provider mock; ถ้าทดสอบ PostgreSQL ให้ตรวจ extension เพิ่ม
 3. seed fixture ตามข้อ 1.2 ของ Test Cases และ override เฉพาะกรณี; ตรวจ role/status/relations ก่อนเริ่ม
@@ -121,7 +130,7 @@ HTTP/DB assertions ที่อยู่ร่วม Selenium เป็นหล
 | Startup | backend ใช้ Base.metadata.create_all; ทดสอบฐานใหม่ไม่ใช่หลักฐานการ migrate ฐานเก่า |
 | Browser | Chrome ค่าเริ่มต้น local headed; CI/container headless; Brave ต้องกำหนด binary/driver; บันทึก browser version จริง |
 | URL | ค่าปกติ 3000/8000/5433; runner ใช้พอร์ตของตนเอง; บันทึก actual origin โดยไม่เผย secret |
-| ข้อมูลทดสอบ | อีเมลจาก CSV/เลขผู้ใช้ที่จัดในฐานทดสอบตามแผน ตามตาราง Test Cases: admin@uniresearch.ac.th เลข 1, 674259009@webmail.npru.ac.th เลข 2, 674259003@webmail.npru.ac.th เลข 3, 644259003@webmail.npru.ac.th เลข 4, udsanee@webmail.npru.ac.th เลข 5, wuttha@webmail.npru.ac.th เลข 6, g1@example.org เลข 7, 674259013@webmail.npru.ac.th เลข 8; หมวดหมู่ 1/2, ผลงาน 1–5, แจ้งเตือน 1/2; เพิ่มข้อมูลตามแต่ละ subcase |
+| ข้อมูลทดสอบ | อีเมลจาก CSV/เลขผู้ใช้ที่จัดในฐานทดสอบตามแผน ตามตาราง Test Cases: admin@uniresearch.ac.th เลข 1, 674259009@webmail.npru.ac.th เลข 2, 674259003@webmail.npru.ac.th เลข 3, 644259003@webmail.npru.ac.th เลข 4, udsanee@webmail.npru.ac.th เลข 5, wuttha@webmail.npru.ac.th เลข 6, g1@example.org เลข 7, 674259013@webmail.npru.ac.th เลข 8; หมวดหมู่ทั้งสี่ตามบัญชีแหล่งข้อมูลผลงาน, ผลงาน 1–5, แจ้งเตือน 1/2; เพิ่มข้อมูลตามแต่ละ subcase |
 | Storage | directory ชั่วคราวแยกและ reset; cover 5 MiB / document 25 MiB เป็น default ที่ override ได้ |
 | AI | deterministic provider mock สำหรับ functional; vector fallback และ provider จริงบันทึกเป็นคนละรอบ |
 | Evidence | artifacts และ reports แยกตาม run ID; ห้ามเก็บ password/token/hash/secret ใน Markdown หรือ screenshot |
@@ -175,7 +184,7 @@ pytest tests/selenium/ --include-legacy -v --headless
 
 ## 1.9 สิ่งส่งมอบและการควบคุมการแก้ไข
 
-ส่งมอบเฉพาะ Markdown: Test Cases, Test Plan, Test Report, ฉบับรวม, Traceability และดัชนีอ้างอิง ผลการทดสอบดั้งเดิม/JSON/screenshots คงเป็นหลักฐานของรอบเดิม ไฟล์ Word/PDF ไม่ได้ปรับในงานนี้
+ส่งมอบเฉพาะ Markdown: Test Cases พร้อมคู่มือจุดตรวจเสริม, Test Plan, Test Report, ฉบับรวม, Traceability และดัชนีอ้างอิง ผลการทดสอบดั้งเดิม/JSON/screenshots คงเป็นหลักฐานของรอบเดิม ไฟล์ Word/PDF ไม่ได้ปรับในงานนี้
 
 หากเปลี่ยน Expected Result หรือเพิ่ม subcase ต้องระบุ specification version ใหม่และไม่ยก PASS เดิมมาเป็น PASS ของเงื่อนไขใหม่ Defect log ต้องมี TC/subcase, run/commit, steps, expected/actual, severity ที่ประเมิน, owner, status, fix commit และ retest evidence
 
