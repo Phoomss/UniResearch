@@ -1,6 +1,6 @@
 # Selenium tests — UniResearch
 
-คู่มือสำหรับผู้ทดสอบ: [คู่มือการทดสอบภาษาไทย](../../docs/testing/narongsak/TESTING-GUIDE.md) ครอบคลุมการเตรียมเครื่อง คำสั่งรัน อ่านหลักฐาน และแก้ปัญหาที่พบบ่อย
+เอกสารการทดสอบของ Narongsak (18 Cases): [ข้อกำหนด Test Cases](../../docs/testing/narongsak/TEST-CASES.md) ([uniresearch-test-cases-Narongsak.md](../../docs/testing/narongsak/uniresearch-test-cases-Narongsak.md)) · [แผนการทดสอบ Test Plan](../../docs/testing/narongsak/TEST-PLAN.md) · [รายงานสรุปผล Test Report](../../docs/testing/narongsak/TEST-REPORT.md) ([uniresearch-test-plan-and-report-Narongsak.md](../../docs/testing/narongsak/uniresearch-test-plan-and-report-Narongsak.md)) · [รายงานผล UI Execution](../../docs/testing/narongsak/UI-TEST-EXECUTION.md) · [คู่มือการทดสอบภาษาไทย](../../docs/testing/narongsak/TESTING-GUIDE.md)
 
 ชุดทดสอบที่รันโดยค่าเริ่มต้นครอบคลุมเฉพาะ 18 Test Cases ของ Narongsak ใช้ Python + Selenium + Pytest เดิม ไม่แก้ business logic ของแอป
 
@@ -17,6 +17,24 @@
 | e2e | TC-047, TC-048 |
 
 ไฟล์อยู่ที่ `categories/{category}/test_tc_{id}.py` หนึ่งเคสต่อไฟล์ ใช้ Page Object เดิมใน `support.py` และ Page Objects เพิ่มเติมใน `pages.py` ใช้ `WebDriverWait` รอ UI, hydration, ดาวน์โหลด และผลบันทึก ไม่ใช้ sleep สำหรับขั้นตอนเบราว์เซอร์ การรอเริ่ม service ใช้ polling แยกต่างหาก
+
+### รหัสข้อมูลทดสอบร่วม (Fixture Codes)
+ชุดทดสอบอ่านข้อมูลจาก [`tests/selenium/dataset.py`](dataset.py) ซึ่งเชื่อมโยงกับ CSV และชื่องานจริงจาก migration:
+- **A1**: Admin (`admin@uniresearch.ac.th`)
+- **S1**: Student 1 (`674259009@webmail.npru.ac.th`) — นายนรงศ์ศักดิ์ ภูมิประเสริฐ (ผู้ทดสอบหลัก / ผู้ส่งผลงาน W1, W2)
+- **S2**: Student 2 (`674259003@webmail.npru.ac.th`) — นายกิติกร เทศธรรม (ผู้แต่งร่วม W4 และเจ้าของ W3)
+- **S3**: Student 3 (`644259003@webmail.npru.ac.th`) — นายกัตพัตร์ ทองดี (รหัสปี 64 ทดสอบ validation ต่างชั้นปี)
+- **D1**: Advisor 1 (`udsanee@webmail.npru.ac.th`) — ผศ.ดร.อุษณีย์ ภักดีตระกูลวงศ์ (ที่ปรึกษาตรวจงาน S1)
+- **D2**: Advisor 2 (`wuttha@webmail.npru.ac.th`) — ผศ.ดร.วรเชษฐ์ อุทธา (ที่ปรึกษาตรวจงาน S2)
+- **G1**: Guest (`g1@example.org`) — ผู้เยี่ยมชมทั่วไป
+- **U2**: Inactive (`674259013@webmail.npru.ac.th`) — นายวัชรากร โสมนัส (ผู้ใช้ถูกระงับสิทธิ์)
+- **C1 / C2**: หมวดหมู่ C1 (วิทยาการคอมพิวเตอร์และ AI) และ C2 (วิศวกรรมศาสตร์และนาโนเทคโนโลยี)
+- **W1 / W4**: ผลงานสถานะ `approved` (W1 งานเดี่ยว S1, W4 งานร่วม S2 + S1)
+- **W2**: ผลงานสถานะ `pending` / `needs_revision` (งานของ S1 รอตรวจหรือส่งแก้ไข)
+- **W3 / W5**: W3 งานของ S2 / D2, W5 งานไม่มีไฟล์ PDF สำหรับ boundary test
+- **N1 / N2**: การแจ้งเตือนส่วนบุคคลของ S1 (N1) และ S2 (N2)
+
+*รหัสผ่านของทุกบัญชีในฐานข้อมูลทดสอบชั่วคราวคือ `UniResearchTest2026!`*
 
 ## ติดตั้งและรัน
 

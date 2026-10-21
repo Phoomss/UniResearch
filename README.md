@@ -276,7 +276,7 @@ UniResearch/
 
 ### Selenium Python (48 Test Cases / Narongsak 18 Cases)
 
-ชุด Selenium + pytest อ้างอิงเอกสาร Test Cases และ Test Plan ใน `docs/system-audit/` พร้อมฐานข้อมูลและไฟล์ทดสอบชั่วคราว ดูวิธีติดตั้งและรายงานผลที่ [tests/selenium/README.md](tests/selenium/README.md)
+ชุด Selenium + pytest อ้างอิงเอกสาร [Test Cases](docs/testing/narongsak/TEST-CASES.md) ([uniresearch-test-cases-Narongsak.md](docs/testing/narongsak/uniresearch-test-cases-Narongsak.md)), [Test Plan](docs/testing/narongsak/TEST-PLAN.md), [Test Report](docs/testing/narongsak/TEST-REPORT.md) ([uniresearch-test-plan-and-report-Narongsak.md](docs/testing/narongsak/uniresearch-test-plan-and-report-Narongsak.md)) และ [UI Execution](docs/testing/narongsak/UI-TEST-EXECUTION.md) ของ Narongsak (และเอกสารรวม 48 Cases ใน `docs/system-audit/`) พร้อมฐานข้อมูลและไฟล์ทดสอบชั่วคราว ดูวิธีติดตั้งและรายงานผลที่ [tests/selenium/README.md](tests/selenium/README.md)
 
 ```bash
 docker compose -f docker-compose.selenium.yml build
