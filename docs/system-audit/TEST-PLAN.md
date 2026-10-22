@@ -2,13 +2,13 @@
 
 ชื่องานปัจจุบันใช้ชื่อเต็มจาก [migrate.py/seed_thai_data.py](TEST-RESEARCH-DATA.md) พร้อมระบุสำเนาที่เตรียมเพิ่ม สถานะและการเชื่อมบัญชี CSV เป็นเงื่อนไขบนฐานทดสอบ ไม่ใช่ผล migration หรือผลทดสอบย้อนหลังของบุคคลนั้น
 
-ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.2](TEST-CASES.md#12-สภาพแวดล้อมและข้อมูลร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลย้อนหลังอ้างข้อมูลของรอบเดิม ส่วนผลรันด้วยบัญชี CSV และ migration ปัจจุบันแยกใน [รายงานปรับสคริปต์ 16 ตุลาคม](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md)
+ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.3](TEST-CASES.md#13-ข้อมูลทดสอบร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลย้อนหลังอ้างข้อมูลของรอบเดิม ส่วนผลรันด้วยบัญชี CSV และ migration ปัจจุบันแยกใน [รายงานปรับสคริปต์ 16 ตุลาคม](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md)
 
-ฉบับทบทวนเนื้อหา: **16 ตุลาคม 2026** · ขอบเขต **48 TC / 32 FR**
+ฉบับทบทวนเนื้อหา: **22 ตุลาคม 2026** · ขอบเขต **48 TC / 32 FR**
 
 ส่วนที่ 1 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md) ใช้กับ [TEST-CASES.md](TEST-CASES.md) ฉบับวันที่เดียวกัน แผนนี้ระบุวิธีและเกณฑ์ที่จะใช้; ผลการดำเนินการย้อนหลังอยู่ใน [TEST-REPORT.md](TEST-REPORT.md) การทบทวนเอกสารเดิมไม่ได้ execute ใหม่ ต่อมามีการปรับสคริปต์และรันทดสอบตาม [รายงานปรับสคริปต์](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md) ผลยังต้องให้ผู้รับผิดชอบรับรองตามเกณฑ์
 
-## 1.1 วัตถุประสงค์และฐานอ้างอิง
+## 1.1 วัตถุประสงค์ของการทดสอบ
 
 ตรวจพฤติกรรม FR-001–FR-032 จาก implementation และความต่อเนื่องระหว่าง UI, Next.js proxy, FastAPI, ฐานข้อมูล และไฟล์ โดยมีฐานโค้ดที่ทบทวนคือ commit `343fb57f3b04b756f6f7129154df9649d5177afc` ก่อนแก้เอกสาร ต้องบันทึก commit/working tree ของรอบรันจริงแยกทุกครั้ง
 
@@ -23,9 +23,9 @@
 
 ข้อกำหนดจากโค้ดไม่ใช่หลักฐานว่าเป็นนโยบายธุรกิจที่อนุมัติแล้ว โดยเฉพาะการมองเห็นงานที่ยังไม่เผยแพร่
 
-## 1.2 ขอบเขตและรายการที่ทดสอบ
+## 1.2 ขอบเขตการทดสอบ
 
-### 1.2.1 In Scope
+### 1.2.1 สิ่งที่อยู่ในขอบเขต (In Scope)
 
 | กลุ่ม | Test Cases | จำนวน |
 |---|---|---:|
@@ -44,13 +44,13 @@
 
 ขอบเขต source: `backend/app`, `backend/tests`, `frontend/app`, `frontend/src`, `frontend/tests`, `frontend/e2e`, `tests/selenium`, Docker/CI configuration ที่เกี่ยวข้อง ส่วน Selenium ที่รันโดยค่าเริ่มต้นปัจจุบันเป็น **18 TC ของ Narongsak**; อีก 30 TC อยู่ในชุด legacy ต้องเลือกให้ชัดตาม README ของชุดทดสอบ การรัน pytest ค่าเริ่มต้นจึงไม่ใช่ผลครบ 48 TC
 
-### 1.2.2 Out of Scope และข้อจำกัด
+### 1.2.2 สิ่งที่อยู่นอกขอบเขต (Out of Scope)
 
 ยังไม่รวม load/stress, penetration test เต็มรูปแบบ, compatibility ทุก browser/mobile, Kubernetes/Terraform และการตัดสินความถูกต้องทางวิชาการของ AI ส่วน PostgreSQL/pgvector เป็นขอบเขตรับรองที่ต้องมีรอบ integration จริงก่อนสรุปผลระบบ แต่ **ไม่รวมอยู่ในผล Selenium SQLite ที่มีแล้ว**
 
 ไม่มีการนำ requirement ของระบบตัวอย่าง SPRS มาใช้ เช่น committee, draft/submitted/completed หรือคะแนนประเมินสี่ด้าน หากต้องเพิ่มนโยบายต้องเปลี่ยน requirement และกำหนด TC ก่อน
 
-## 1.3 กลยุทธ์ เครื่องมือ และหลักฐาน
+## 1.3 กลยุทธ์และประเภทการทดสอบ
 
 ### 1.3.1 ชั้นการทดสอบ
 
@@ -93,9 +93,9 @@ HTTP/DB assertions ที่อยู่ร่วม Selenium เป็นหล
 
 ถ้าบาง subcase ทำไม่ได้ให้ BLOCKED พร้อมบอกส่วนที่ทำแล้ว หากมีผลผิดแน่ชัดให้ FAIL และบันทึกส่วนที่ blocked เพิ่ม ผลเก่าที่ใช้คำว่า “ข้าม” คงคำเดิม ห้ามตีความเป็น BLOCKED ทุกข้อโดยไม่มีหลักฐาน
 
-## 1.4 เกณฑ์เริ่ม สิ้นสุด ระงับ และกลับมาทดสอบ
+## 1.4 เกณฑ์การเริ่มและสิ้นสุดการทดสอบ
 
-### 1.4.1 Entry Criteria
+### 1.4.1 เกณฑ์การเริ่มทดสอบ (Entry Criteria)
 
 - มี specification version และ scope ของรอบรันชัดเจน; ไม่ใช้คำว่า “ทั้งชุด” โดยไม่ระบุ 18 หรือ 48 TC
 - frontend/backend พร้อมบน loopback/สภาพแวดล้อมแยก; SQLite ใช้ได้สำหรับ functional รอบจำกัด ส่วนรอบ PostgreSQL ต้องเริ่ม DB/pgvector และ schema ของมันได้
@@ -103,7 +103,7 @@ HTTP/DB assertions ที่อยู่ร่วม Selenium เป็นหล
 - browser/driver ใช้งานได้; AI provider mock พร้อม; มี directory หลักฐานที่เขียนได้และเก็บข้อมูลลับแยก
 - ระบุผู้รันจริงและผู้ทบทวน; ผู้อนุมัติแผน/นโยบายที่ยังไม่ระบุให้แสดง “รอระบุ” ไม่ถือว่าอนุมัติแล้ว
 
-### 1.4.2 Exit Criteria
+### 1.4.2 เกณฑ์การสิ้นสุดการทดสอบ (Exit Criteria)
 
 เกณฑ์ด้านล่างเป็น **ข้อเสนอสำหรับฉบับทบทวน** ยังไม่ใช่การอนุมัติย้อนหลัง
 
@@ -116,11 +116,11 @@ HTTP/DB assertions ที่อยู่ร่วม Selenium เป็นหล
 
 ผล 18/18 ของ subset ยืนยันได้เฉพาะ subset และ version นั้น; ไม่ทำให้ exit criteria 48 TC เป็นผ่าน
 
-### 1.4.3 Suspension / Resumption
+### 1.4.3 เกณฑ์การระงับและกลับมาทดสอบ (Suspension / Resumption)
 
 ระงับกรณีที่พึ่ง dependency เมื่อล็อกอิน fixture ไม่ได้, service/DB/browser ล่ม, schema ไม่ตรง, mock ใช้ไม่ได้ หรือ fixture ปนข้อมูลจริง บันทึก BLOCKED พร้อมเวลาและ error ห้ามเปลี่ยนเป็น FAIL ของระบบโดยอัตโนมัติ กลับมารันเมื่อแก้สาเหตุและผ่าน smoke check ของ dependency แล้ว โดยสร้าง session ใหม่และ reset ข้อมูล
 
-## 1.5 สภาพแวดล้อมและการจัดการข้อมูล
+## 1.5 สภาพแวดล้อมการทดสอบ
 
 | รายการ | ฐานอ้างอิง/ข้อกำหนดการบันทึก |
 |---|---|
@@ -145,7 +145,7 @@ pytest tests/selenium/ --all-cases -v --headless
 
 คำสั่งแรกปัจจุบันเลือก 18 TC; คำสั่งสุดท้ายขอรวม legacy แต่ต้องตรวจ collection/จำนวน unique TC ก่อนเรียกผลว่า 48/48 ห้ามรวม duplicate ID หรือแปลง deselected เป็น PASS Runner local ใช้ `.next`/dev lock ร่วมกับ checkout จึงรัน serial และจัดการ dev server เดิมก่อน; ไม่รัน pytest-xdist กับ fixture reset นี้
 
-## 1.6 บทบาทและผู้รับผิดชอบ
+## 1.6 บทบาทหน้าที่และผู้รับผิดชอบ
 
 | บทบาท | หน้าที่ | สถานะผู้รับผิดชอบ |
 |---|---|---|
@@ -156,34 +156,36 @@ pytest tests/selenium/ --all-cases -v --headless
 | Developer | วิเคราะห์/แก้ defect และระบุ commit สำหรับ retest | รอระบุ |
 | Reviewer / Approver | ตรวจความครบและตัดสินการรับรอง/ความเสี่ยง | รอระบุ |
 
-## 1.7 กำหนดการและ milestone
+## 1.7 กำหนดการทดสอบ (Test Schedule)
 
-| กิจกรรม | วันที่/สถานะ | ผลงานที่ต้องได้ |
-|---|---|---|
-| Docker baseline | 4 ต.ค. 2026 ดำเนินการแล้ว | 17 PASS / 31 ข้าม; quality gates ตามหลักฐานเดิม |
-| Selenium full baseline และ notification retest | 8 ต.ค. 2026 ดำเนินการแล้ว | ผลทั้ง 48 และผล focused แยก session |
-| ปรับ Selenium/UI subset | 14 ต.ค. 2026 ดำเนินการแล้ว | session 18/18 และหลักฐาน UI |
-| Focused UI retest | 16 ต.ค. 2026 มีผลบาง TC | U16 ก่อนปรับสคริปต์: TC-038 PASS, อีก 17 NOT RUN |
-| ปรับข้อมูล CSV/migration และสคริปต์ | 16 ต.ค. 2026 ดำเนินการแล้ว | C16 ครบ 48 (43 PASS/5 FAIL), R16/R16B focused แยก; ติดตาม TC-018/027/045 |
-| ทบทวนเนื้อหาเอกสาร | 16 ต.ค. 2026 | ฉบับนี้; ไม่มี execution ใหม่ |
-| รันเงื่อนไขที่เพิ่มครบ 48 TC / PostgreSQL | รอจัดกำหนดการ | evidence ของฉบับปรับปรุงและ defect log |
-| Regression / รับรอง | หลังแก้ defect และผ่าน gates | ผลรอบใหม่พร้อมการลงนาม |
+| กิจกรรม | วันที่เริ่ม | วันที่สิ้นสุด | ผู้รับผิดชอบ | ผลงาน/สถานะ |
+|---|---|---|---|---|
+| เตรียมระบบและ Docker baseline | 4 ต.ค. 2026 | 4 ต.ค. 2026 | Codex ตามรายงานเดิม | 17 PASS/31 ข้าม; ไม่ใช่ผลครบ 48 |
+| Selenium baseline / notification retest | 8 ต.ค. 2026 | 8 ต.ค. 2026 | ชุดอัตโนมัติตามรายงานเดิม | แยก baseline 48 และ focused |
+| UI subset | 14 ต.ค. 2026 | 14 ต.ค. 2026 | ตาม execution report | 18/18 ใน session เดียว |
+| ปรับ CSV/migration และ full/ focused retests | 16 ต.ค. 2026 | 16 ต.ค. 2026 | ตาม C16/R16/R16B | Full 43 PASS/5 FAIL; focused แยก |
+| Focused UI ล่าสุด | 22 ต.ค. 2026 | 22 ต.ค. 2026 | ชุด Selenium; ผู้ควบคุมให้ระบุใน log | 4 sessions; ดูรายงานข้อ 2.9 |
+| ทบทวน PDF และรูปแบบ Markdown | 22 ต.ค. 2026 | 22 ต.ค. 2026 | Codex | ไม่ได้ execute ระบบเพิ่ม |
+| แก้ข้อบกพร่องและ focused retest | รอกำหนด | รอกำหนด | Developer/Tester รอระบุ | TC-018/027/045 พร้อมหลักฐานก่อน–หลัง |
+| Full regression / PostgreSQL / quality gates | หลัง fix พร้อม | รอกำหนด | Tester/Environment owner รอระบุ | 48 unique TC และ integration แยก |
+| ทบทวนและอนุมัติ | หลังผ่าน exit criteria | รอกำหนด | Approver รอระบุ | ลงนามพร้อม revision/run IDs |
 
-## 1.8 ความเสี่ยงและการรองรับ
 
-| ความเสี่ยง | ผลกระทบ | วิธีตรวจ/รองรับ |
-|---|---|---|
-| pending detail และ static URL สาธารณะ | อาจเผยงานที่ยังไม่เผยแพร่/ข้าม download counter | TC-018/034 แยก observation; เจ้าของระบบยืนยันนโยบาย |
-| /admin layout ตรวจเพียง session | UI ดูเข้าถึงได้แม้ API ปฏิเสธ | TC-013/048 ตรวจหน้าและ API แยกกัน |
-| advisor queue ใช้ search ที่กว้างกว่า pending API | เห็นงานนอก assignment | TC-036 เทียบ ID และยืนยันนโยบาย |
-| reviewer role ใน frontend ไม่ตรง backend | เปิด workspace แต่ตรวจงานไม่ได้ | ไม่ใช้ reviewer แทน advisor; เพิ่ม regression เมื่อกำหนด role จริง |
-| update ล้มเหลวหลังลบไฟล์เดิม | DB rollback แต่ bytes เดิมอาจหาย | TC-027 ตรวจ old path/bytes ด้วย; เป็นข้อสงสัยจากโค้ด ยังไม่ใช่ผล FAIL ใหม่ |
-| ลบแถว revision แต่ไม่ลบไฟล์ revision เก่า | ไฟล์ตกค้าง | TC-032 ตรวจ filesystem แยกและกำหนด cleanup policy |
-| SQLite/mock ผ่านแต่ PostgreSQL/vector จริงผิด | ผล functional ไม่แทน deployment | ทดสอบ FK/transaction/pgvector แยก |
-| ผลต่าง commit/working tree/เวลา metadata | สรุป pass จากคนละเวอร์ชันผิด | เก็บ run ID/JSON/UTC; ห้ามรวม PASS หลายรอบเป็นผล session เดียว |
-| retry toggle/side effects GET | favorite กลับค่าเดิม หรือ counter เกิน | TC-018/034/042 คุมจำนวน HTTP และตรวจ DB |
+## 1.8 ความเสี่ยงและแผนรองรับ (Risks & Mitigation)
 
-## 1.9 สิ่งส่งมอบและการควบคุมการแก้ไข
+| ความเสี่ยงจาก Implementation | ผลกระทบ | โอกาสเกิด | แผนรองรับ |
+|---|---|---|---|
+| pending detail และ static URL สาธารณะ | อาจเผยงานที่ยังไม่เผยแพร่/ข้าม download counter | รอประเมิน | TC-018/034 แยก observation; เจ้าของระบบยืนยันนโยบาย |
+| /admin layout ตรวจเพียง session | UI ดูเข้าถึงได้แม้ API ปฏิเสธ | รอประเมิน | TC-013/048 ตรวจหน้าและ API แยกกัน |
+| advisor queue ใช้ search ที่กว้างกว่า pending API | เห็นงานนอก assignment | รอประเมิน | TC-036 เทียบ ID และยืนยันนโยบาย |
+| reviewer role ใน frontend ไม่ตรง backend | เปิด workspace แต่ตรวจงานไม่ได้ | รอประเมิน | ไม่ใช้ reviewer แทน advisor; เพิ่ม regression เมื่อกำหนด role จริง |
+| update ล้มเหลวหลังลบไฟล์เดิม | DB rollback แต่ bytes เดิมอาจหาย | รอประเมิน | TC-027 ตรวจ old path/bytes ด้วย; พบ FAIL ใน C16 แล้ว; รอ fix/retest ของ revision ปัจจุบัน |
+| ลบแถว revision แต่ไม่ลบไฟล์ revision เก่า | ไฟล์ตกค้าง | รอประเมิน | TC-032 ตรวจ filesystem แยกและกำหนด cleanup policy |
+| SQLite/mock ผ่านแต่ PostgreSQL/vector จริงผิด | ผล functional ไม่แทน deployment | รอประเมิน | ทดสอบ FK/transaction/pgvector แยก |
+| ผลต่าง commit/working tree/เวลา metadata | สรุป pass จากคนละเวอร์ชันผิด | รอประเมิน | เก็บ run ID/JSON/UTC; ห้ามรวม PASS หลายรอบเป็นผล session เดียว |
+| retry toggle/side effects GET | favorite กลับค่าเดิม หรือ counter เกิน | รอประเมิน | TC-018/034/042 คุมจำนวน HTTP และตรวจ DB |
+
+## 1.9 สิ่งส่งมอบของการทดสอบ (Test Deliverables)
 
 ส่งมอบเฉพาะ Markdown: Test Cases พร้อมคู่มือจุดตรวจเสริม, Test Plan, Test Report, ฉบับรวม, Traceability และดัชนีอ้างอิง ผลการทดสอบดั้งเดิม/JSON/screenshots คงเป็นหลักฐานของรอบเดิม ไฟล์ Word/PDF ไม่ได้ปรับในงานนี้
 
@@ -191,10 +193,73 @@ pytest tests/selenium/ --all-cases -v --headless
 
 `TEST-PLAN.md` และ `TEST-REPORT.md` เป็นแหล่งแก้ไขหลักของแต่ละส่วน; `TEST-PLAN-AND-REPORT.md` ต้องประกอบจากสองไฟล์นี้เมื่อแก้ เพื่อป้องกันข้อมูลต่างกัน
 
-## 1.10 การทบทวนและอนุมัติแผน
+## 1.10 การอนุมัติแผนการทดสอบ
 
-| บทบาท | ผู้รับผิดชอบ | วิธีรับรอง/วันที่ |
+| บทบาท | ชื่อ–นามสกุล | ลายเซ็น/วิธีรับรอง | วันที่ |
+|---|---|---|---|
+| ผู้จัดทำฉบับปรับปรุง | Codex | ทบทวน PDF/Markdown และหลักฐานที่มี; ไม่ใช่การอนุมัติแผน | 22 ตุลาคม 2026 |
+| ผู้ทบทวน | รอระบุ | รอลงนามทบทวน scope/expected/data | รอบันทึก |
+| ผู้อนุมัติ | รอระบุ | รอรับรองแผนและนโยบายที่เกี่ยวข้อง | รอบันทึก |
+
+ชื่อและลายเซ็นวันที่ 4 ตุลาคมใน PDF เป็นข้อมูลของต้นแบบ ไม่ใช้เป็นการลงนามรับรอง revision นี้
+
+## 1.11 ขั้นตอนปฏิบัติสำหรับรอบทดสอบถัดไป
+
+### 1.11.1 เตรียมและตรวจจำนวนกรณี
+
+รันจาก root ของ repository โดยใช้ virtualenv ที่ติดตั้ง dependency แล้ว เตรียม Chrome/driver ให้ตรงกันตาม [Selenium README](../../tests/selenium/README.md) ตรวจว่าพอร์ตว่างและไม่มี Next.js dev server ของ checkout เดียวกันใช้ `.next`/dev lock อยู่ ไม่หยุด service อื่นโดยเดา PID
+
+1. บันทึก `git rev-parse HEAD` และ `git status --short` พร้อมเวอร์ชันเครื่องมือ; ไม่แนบ `.env` หรือ secret
+2. ยืนยันฐาน/storage ชั่วคราวและ AI mock; จับคู่บัญชีจาก CSV ด้วย email ก่อนแทน user IDs
+3. ตรวจ collection ตามคำสั่งด้านล่าง ต้องเห็น 18 หรือ 48 unique TC ตาม scope ที่เลือก; หากไม่ตรงให้แก้ collection ก่อนรายงาน coverage
+4. เตรียมข้อมูล baseline ของแต่ละ TC ตาม Test Cases โดยไม่แก้ CSV ต้นฉบับ และ reset ระหว่างกรณี
+
+```bash
+git rev-parse HEAD
+git status --short
+backend/test_venv/bin/python -m pytest tests/selenium --collect-only -q
+backend/test_venv/bin/python -m pytest tests/selenium --all-cases --collect-only -q
+```
+
+### 1.11.2 ลำดับรันและขอบเขตของคำสั่ง
+
+| ลำดับ | งาน | เงื่อนไขตรวจรับ |
 |---|---|---|
-| ผู้จัดทำฉบับทบทวน | Codex (ตรวจเอกสารตามคำขอ) | 16 ต.ค. 2026; ไม่ใช่ผล execute |
-| ผู้ทบทวนแผน | รอระบุ | รอตรวจ |
-| ผู้อนุมัติ scope/exit criteria/นโยบาย | รอระบุ | ยังไม่มีการรับรอง |
+| 1 | ทดสอบตัวอ่าน dataset/fixture | แยกผลจาก 48 TC; ต้องไม่อ้างว่าเป็น browser coverage |
+| 2 | Focused retest TC-018/027/045 | แสดง expected/actual จุดที่เคยล้มเหลวและ regression ข้างเคียง |
+| 3 | รัน 18 TC ของ Narongsak | ใช้เป็น subset report พร้อม run ID ของตนเอง |
+| 4 | รันครบ 48 TC | เลือก `--all-cases`; ต้องนับ unique IDs ครบ ไม่รวมจำนวน test functions ซ้ำ |
+| 5 | ทวน manual/ส่วนเสริมที่สคริปต์ยังไม่ครอบคลุม | เก็บผลราย subcase; ไม่ยกผลขั้นตอนที่ไม่ได้ assert เป็น PASS |
+| 6 | PostgreSQL/pgvector และ live AI ตามขอบเขตที่รับรอง | แยก environment, input, metrics และรายงานจาก SQLite/mock |
+
+```bash
+backend/test_venv/bin/python -m pytest tests/test_selenium_dataset.py -q
+backend/test_venv/bin/python -m pytest tests/selenium --all-cases -k 'test_tc_018 or test_tc_027 or test_tc_045' -v --headless
+backend/test_venv/bin/python -m pytest tests/selenium -v --headless
+backend/test_venv/bin/python -m pytest tests/selenium --all-cases -v --headless
+```
+
+คำสั่งข้างต้นเป็นแผนสำหรับรอบถัดไป ยังไม่ได้รันในงานแก้เอกสารนี้ รัน serial เพราะ fixture reset ฐานร่วมกัน หากต้องดู UI ใช้ `--headed` แทน `--headless` และบันทึก mode จริง ไม่เปิดสองชุดพร้อมกันใน checkout เดียวกัน
+
+### 1.11.3 ตรวจผลและปิดรอบ
+
+1. อ่าน exit code คู่กับจำนวน collected/executed และ JSON; exit code 0 กับ 0 executed ไม่ใช่ผลผ่าน
+2. ตรวจว่า `PASS + FAIL + BLOCKED + SKIPPED + NOT RUN = Planned` ภายใน scope เดียวกัน พร้อมแยก API-only/browser
+3. เก็บ `artifacts/<run-id>` และ `reports/<run-id>` ทั้ง JSON/report/screenshots/logs; ตรวจไฟล์ที่ลิงก์ว่ามีจริงก่อนส่งต่อ
+4. บันทึก defect และผล cleanup ก่อนลบข้อมูลชั่วคราว; กรณีไฟล์เสียหายให้เก็บ path/hash/ขนาดก่อน reset
+5. ให้ผู้ทบทวนยืนยันผลราย subcase และประเมิน exit criteria; ชื่อผู้อนุมัติที่ยังไม่มีใช้ “รอระบุ”
+
+## 1.12 ชุดข้อมูลที่ต้องควบคุมและเงื่อนไขทวนเพิ่มเติม
+
+| มิติ | ชุดค่าขั้นต่ำ | จุดตรวจสำคัญ / TC |
+|---|---|---|
+| ตัวตนและ session | anonymous, guest ที่ login, student, advisor, admin, inactive, token ปลอม | anonymous กับ guest เป็นคนละเงื่อนไข; TC-003/006/009/023/046 |
+| ความเกี่ยวข้องกับงาน | ผู้ส่ง, co-author, advisor ที่มอบหมาย, advisor อื่น, ผู้ไม่เกี่ยวข้อง | ตรวจทั้ง UI/API และ unchanged state เมื่อปฏิเสธ; TC-028/030/033/036–041 |
+| Workflow | pending, approved, rejected, needs_revision | ตรวจ transition และผล review/notification; TC-029/031/038–040/047 |
+| ไฟล์ | valid, ไม่มีไฟล์, ชนิด/MIME/signature ผิด, bytes ว่าง | แยก DB rollback กับการคืน bytes; TC-026/027/031/032/034/035 |
+| ขนาดไฟล์ | cover 5,242,880 bytes; PDF 26,214,400 bytes; ทุกค่าใช้ −1/เท่ากับ/+1 byte | ค่าต่ำกว่าและเท่ารับได้; เกิน 413; TC-026 |
+| การค้นหา | คำชื่อ/บทคัดย่อ, คำไม่พบ, คำว่าง, publickeyword/pendingsecret | แยก OR/ranking/log จาก autocomplete และประวัติ; TC-014–020 |
+| AI | mock success, unauthorized, forbidden, ID ไม่พบ, input ผิด | โครงสร้างผลและ RBAC; คุณภาพ live AI ยังเป็นงานแยก; TC-044–046 |
+| ผลข้างเคียง | counts, audit logs, relations, notifications, filesystem | ใช้ snapshot ก่อน–หลังและจำนวนคำขอที่ควบคุม; ไม่วัดด้วย toast เพียงอย่างเดียว |
+
+การทวน expired JWT, concurrent review, duplicate submission, cleanup revision และ pgvector เป็นขอบเขตเพิ่มเติมใน Test Cases ข้อ 3 ต้องกำหนดผลที่คาดหวังและหลักฐานก่อนรัน ห้ามรายงานว่าผ่านจากการมีแผนครอบคลุม 32 FR

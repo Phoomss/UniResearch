@@ -1,22 +1,57 @@
-# แผนการทดสอบและรายงานผล UniResearch (Test Plan and Report)
+# แผนการทดสอบ (Test Plan) และรายงานผลการทดสอบ (Test Report)
 
-ฉบับทบทวนเนื้อหา: **16 ตุลาคม 2026** · 48 TC / 32 FR · แก้ไขเฉพาะ Markdown
+**ระบบคลังข้อมูลวิทยานิพนธ์ งานวิจัย และโครงงานของมหาวิทยาลัย**
 
-ใช้คู่กับ [Test Cases](TEST-CASES.md) และ [Traceability](TRACEABILITY.md) เอกสารนี้รวมเนื้อหาจาก [TEST-PLAN.md](TEST-PLAN.md) และ [TEST-REPORT.md](TEST-REPORT.md) โดยคงหัวข้อย่อย 1.1–1.10 / 2.1–2.8 ตรงกัน
+**UniResearch: University Thesis, Research and Project Repository (UTRP)**
 
-ปรับสคริปต์และรันข้อมูล CSV/migration แล้ว ดูผล C16/R16/R16B และข้อผิดพลาดระบบที่ยังเปิดในส่วนรายงาน ผลแยกตาม session โดยไม่รวมกับ baseline เดิม ยังไม่รับรองระบบครบทุกขั้นตอน
+| รายการ | รายละเอียด |
+|---|---|
+| รหัสเอกสาร | UR-TPR-001 ตาม PDF ต้นแบบ |
+| เวอร์ชันเอกสาร | 0.4 — ฉบับ Markdown ปรับรูปแบบและข้อมูลจากต้นแบบ 0.3 |
+| วันที่จัดทำต้นฉบับ / วันที่ปรับปรุง | 4 ตุลาคม 2026 / 22 ตุลาคม 2026 |
+| ผู้จัดทำต้นฉบับตาม PDF | Narongsak, Sommai Kitikorn, Natthaporn |
+| ผู้ปรับปรุง Markdown | Codex ตามคำขอ; ชื่อผู้ทบทวน/อนุมัติฉบับนี้รอระบุ |
+| สถานะเอกสาร | ☑ ฉบับร่าง ☐ รออนุมัติ ☐ อนุมัติแล้ว |
+| ต้นแบบ | [uniresearch-test-pland-and-report.pdf](uniresearch-test-pland-and-report.pdf) จำนวน 29 หน้า |
+| ขอบเขต | 48 TC / 32 FR; ผลแยก session/commit และไม่รับรอง PostgreSQL/live AI จาก SQLite/mock |
 
-## ส่วนที่ 1 — แผนการทดสอบ
+## ประวัติการแก้ไขเอกสาร (Revision History)
+
+รายการ 0.1–0.3 ถอดจาก PDF หน้า 2 เป็นประวัติของต้นฉบับ ไม่ใช่การรับรองงานฉบับปัจจุบัน
+
+| เวอร์ชัน | วันที่ | ผู้แก้ไข | รายละเอียดการแก้ไข |
+|---|---|---|---|
+| 0.1 | 4 ตุลาคม 2026 | Natthapon ตามตัวสะกดใน PDF | จัดทำแผนตั้งต้นจาก Source Code |
+| 0.2 | 4 ตุลาคม 2026 | Sommai | เพิ่มรายละเอียดแผนและแบบบันทึกผล |
+| 0.3 | 4 ตุลาคม 2026 | Narongsak | จัดรูปแบบตามเทมเพลตแผนและรายงานโดยใช้ข้อมูล UniResearch |
+| 0.4 | 22 ตุลาคม 2026 | Codex | จัด Markdown ตาม PDF เพิ่ม execution log C16 ครบ 48, actual/status รายกรณี, หลักฐาน U22 และ retest plan; ไม่ได้ execute เพิ่ม |
+
+## เอกสารอ้างอิง (References)
+
+| ลำดับ | เอกสาร/Source Code | รายละเอียด |
+|---|---|---|
+| 1 | [FUNCTIONAL-REQUIREMENTS.md](FUNCTIONAL-REQUIREMENTS.md) | FR-001–FR-032 พร้อมหลักฐานจากโค้ด |
+| 2 | [SYSTEM-OVERVIEW.md](SYSTEM-OVERVIEW.md) | สถาปัตยกรรม role/API/ตาราง/workflow; เป็นบริบทตามฉบับเดิม |
+| 3 | [TEST-CASES.md](TEST-CASES.md) | TC-001–TC-048 รูปแบบตาม PDF; ข้อมูล CSV/migration และผลแต่ละรอบ |
+| 4 | [TRACEABILITY.md](TRACEABILITY.md) | FR → TC; coverage ตามแผนแยกจากผล execution |
+| 5 | [uniresearch-test-cases.pdf](uniresearch-test-cases.pdf) | ต้นแบบ 57 หน้า: บทนำ 1.1–1.4, TC 2.1–2.9, สรุปและลงนามข้อ 3 |
+| 6 | [uniresearch-test-pland-and-report.pdf](uniresearch-test-pland-and-report.pdf) | ต้นแบบ 29 หน้า: ปก/ประวัติ/อ้างอิง, แผน 1.1–1.10 และรายงาน 2.1–2.8 |
+| 7 | [รายงาน CSV/migration 16 ต.ค.](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md) | C16/R16/R16B และข้อผิดพลาดที่พบ |
+| 8 | [U22 รอบล่าสุด](../../tests/selenium/reports/20261022-072848-245348/ui-results.json) | TC-038 PASS/อีก 17 NOT RUN ใน subset 18; ไม่รวมข้าม session |
+
+รูปแบบหัวข้อ 1.1–1.10 และ 2.1–2.8 คงตาม PDF ส่วน 1.11–1.12 และ 2.9–2.10 เป็นรายละเอียดขยายของฉบับปรับปรุง เนื้อหาแผน/รายงานด้านล่างตรงกับ [TEST-PLAN.md](TEST-PLAN.md) และ [TEST-REPORT.md](TEST-REPORT.md) ปรับเฉพาะ Markdown โดยไม่สร้าง Word/PDF ใหม่
+
+## ส่วนที่ 1: แผนการทดสอบ (Test Plan)
 
 ชื่องานปัจจุบันใช้ชื่อเต็มจาก [migrate.py/seed_thai_data.py](TEST-RESEARCH-DATA.md) พร้อมระบุสำเนาที่เตรียมเพิ่ม สถานะและการเชื่อมบัญชี CSV เป็นเงื่อนไขบนฐานทดสอบ ไม่ใช่ผล migration หรือผลทดสอบย้อนหลังของบุคคลนั้น
 
-ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.2](TEST-CASES.md#12-สภาพแวดล้อมและข้อมูลร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลย้อนหลังอ้างข้อมูลของรอบเดิม ส่วนผลรันด้วยบัญชี CSV และ migration ปัจจุบันแยกใน [รายงานปรับสคริปต์ 16 ตุลาคม](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md)
+ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.3](TEST-CASES.md#13-ข้อมูลทดสอบร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลย้อนหลังอ้างข้อมูลของรอบเดิม ส่วนผลรันด้วยบัญชี CSV และ migration ปัจจุบันแยกใน [รายงานปรับสคริปต์ 16 ตุลาคม](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md)
 
-ฉบับทบทวนเนื้อหา: **16 ตุลาคม 2026** · ขอบเขต **48 TC / 32 FR**
+ฉบับทบทวนเนื้อหา: **22 ตุลาคม 2026** · ขอบเขต **48 TC / 32 FR**
 
 ส่วนที่ 1 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md) ใช้กับ [TEST-CASES.md](TEST-CASES.md) ฉบับวันที่เดียวกัน แผนนี้ระบุวิธีและเกณฑ์ที่จะใช้; ผลการดำเนินการย้อนหลังอยู่ใน [TEST-REPORT.md](TEST-REPORT.md) การทบทวนเอกสารเดิมไม่ได้ execute ใหม่ ต่อมามีการปรับสคริปต์และรันทดสอบตาม [รายงานปรับสคริปต์](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md) ผลยังต้องให้ผู้รับผิดชอบรับรองตามเกณฑ์
 
-## 1.1 วัตถุประสงค์และฐานอ้างอิง
+## 1.1 วัตถุประสงค์ของการทดสอบ
 
 ตรวจพฤติกรรม FR-001–FR-032 จาก implementation และความต่อเนื่องระหว่าง UI, Next.js proxy, FastAPI, ฐานข้อมูล และไฟล์ โดยมีฐานโค้ดที่ทบทวนคือ commit `343fb57f3b04b756f6f7129154df9649d5177afc` ก่อนแก้เอกสาร ต้องบันทึก commit/working tree ของรอบรันจริงแยกทุกครั้ง
 
@@ -31,9 +66,9 @@
 
 ข้อกำหนดจากโค้ดไม่ใช่หลักฐานว่าเป็นนโยบายธุรกิจที่อนุมัติแล้ว โดยเฉพาะการมองเห็นงานที่ยังไม่เผยแพร่
 
-## 1.2 ขอบเขตและรายการที่ทดสอบ
+## 1.2 ขอบเขตการทดสอบ
 
-### 1.2.1 In Scope
+### 1.2.1 สิ่งที่อยู่ในขอบเขต (In Scope)
 
 | กลุ่ม | Test Cases | จำนวน |
 |---|---|---:|
@@ -52,13 +87,13 @@
 
 ขอบเขต source: `backend/app`, `backend/tests`, `frontend/app`, `frontend/src`, `frontend/tests`, `frontend/e2e`, `tests/selenium`, Docker/CI configuration ที่เกี่ยวข้อง ส่วน Selenium ที่รันโดยค่าเริ่มต้นปัจจุบันเป็น **18 TC ของ Narongsak**; อีก 30 TC อยู่ในชุด legacy ต้องเลือกให้ชัดตาม README ของชุดทดสอบ การรัน pytest ค่าเริ่มต้นจึงไม่ใช่ผลครบ 48 TC
 
-### 1.2.2 Out of Scope และข้อจำกัด
+### 1.2.2 สิ่งที่อยู่นอกขอบเขต (Out of Scope)
 
 ยังไม่รวม load/stress, penetration test เต็มรูปแบบ, compatibility ทุก browser/mobile, Kubernetes/Terraform และการตัดสินความถูกต้องทางวิชาการของ AI ส่วน PostgreSQL/pgvector เป็นขอบเขตรับรองที่ต้องมีรอบ integration จริงก่อนสรุปผลระบบ แต่ **ไม่รวมอยู่ในผล Selenium SQLite ที่มีแล้ว**
 
 ไม่มีการนำ requirement ของระบบตัวอย่าง SPRS มาใช้ เช่น committee, draft/submitted/completed หรือคะแนนประเมินสี่ด้าน หากต้องเพิ่มนโยบายต้องเปลี่ยน requirement และกำหนด TC ก่อน
 
-## 1.3 กลยุทธ์ เครื่องมือ และหลักฐาน
+## 1.3 กลยุทธ์และประเภทการทดสอบ
 
 ### 1.3.1 ชั้นการทดสอบ
 
@@ -101,9 +136,9 @@ HTTP/DB assertions ที่อยู่ร่วม Selenium เป็นหล
 
 ถ้าบาง subcase ทำไม่ได้ให้ BLOCKED พร้อมบอกส่วนที่ทำแล้ว หากมีผลผิดแน่ชัดให้ FAIL และบันทึกส่วนที่ blocked เพิ่ม ผลเก่าที่ใช้คำว่า “ข้าม” คงคำเดิม ห้ามตีความเป็น BLOCKED ทุกข้อโดยไม่มีหลักฐาน
 
-## 1.4 เกณฑ์เริ่ม สิ้นสุด ระงับ และกลับมาทดสอบ
+## 1.4 เกณฑ์การเริ่มและสิ้นสุดการทดสอบ
 
-### 1.4.1 Entry Criteria
+### 1.4.1 เกณฑ์การเริ่มทดสอบ (Entry Criteria)
 
 - มี specification version และ scope ของรอบรันชัดเจน; ไม่ใช้คำว่า “ทั้งชุด” โดยไม่ระบุ 18 หรือ 48 TC
 - frontend/backend พร้อมบน loopback/สภาพแวดล้อมแยก; SQLite ใช้ได้สำหรับ functional รอบจำกัด ส่วนรอบ PostgreSQL ต้องเริ่ม DB/pgvector และ schema ของมันได้
@@ -111,7 +146,7 @@ HTTP/DB assertions ที่อยู่ร่วม Selenium เป็นหล
 - browser/driver ใช้งานได้; AI provider mock พร้อม; มี directory หลักฐานที่เขียนได้และเก็บข้อมูลลับแยก
 - ระบุผู้รันจริงและผู้ทบทวน; ผู้อนุมัติแผน/นโยบายที่ยังไม่ระบุให้แสดง “รอระบุ” ไม่ถือว่าอนุมัติแล้ว
 
-### 1.4.2 Exit Criteria
+### 1.4.2 เกณฑ์การสิ้นสุดการทดสอบ (Exit Criteria)
 
 เกณฑ์ด้านล่างเป็น **ข้อเสนอสำหรับฉบับทบทวน** ยังไม่ใช่การอนุมัติย้อนหลัง
 
@@ -124,11 +159,11 @@ HTTP/DB assertions ที่อยู่ร่วม Selenium เป็นหล
 
 ผล 18/18 ของ subset ยืนยันได้เฉพาะ subset และ version นั้น; ไม่ทำให้ exit criteria 48 TC เป็นผ่าน
 
-### 1.4.3 Suspension / Resumption
+### 1.4.3 เกณฑ์การระงับและกลับมาทดสอบ (Suspension / Resumption)
 
 ระงับกรณีที่พึ่ง dependency เมื่อล็อกอิน fixture ไม่ได้, service/DB/browser ล่ม, schema ไม่ตรง, mock ใช้ไม่ได้ หรือ fixture ปนข้อมูลจริง บันทึก BLOCKED พร้อมเวลาและ error ห้ามเปลี่ยนเป็น FAIL ของระบบโดยอัตโนมัติ กลับมารันเมื่อแก้สาเหตุและผ่าน smoke check ของ dependency แล้ว โดยสร้าง session ใหม่และ reset ข้อมูล
 
-## 1.5 สภาพแวดล้อมและการจัดการข้อมูล
+## 1.5 สภาพแวดล้อมการทดสอบ
 
 | รายการ | ฐานอ้างอิง/ข้อกำหนดการบันทึก |
 |---|---|
@@ -153,7 +188,7 @@ pytest tests/selenium/ --all-cases -v --headless
 
 คำสั่งแรกปัจจุบันเลือก 18 TC; คำสั่งสุดท้ายขอรวม legacy แต่ต้องตรวจ collection/จำนวน unique TC ก่อนเรียกผลว่า 48/48 ห้ามรวม duplicate ID หรือแปลง deselected เป็น PASS Runner local ใช้ `.next`/dev lock ร่วมกับ checkout จึงรัน serial และจัดการ dev server เดิมก่อน; ไม่รัน pytest-xdist กับ fixture reset นี้
 
-## 1.6 บทบาทและผู้รับผิดชอบ
+## 1.6 บทบาทหน้าที่และผู้รับผิดชอบ
 
 | บทบาท | หน้าที่ | สถานะผู้รับผิดชอบ |
 |---|---|---|
@@ -164,34 +199,36 @@ pytest tests/selenium/ --all-cases -v --headless
 | Developer | วิเคราะห์/แก้ defect และระบุ commit สำหรับ retest | รอระบุ |
 | Reviewer / Approver | ตรวจความครบและตัดสินการรับรอง/ความเสี่ยง | รอระบุ |
 
-## 1.7 กำหนดการและ milestone
+## 1.7 กำหนดการทดสอบ (Test Schedule)
 
-| กิจกรรม | วันที่/สถานะ | ผลงานที่ต้องได้ |
-|---|---|---|
-| Docker baseline | 4 ต.ค. 2026 ดำเนินการแล้ว | 17 PASS / 31 ข้าม; quality gates ตามหลักฐานเดิม |
-| Selenium full baseline และ notification retest | 8 ต.ค. 2026 ดำเนินการแล้ว | ผลทั้ง 48 และผล focused แยก session |
-| ปรับ Selenium/UI subset | 14 ต.ค. 2026 ดำเนินการแล้ว | session 18/18 และหลักฐาน UI |
-| Focused UI retest | 16 ต.ค. 2026 มีผลบาง TC | U16 ก่อนปรับสคริปต์: TC-038 PASS, อีก 17 NOT RUN |
-| ปรับข้อมูล CSV/migration และสคริปต์ | 16 ต.ค. 2026 ดำเนินการแล้ว | C16 ครบ 48 (43 PASS/5 FAIL), R16/R16B focused แยก; ติดตาม TC-018/027/045 |
-| ทบทวนเนื้อหาเอกสาร | 16 ต.ค. 2026 | ฉบับนี้; ไม่มี execution ใหม่ |
-| รันเงื่อนไขที่เพิ่มครบ 48 TC / PostgreSQL | รอจัดกำหนดการ | evidence ของฉบับปรับปรุงและ defect log |
-| Regression / รับรอง | หลังแก้ defect และผ่าน gates | ผลรอบใหม่พร้อมการลงนาม |
+| กิจกรรม | วันที่เริ่ม | วันที่สิ้นสุด | ผู้รับผิดชอบ | ผลงาน/สถานะ |
+|---|---|---|---|---|
+| เตรียมระบบและ Docker baseline | 4 ต.ค. 2026 | 4 ต.ค. 2026 | Codex ตามรายงานเดิม | 17 PASS/31 ข้าม; ไม่ใช่ผลครบ 48 |
+| Selenium baseline / notification retest | 8 ต.ค. 2026 | 8 ต.ค. 2026 | ชุดอัตโนมัติตามรายงานเดิม | แยก baseline 48 และ focused |
+| UI subset | 14 ต.ค. 2026 | 14 ต.ค. 2026 | ตาม execution report | 18/18 ใน session เดียว |
+| ปรับ CSV/migration และ full/ focused retests | 16 ต.ค. 2026 | 16 ต.ค. 2026 | ตาม C16/R16/R16B | Full 43 PASS/5 FAIL; focused แยก |
+| Focused UI ล่าสุด | 22 ต.ค. 2026 | 22 ต.ค. 2026 | ชุด Selenium; ผู้ควบคุมให้ระบุใน log | 4 sessions; ดูรายงานข้อ 2.9 |
+| ทบทวน PDF และรูปแบบ Markdown | 22 ต.ค. 2026 | 22 ต.ค. 2026 | Codex | ไม่ได้ execute ระบบเพิ่ม |
+| แก้ข้อบกพร่องและ focused retest | รอกำหนด | รอกำหนด | Developer/Tester รอระบุ | TC-018/027/045 พร้อมหลักฐานก่อน–หลัง |
+| Full regression / PostgreSQL / quality gates | หลัง fix พร้อม | รอกำหนด | Tester/Environment owner รอระบุ | 48 unique TC และ integration แยก |
+| ทบทวนและอนุมัติ | หลังผ่าน exit criteria | รอกำหนด | Approver รอระบุ | ลงนามพร้อม revision/run IDs |
 
-## 1.8 ความเสี่ยงและการรองรับ
 
-| ความเสี่ยง | ผลกระทบ | วิธีตรวจ/รองรับ |
-|---|---|---|
-| pending detail และ static URL สาธารณะ | อาจเผยงานที่ยังไม่เผยแพร่/ข้าม download counter | TC-018/034 แยก observation; เจ้าของระบบยืนยันนโยบาย |
-| /admin layout ตรวจเพียง session | UI ดูเข้าถึงได้แม้ API ปฏิเสธ | TC-013/048 ตรวจหน้าและ API แยกกัน |
-| advisor queue ใช้ search ที่กว้างกว่า pending API | เห็นงานนอก assignment | TC-036 เทียบ ID และยืนยันนโยบาย |
-| reviewer role ใน frontend ไม่ตรง backend | เปิด workspace แต่ตรวจงานไม่ได้ | ไม่ใช้ reviewer แทน advisor; เพิ่ม regression เมื่อกำหนด role จริง |
-| update ล้มเหลวหลังลบไฟล์เดิม | DB rollback แต่ bytes เดิมอาจหาย | TC-027 ตรวจ old path/bytes ด้วย; เป็นข้อสงสัยจากโค้ด ยังไม่ใช่ผล FAIL ใหม่ |
-| ลบแถว revision แต่ไม่ลบไฟล์ revision เก่า | ไฟล์ตกค้าง | TC-032 ตรวจ filesystem แยกและกำหนด cleanup policy |
-| SQLite/mock ผ่านแต่ PostgreSQL/vector จริงผิด | ผล functional ไม่แทน deployment | ทดสอบ FK/transaction/pgvector แยก |
-| ผลต่าง commit/working tree/เวลา metadata | สรุป pass จากคนละเวอร์ชันผิด | เก็บ run ID/JSON/UTC; ห้ามรวม PASS หลายรอบเป็นผล session เดียว |
-| retry toggle/side effects GET | favorite กลับค่าเดิม หรือ counter เกิน | TC-018/034/042 คุมจำนวน HTTP และตรวจ DB |
+## 1.8 ความเสี่ยงและแผนรองรับ (Risks & Mitigation)
 
-## 1.9 สิ่งส่งมอบและการควบคุมการแก้ไข
+| ความเสี่ยงจาก Implementation | ผลกระทบ | โอกาสเกิด | แผนรองรับ |
+|---|---|---|---|
+| pending detail และ static URL สาธารณะ | อาจเผยงานที่ยังไม่เผยแพร่/ข้าม download counter | รอประเมิน | TC-018/034 แยก observation; เจ้าของระบบยืนยันนโยบาย |
+| /admin layout ตรวจเพียง session | UI ดูเข้าถึงได้แม้ API ปฏิเสธ | รอประเมิน | TC-013/048 ตรวจหน้าและ API แยกกัน |
+| advisor queue ใช้ search ที่กว้างกว่า pending API | เห็นงานนอก assignment | รอประเมิน | TC-036 เทียบ ID และยืนยันนโยบาย |
+| reviewer role ใน frontend ไม่ตรง backend | เปิด workspace แต่ตรวจงานไม่ได้ | รอประเมิน | ไม่ใช้ reviewer แทน advisor; เพิ่ม regression เมื่อกำหนด role จริง |
+| update ล้มเหลวหลังลบไฟล์เดิม | DB rollback แต่ bytes เดิมอาจหาย | รอประเมิน | TC-027 ตรวจ old path/bytes ด้วย; พบ FAIL ใน C16 แล้ว; รอ fix/retest ของ revision ปัจจุบัน |
+| ลบแถว revision แต่ไม่ลบไฟล์ revision เก่า | ไฟล์ตกค้าง | รอประเมิน | TC-032 ตรวจ filesystem แยกและกำหนด cleanup policy |
+| SQLite/mock ผ่านแต่ PostgreSQL/vector จริงผิด | ผล functional ไม่แทน deployment | รอประเมิน | ทดสอบ FK/transaction/pgvector แยก |
+| ผลต่าง commit/working tree/เวลา metadata | สรุป pass จากคนละเวอร์ชันผิด | รอประเมิน | เก็บ run ID/JSON/UTC; ห้ามรวม PASS หลายรอบเป็นผล session เดียว |
+| retry toggle/side effects GET | favorite กลับค่าเดิม หรือ counter เกิน | รอประเมิน | TC-018/034/042 คุมจำนวน HTTP และตรวจ DB |
+
+## 1.9 สิ่งส่งมอบของการทดสอบ (Test Deliverables)
 
 ส่งมอบเฉพาะ Markdown: Test Cases พร้อมคู่มือจุดตรวจเสริม, Test Plan, Test Report, ฉบับรวม, Traceability และดัชนีอ้างอิง ผลการทดสอบดั้งเดิม/JSON/screenshots คงเป็นหลักฐานของรอบเดิม ไฟล์ Word/PDF ไม่ได้ปรับในงานนี้
 
@@ -199,29 +236,102 @@ pytest tests/selenium/ --all-cases -v --headless
 
 `TEST-PLAN.md` และ `TEST-REPORT.md` เป็นแหล่งแก้ไขหลักของแต่ละส่วน; `TEST-PLAN-AND-REPORT.md` ต้องประกอบจากสองไฟล์นี้เมื่อแก้ เพื่อป้องกันข้อมูลต่างกัน
 
-## 1.10 การทบทวนและอนุมัติแผน
+## 1.10 การอนุมัติแผนการทดสอบ
 
-| บทบาท | ผู้รับผิดชอบ | วิธีรับรอง/วันที่ |
+| บทบาท | ชื่อ–นามสกุล | ลายเซ็น/วิธีรับรอง | วันที่ |
+|---|---|---|---|
+| ผู้จัดทำฉบับปรับปรุง | Codex | ทบทวน PDF/Markdown และหลักฐานที่มี; ไม่ใช่การอนุมัติแผน | 22 ตุลาคม 2026 |
+| ผู้ทบทวน | รอระบุ | รอลงนามทบทวน scope/expected/data | รอบันทึก |
+| ผู้อนุมัติ | รอระบุ | รอรับรองแผนและนโยบายที่เกี่ยวข้อง | รอบันทึก |
+
+ชื่อและลายเซ็นวันที่ 4 ตุลาคมใน PDF เป็นข้อมูลของต้นแบบ ไม่ใช้เป็นการลงนามรับรอง revision นี้
+
+## 1.11 ขั้นตอนปฏิบัติสำหรับรอบทดสอบถัดไป
+
+### 1.11.1 เตรียมและตรวจจำนวนกรณี
+
+รันจาก root ของ repository โดยใช้ virtualenv ที่ติดตั้ง dependency แล้ว เตรียม Chrome/driver ให้ตรงกันตาม [Selenium README](../../tests/selenium/README.md) ตรวจว่าพอร์ตว่างและไม่มี Next.js dev server ของ checkout เดียวกันใช้ `.next`/dev lock อยู่ ไม่หยุด service อื่นโดยเดา PID
+
+1. บันทึก `git rev-parse HEAD` และ `git status --short` พร้อมเวอร์ชันเครื่องมือ; ไม่แนบ `.env` หรือ secret
+2. ยืนยันฐาน/storage ชั่วคราวและ AI mock; จับคู่บัญชีจาก CSV ด้วย email ก่อนแทน user IDs
+3. ตรวจ collection ตามคำสั่งด้านล่าง ต้องเห็น 18 หรือ 48 unique TC ตาม scope ที่เลือก; หากไม่ตรงให้แก้ collection ก่อนรายงาน coverage
+4. เตรียมข้อมูล baseline ของแต่ละ TC ตาม Test Cases โดยไม่แก้ CSV ต้นฉบับ และ reset ระหว่างกรณี
+
+```bash
+git rev-parse HEAD
+git status --short
+backend/test_venv/bin/python -m pytest tests/selenium --collect-only -q
+backend/test_venv/bin/python -m pytest tests/selenium --all-cases --collect-only -q
+```
+
+### 1.11.2 ลำดับรันและขอบเขตของคำสั่ง
+
+| ลำดับ | งาน | เงื่อนไขตรวจรับ |
 |---|---|---|
-| ผู้จัดทำฉบับทบทวน | Codex (ตรวจเอกสารตามคำขอ) | 16 ต.ค. 2026; ไม่ใช่ผล execute |
-| ผู้ทบทวนแผน | รอระบุ | รอตรวจ |
-| ผู้อนุมัติ scope/exit criteria/นโยบาย | รอระบุ | ยังไม่มีการรับรอง |
+| 1 | ทดสอบตัวอ่าน dataset/fixture | แยกผลจาก 48 TC; ต้องไม่อ้างว่าเป็น browser coverage |
+| 2 | Focused retest TC-018/027/045 | แสดง expected/actual จุดที่เคยล้มเหลวและ regression ข้างเคียง |
+| 3 | รัน 18 TC ของ Narongsak | ใช้เป็น subset report พร้อม run ID ของตนเอง |
+| 4 | รันครบ 48 TC | เลือก `--all-cases`; ต้องนับ unique IDs ครบ ไม่รวมจำนวน test functions ซ้ำ |
+| 5 | ทวน manual/ส่วนเสริมที่สคริปต์ยังไม่ครอบคลุม | เก็บผลราย subcase; ไม่ยกผลขั้นตอนที่ไม่ได้ assert เป็น PASS |
+| 6 | PostgreSQL/pgvector และ live AI ตามขอบเขตที่รับรอง | แยก environment, input, metrics และรายงานจาก SQLite/mock |
 
-## ส่วนที่ 2 — รายงานผลการทดสอบ
+```bash
+backend/test_venv/bin/python -m pytest tests/test_selenium_dataset.py -q
+backend/test_venv/bin/python -m pytest tests/selenium --all-cases -k 'test_tc_018 or test_tc_027 or test_tc_045' -v --headless
+backend/test_venv/bin/python -m pytest tests/selenium -v --headless
+backend/test_venv/bin/python -m pytest tests/selenium --all-cases -v --headless
+```
+
+คำสั่งข้างต้นเป็นแผนสำหรับรอบถัดไป ยังไม่ได้รันในงานแก้เอกสารนี้ รัน serial เพราะ fixture reset ฐานร่วมกัน หากต้องดู UI ใช้ `--headed` แทน `--headless` และบันทึก mode จริง ไม่เปิดสองชุดพร้อมกันใน checkout เดียวกัน
+
+### 1.11.3 ตรวจผลและปิดรอบ
+
+1. อ่าน exit code คู่กับจำนวน collected/executed และ JSON; exit code 0 กับ 0 executed ไม่ใช่ผลผ่าน
+2. ตรวจว่า `PASS + FAIL + BLOCKED + SKIPPED + NOT RUN = Planned` ภายใน scope เดียวกัน พร้อมแยก API-only/browser
+3. เก็บ `artifacts/<run-id>` และ `reports/<run-id>` ทั้ง JSON/report/screenshots/logs; ตรวจไฟล์ที่ลิงก์ว่ามีจริงก่อนส่งต่อ
+4. บันทึก defect และผล cleanup ก่อนลบข้อมูลชั่วคราว; กรณีไฟล์เสียหายให้เก็บ path/hash/ขนาดก่อน reset
+5. ให้ผู้ทบทวนยืนยันผลราย subcase และประเมิน exit criteria; ชื่อผู้อนุมัติที่ยังไม่มีใช้ “รอระบุ”
+
+## 1.12 ชุดข้อมูลที่ต้องควบคุมและเงื่อนไขทวนเพิ่มเติม
+
+| มิติ | ชุดค่าขั้นต่ำ | จุดตรวจสำคัญ / TC |
+|---|---|---|
+| ตัวตนและ session | anonymous, guest ที่ login, student, advisor, admin, inactive, token ปลอม | anonymous กับ guest เป็นคนละเงื่อนไข; TC-003/006/009/023/046 |
+| ความเกี่ยวข้องกับงาน | ผู้ส่ง, co-author, advisor ที่มอบหมาย, advisor อื่น, ผู้ไม่เกี่ยวข้อง | ตรวจทั้ง UI/API และ unchanged state เมื่อปฏิเสธ; TC-028/030/033/036–041 |
+| Workflow | pending, approved, rejected, needs_revision | ตรวจ transition และผล review/notification; TC-029/031/038–040/047 |
+| ไฟล์ | valid, ไม่มีไฟล์, ชนิด/MIME/signature ผิด, bytes ว่าง | แยก DB rollback กับการคืน bytes; TC-026/027/031/032/034/035 |
+| ขนาดไฟล์ | cover 5,242,880 bytes; PDF 26,214,400 bytes; ทุกค่าใช้ −1/เท่ากับ/+1 byte | ค่าต่ำกว่าและเท่ารับได้; เกิน 413; TC-026 |
+| การค้นหา | คำชื่อ/บทคัดย่อ, คำไม่พบ, คำว่าง, publickeyword/pendingsecret | แยก OR/ranking/log จาก autocomplete และประวัติ; TC-014–020 |
+| AI | mock success, unauthorized, forbidden, ID ไม่พบ, input ผิด | โครงสร้างผลและ RBAC; คุณภาพ live AI ยังเป็นงานแยก; TC-044–046 |
+| ผลข้างเคียง | counts, audit logs, relations, notifications, filesystem | ใช้ snapshot ก่อน–หลังและจำนวนคำขอที่ควบคุม; ไม่วัดด้วย toast เพียงอย่างเดียว |
+
+การทวน expired JWT, concurrent review, duplicate submission, cleanup revision และ pgvector เป็นขอบเขตเพิ่มเติมใน Test Cases ข้อ 3 ต้องกำหนดผลที่คาดหวังและหลักฐานก่อนรัน ห้ามรายงานว่าผ่านจากการมีแผนครอบคลุม 32 FR
+
+## ส่วนที่ 2: รายงานผลการทดสอบ (Test Summary Report)
 
 ชื่องานปัจจุบันใช้ชื่อเต็มจาก [migrate.py/seed_thai_data.py](TEST-RESEARCH-DATA.md) พร้อมระบุสำเนาที่เตรียมเพิ่ม สถานะและการเชื่อมบัญชี CSV เป็นเงื่อนไขบนฐานทดสอบ ไม่ใช่ผล migration หรือผลทดสอบย้อนหลังของบุคคลนั้น
 
-ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.2](TEST-CASES.md#12-สภาพแวดล้อมและข้อมูลร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลย้อนหลังอ้างข้อมูลของรอบเดิม ส่วนผลรันด้วยบัญชี CSV และ migration ปัจจุบันแยกใน [รายงานปรับสคริปต์ 16 ตุลาคม](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md)
+ฉบับข้อมูลทดสอบปัจจุบันใช้ชื่อ/อีเมลจาก [student.csv](../../backend/app/scripts/student.csv) และ [advisors.csv](../../backend/app/scripts/advisors.csv) ตามตารางใน [Test Cases ข้อ 1.3](TEST-CASES.md#13-ข้อมูลทดสอบร่วม) ต้องเตรียมสำเนาฐานทดสอบให้ตรงก่อนรัน เลขผู้ใช้ในเอกสารเป็น mapping ของฐานทดสอบตามแผน ไม่ใช่ id จาก CSV ผลย้อนหลังอ้างข้อมูลของรอบเดิม ส่วนผลรันด้วยบัญชี CSV และ migration ปัจจุบันแยกใน [รายงานปรับสคริปต์ 16 ตุลาคม](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md)
 
-ฉบับทบทวนเนื้อหา: **16 ตุลาคม 2026** · ส่วนที่ 2 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md)
+ฉบับทบทวนเนื้อหา: **22 ตุลาคม 2026** · ส่วนที่ 2 ของ [TEST-PLAN-AND-REPORT.md](TEST-PLAN-AND-REPORT.md)
 
-**ข้อสรุปปัจจุบัน:** ปรับสคริปต์ให้ใช้บัญชี CSV และชื่องานจาก migration แล้ว รอบเต็ม C16 วันที่ 16 ตุลาคมได้ **43 PASS / 5 FAIL จาก 48** หลังแก้ปัญหาสคริปต์ TC-015/032 และเพิ่มขั้นตอน UI มีรอบ R16 **4 PASS / 1 FAIL** แล้วทวน TC-002 ซึ่งคาดข้อความผิดภาษาใน R16B **1 PASS** ยังมีข้อผิดพลาดระบบ TC-018/027/045 เปิดอยู่ ดู [ผลปรับสคริปต์และผลรายกรณี](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md)
+**ผลรอบเต็มล่าสุดที่อ้างในรายงานนี้:** ปรับสคริปต์ให้ใช้บัญชี CSV และชื่องานจาก migration แล้ว รอบเต็ม C16 วันที่ 16 ตุลาคมได้ **43 PASS / 5 FAIL จาก 48** หลังแก้ปัญหาสคริปต์ TC-015/032 และเพิ่มขั้นตอน UI มีรอบ R16 **4 PASS / 1 FAIL** แล้วทวน TC-002 ซึ่งคาดข้อความผิดภาษาใน R16B **1 PASS** ยังมีข้อผิดพลาดระบบ TC-018/027/045 เปิดอยู่ ดู [ผลปรับสคริปต์และผลรายกรณี](SELENIUM-CSV-MIGRATION-ALIGNMENT-2026-10-16.md)
 
 ผล C16/R16/R16B ไม่รวมเป็น session เดียว ส่วน S08/U14/U16 ด้านล่างเป็นประวัติของสคริปต์และข้อมูลรอบเดิม ไม่ใช้รับรองข้อมูล CSV โดยอัตโนมัติ ทุกขั้นตอน manual/ส่วนเสริมที่ไม่ได้ assert ยังต้องทวนก่อนลงนามรับรอง
 
 สี่หัวข้อหลักของ Test Cases เป็นคู่มือกดหน้าเว็บ รายละเอียด API/DB/ไฟล์อยู่ใน [คู่มือจุดตรวจเสริม](TEST-CASES-TECHNICAL-CHECKS.md) สคริปต์ปัจจุบันมี UI 34 กรณีและ API-only 14 กรณี การรันครบ 48 ไม่ใช่หลักฐานว่าเดิน UI ครบทั้ง 48
 
-## 2.1 ข้อมูลรอบทดสอบและหลักฐาน
+**ข้อมูลเพิ่ม ณ 22 ตุลาคม:** พบหลักฐาน focused UI ใหม่ 4 sessions ตามข้อ 2.9 รอบล่าสุดรัน TC-038 ผ่าน 1 กรณี อีก 17 NOT RUN ใน subset 18; ไม่ใช่การทดสอบซ้ำครบ 48 และยังไม่มีหลักฐานใหม่ปิด TC-018/027/045 งานทบทวนเอกสารนี้ไม่ได้รันระบบเพิ่ม
+
+## 2.1 ข้อมูลรอบการทดสอบ
+
+| รายการ | รายละเอียด |
+|---|---|
+| รอบการทดสอบ (Test Cycle) | C16 เป็นรอบเต็ม 48 TC ล่าสุดที่อ้างในรายงานนี้; R16/R16B และ U22 เป็น focused retests แยก session |
+| ช่วงเวลาทดสอบ | ประวัติ 4–22 ตุลาคม 2026; เวลาจริงอ้าง generated_at พร้อม timezone ของแต่ละ JSON |
+| เวอร์ชัน/Commit ที่ทดสอบ | C16: `16490e54bd66bb12e0affb3ea16ac1a9bc1b3f57`; U22: `d5be60d7f87da841f7e03c37746c278287474a46` รวม working tree; ไม่ใช่ commit ของงานทบทวนเอกสาร |
+| สภาพแวดล้อม/Browser | C16/U22 ใช้ Chrome, Next.js/FastAPI จริง, SQLite ชั่วคราว, deterministic AI mock; PostgreSQL/pgvector ไม่ได้รับรองจากผลนี้ |
+| หลักฐานและข้อจำกัด | ตาราง session ด้านล่างและข้อ 2.9; บาง artifacts ไม่ติดตาม Git ต้องแนบเมื่อส่งตรวจ |
 
 | รอบ | Scope / สภาพแวดล้อม | Commit ที่หลักฐานระบุ | หลักฐาน |
 |---|---|---|---|
@@ -239,7 +349,23 @@ pytest tests/selenium/ --all-cases -v --headless
 
 ไฟล์ `artifacts/` บางส่วนไม่ได้ติดตาม Git จึงอาจไม่มีใน checkout อื่น ส่วนผล UI ที่มี versioned reports อ้าง path ใต้ `reports/` โดยตรง ควรแนบ JSON/log/screenshot ของรอบที่จะส่งรับรองให้ครบ ไม่มีการแก้ raw evidence ในงานทบทวนนี้
 
-## 2.2 สรุปผลแยกตามรอบ
+## 2.2 สรุปผลการทดสอบโดยรวม (Executive Summary)
+
+ตารางสรุปแบบ PDF ต่อไปนี้อ้าง **C16 รอบเดียว** (48 TC); ไม่รวม R16/R16B/U22 และไม่ถือว่าแต่ละ PASS รับรองทุก manual subcase ของฉบับปรับปรุง
+
+| รายการ | จำนวน | ร้อยละของ TC ทั้งหมดในรอบ C16 |
+|---|---:|---:|
+| กรณีทดสอบทั้งหมดตามแผน | 48 | 100.00% |
+| Positive ตามแผน | 32 | 66.67% |
+| Negative ตามแผน | 16 | 33.33% |
+| ดำเนินการแล้ว (Executed) | 48 | 100.00% |
+| ผ่าน (Passed) | 43 | 89.58% |
+| ไม่ผ่าน (Failed) | 5 | 10.42% |
+| BLOCKED | 0 | 0.00% |
+| SKIPPED | 0 | 0.00% |
+| NOT RUN ใน scope | 0 | 0.00% |
+
+ตารางต่อไปแยกประวัติแต่ละรอบ โดยใช้ denominator และ scope ของรอบนั้น
 
 | รอบ | Planned/ขอบเขต | PASS | FAIL | BLOCKED | SKIPPED/ข้าม | NOT RUN/ไม่อยู่ในรอบ | Executed | Pass rate ของ Executed |
 |---|---:|---:|---:|---:|---:|---|---:|---:|
@@ -256,7 +382,26 @@ pytest tests/selenium/ --all-cases -v --headless
 
 D04 execution coverage = 17/48 = 35.42%; S08 = 48/48 = 100%; U14 UI coverage = 18/18 = 100% ของ subset; U16 UI coverage = 1/18 = 5.56% ของ subset ตัวเลข 100% ของ subset ไม่ใช่ coverage ของทั้ง 48 หรือทุก subcase ที่เพิ่มภายหลัง
 
-### 2.2.1 ผล S08 ตามกลุ่มฟังก์ชัน
+### 2.2.1 ผลการทดสอบจำแนกตามกลุ่มฟังก์ชัน
+
+#### 2.2.1.1 รอบ C16
+
+| กลุ่มฟังก์ชัน | ทั้งหมด | ดำเนินการแล้ว | ผ่าน | ไม่ผ่าน | ข้าม |
+|---|---:|---:|---:|---:|---:|
+| บัญชีและโปรไฟล์ | 7 | 7 | 7 | 0 | 0 |
+| ผู้ใช้ หมวดหมู่ และตัวเลือก | 6 | 6 | 6 | 0 | 0 |
+| ค้นหา รายละเอียด และคำแนะนำ | 7 | 7 | 5 | 2 | 0 |
+| ส่งผลงานและตรวจข้อมูล | 7 | 7 | 6 | 1 | 0 |
+| ผลงานของฉัน การแก้ไข และไฟล์ | 8 | 8 | 7 | 1 | 0 |
+| คิวและผลการตรวจ | 6 | 6 | 6 | 0 | 0 |
+| Favorite และการแจ้งเตือน | 2 | 2 | 2 | 0 | 0 |
+| AI | 3 | 3 | 2 | 1 | 0 |
+| กระบวนการข้ามบทบาท E2E | 2 | 2 | 2 | 0 | 0 |
+| รวม | 48 | 48 | 43 | 5 | 0 |
+
+#### 2.2.1.2 ประวัติรอบ S08
+
+ตารางนี้เป็นผลรอบ **S08** เท่านั้น ผลราย TC ของรอบเต็ม C16 แสดงในข้อ 2.3.1 ไม่รวมผลสองรอบเข้าด้วยกัน
 
 | กลุ่ม | TC | Executed | PASS | FAIL |
 |---|---:|---:|---:|---:|
@@ -277,7 +422,66 @@ D04 execution coverage = 17/48 = 35.42%; S08 = 48/48 = 100%; U14 UI coverage = 1
 
 หลังแก้ notification รายงาน S08 ระบุ lint เฉพาะสองไฟล์ที่เปลี่ยนผ่าน แต่ typecheck ปกติติด generated `.next/types`; source-only check ผ่าน ข้อมูลนี้ไม่เท่ากับ frontend quality gates ทั้งโครงการผ่าน ส่วน quality gates ของ commit `343fb57` และเงื่อนไขฉบับทบทวน **ไม่ได้รันใหม่ในงานนี้**
 
-## 2.3 ผลรายกรณีโดยไม่รวมข้ามรอบ
+## 2.3 บันทึกผลการทดสอบรายกรณี (Test Execution Log)
+
+### 2.3.1 รอบเต็ม C16 — 16 ตุลาคม 2026
+
+ใช้คอลัมน์ตาม PDF: รหัส ชื่อ FR สถานะ ผลจริง/หลักฐาน รหัสข้อบกพร่อง ผู้ทดสอบ และวันที่ ทุกแถวในตารางนี้อ้าง session `20261016-124752-257620` เดียวกัน ไม่รวมผล retest R16/R16B หรือ U22 เข้าไป
+
+P=PASS, F=FAIL ของ assertions ที่สคริปต์รัน; actual/steps/API/DB อยู่ใน JSON ไม่ยืนยัน manual subcase ที่ไม่มี assertion ผู้ควบคุมการรันไม่ได้ระบุชื่อใน JSON จึงไม่ใช้ชื่อผู้รับมอบหมายตาม PDF แทน
+
+| รหัส | ชื่อกรณีทดสอบ | FR | สถานะ | ผลจริง/หลักฐาน | รหัสข้อบกพร่อง | ผู้ทดสอบ | วันที่ |
+|---|---|---|---|---|---|---|---|
+| TC-001 | สมัครด้วย email ใหม่และ role ที่ส่งมาเป็น admin | FR-001 | P | HTTP ที่บันทึก: `POST /auth/register` → 200; มี DB query evidence 1 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-002 | สมัคร email ซ้ำ | FR-001 | P | HTTP ที่บันทึก: `POST /auth/register` → 400; มี DB query evidence 2 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-003 | ล็อกอินข้อมูลถูก | FR-002 | P | HTTP ที่บันทึก: `POST /auth/login` → 200; `GET /auth/me` → 200; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-004 | รหัสผ่านผิด | FR-002 | P | HTTP ที่บันทึก: `POST /auth/login` → 400; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-005 | ดู/แก้โปรไฟล์และเปลี่ยนรหัส | FR-003 | P | HTTP ที่บันทึก: `GET /auth/me` → 200; `POST /auth/login` → 400; มี DB query evidence 5 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-006 | token ไม่ถูก/ผู้ใช้ inactive/email ซ้ำ | FR-003 | P | HTTP ที่บันทึก: `GET /auth/me` → 401; `GET /auth/me` → 400; `PUT /auth/me` → 400; มี DB query evidence 1 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-007 | ล็อกอินแล้วออกจากระบบ | FR-004 | P | Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-008 | admin CRUD ผู้ใช้ | FR-005 | P | HTTP ที่บันทึก: `GET /users/9` → 200; `PUT /users/9` → 200; `DELETE /users/9` → 204; `GET /users/9` → 404 (รายการเต็มใน JSON); มี DB query evidence 5 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-009 | student เรียก API จัดการผู้ใช้ | FR-005 | P | HTTP ที่บันทึก: `GET /users/` → 403; `POST /users/` → 403; `GET /users/3` → 403; `PUT /users/3` → 403 (รายการเต็มใน JSON); มี DB query evidence 2 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-010 | อ่านสาธารณะและเพิ่มโดย admin | FR-006 | P | HTTP ที่บันทึก: `GET /categories/` → 200; มี DB query evidence 2 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-011 | ผู้ไม่ใช่ admin เพิ่มหมวดหมู่ | FR-006 | P | HTTP ที่บันทึก: `GET /categories/` → 200; `POST /categories/` → 403; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-012 | admin แทนรายการตัวเลือก | FR-007 | P | HTTP ที่บันทึก: `POST /options/` → 200; `GET /options/` → 200; มี DB query evidence 2 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-013 | student เปลี่ยนตัวเลือก | FR-007 | P | HTTP ที่บันทึก: `GET /options/` → 200; `POST /options/` → 403; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-014 | guest/student/admin ค้นงาน approved และ pending | FR-008 | P | HTTP ที่บันทึก: `GET /research/search` → 200; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-015 | คำค้นมีหลายคำและบันทึก log | FR-008 | F | HTTP ที่บันทึก: `GET /research/search` → 200; มี DB query evidence 1 รายการ; ranking ได้ IDs {1,4,5} แต่คาด {1,4}; fixture สำเนามีชื่อซ้ำ; R16 ทวนแล้วแยกรายงาน [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | Script: TC-015 | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-016 | คำแนะนำไม่เผยงาน pending | FR-009 | P | HTTP ที่บันทึก: `GET /research/search/suggestions` → 200; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-017 | latest/popular และสถิติ | FR-010 | P | HTTP ที่บันทึก: `GET /home/latest` → 200; `GET /home/popular` → 200; `GET /stats/` → 200; มี DB query evidence 4 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-018 | เปิดงานและแนะนำงานที่เกี่ยวข้อง | FR-011 | F | HTTP ที่บันทึก: `GET /research/1/recommendations` → 500; มี DB query evidence 3 รายการ; GET recommendations คาด 200 ได้ 500 [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | AUD-01 | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-019 | ID ไม่มีอยู่ | FR-011 | P | HTTP ที่บันทึก: `GET /research/999999999` → 404; มี DB query evidence 1 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-020 | ผู้ไม่ล็อกอิน/มี favorite ได้คำแนะนำ | FR-012 | P | HTTP ที่บันทึก: `GET /research/recommendations/personalized` → 200; `POST /favorites/1` → 200; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-021 | รายชื่อผู้เขียน/ที่ปรึกษา | FR-013 | P | HTTP ที่บันทึก: `GET /research/participants` → 200; `GET /research/participants` → 401; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-022 | ส่งงานครบข้อมูลและผู้เกี่ยวข้อง | FR-014 | P | มี DB query evidence 5 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-023 | ไม่ล็อกอินหรือ role guest ส่งงาน | FR-014 | P | HTTP ที่บันทึก: `POST /research/` → 401; `POST /research/` → 403; มี DB query evidence 2 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-024 | IDs ไม่ใช่ JSON array/มี 0/role ผิด | FR-015 | P | HTTP ที่บันทึก: `POST /research/` → 422; `POST /research/` → 404; `POST /research/` → 200; มี DB query evidence 20 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-025 | ผู้เขียนคนละ prefix ปี | FR-015 | P | HTTP ที่บันทึก: `POST /research/` → 422; มี DB query evidence 2 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-026 | อัปโหลดชนิดถูกและทดสอบขนาดขอบเขต | FR-016 | P | HTTP ที่บันทึก: `POST /research/` → 200; `POST /research/` → 413; มี DB query evidence 4 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-027 | นามสกุล/MIME/ลายเซ็นผิด | FR-016 | F | HTTP ที่บันทึก: `POST /research/` → 415; `POST /research/` → 200; `PUT /research/6` → 415; มี DB query evidence 6 รายการ; DB rollback แต่ไฟล์ปกเดิมถูกลบ [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | TC-027 rollback | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-028 | ผู้ส่ง/author เห็นงานใน /my | FR-017 | P | HTTP ที่บันทึก: `GET /research/my` → 200; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-029 | ผู้มีสิทธิ์แก้แล้วกลับ pending | FR-018 | P | HTTP ที่บันทึก: `GET /research/1` → 200; มี DB query evidence 1 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-030 | คนอื่นแก้งาน | FR-018 | P | HTTP ที่บันทึก: `PUT /research/3` → 403; มี DB query evidence 4 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-031 | ส่งเอกสารใหม่หลัง needs_revision | FR-019 | P | HTTP ที่บันทึก: `POST /research/` → 200; `PUT /research/6` → 200; มี DB query evidence 6 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-032 | เจ้าของลบงานพร้อมข้อมูลสัมพันธ์ | FR-020 | F | HTTP ที่บันทึก: `POST /favorites/6` → 200; `POST /research/6/review` → 200; มี DB query evidence 2 รายการ; NoAlertPresentException ในสคริปต์; R16 ทวนแล้วแยกรายงาน [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | Script: TC-032 | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-033 | คนอื่นลบงาน | FR-020 | P | HTTP ที่บันทึก: `DELETE /research/3` → 403; มี DB query evidence 3 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-034 | ผู้ใช้ active ดาวน์โหลดงานมีไฟล์ | FR-021 | P | มี DB query evidence 3 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-035 | ไม่มี token หรือไม่มีไฟล์ | FR-021 | P | HTTP ที่บันทึก: `POST /research/1/download` → 401; `POST /research/5/download` → 404; `POST /research/999999999/download` → 404; มี DB query evidence 2 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-036 | admin/advisor/student ดู pending | FR-022 | P | HTTP ที่บันทึก: `GET /research/pending` → 200; `GET /research/pending` → 403; `GET /research/pending` → 401; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-037 | ผู้ตรวจเห็นประวัติของตน | FR-023 | P | HTTP ที่บันทึก: `GET /research/history` → 200; `GET /research/history` → 403; มี DB query evidence 1 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-038 | advisor ที่ได้รับมอบหมายอนุมัติ pending | FR-024 | P | HTTP ที่บันทึก: `GET /research/2` → 200; มี DB query evidence 2 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-039 | advisor ไม่ได้รับมอบหมาย/งานไม่ pending/enum ผิด | FR-024 | P | HTTP ที่บันทึก: `POST /research/2/review` → 403; `POST /research/1/review` → 400; `POST /research/2/review` → 422; `POST /research/2/review` → 401 (รายการเต็มใน JSON); มี DB query evidence 3 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-040 | อนุมัติพร้อมคะแนนและแจ้งผู้เกี่ยวข้อง | FR-025 | P | HTTP ที่บันทึก: `POST /research/` → 200; มี DB query evidence 18 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-041 | admin เปลี่ยน advisor; student ถูกห้าม | FR-026 | P | HTTP ที่บันทึก: `POST /research/2/assign-advisors` → 200; `GET /research/pending` → 200; `POST /research/2/assign-advisors` → 403; มี DB query evidence 2 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-042 | บันทึกและยกเลิก favorite | FR-027 | P | HTTP ที่บันทึก: `GET /favorites/` → 200; `POST /favorites/1` → 200; มี DB query evidence 3 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-043 | อ่านเฉพาะของตนและ mark read | FR-028 | P | HTTP ที่บันทึก: `GET /notifications/` → 200; `POST /notifications/2/read` → 404; `POST /notifications/1/read` → 200; `POST /notifications/read-all` → 200; มี DB query evidence 8 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-044 | เรียกสี่ API ด้วย token และ schema ที่ถูก/ผิด | FR-029 | P | HTTP ที่บันทึก: `POST /ai/generate-abstract` → 200; `POST /ai/generate-abstract` → 401; `POST /ai/suggest-titles` → 200; `POST /ai/suggest-titles` → 401 (รายการเต็มใน JSON); Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-045 | dashboard insight และ chat | FR-030 | F | HTTP ที่บันทึก: `POST /ai/dashboard-insights` → 200; `POST /ai/dashboard-insights` → 403; `POST /ai/dashboard-insights` → 401; `POST /ai/chat` → 422 (รายการเต็มใน JSON); POST /ai/chat คาด 200 ได้ 500 [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | AUD-03 | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-046 | สี่ endpoint วิเคราะห์ผลงานและสิทธิ์ | FR-031 | P | HTTP ที่บันทึก: `POST /research/1/ai-pre-review` → 200; `POST /research/1/ai-pre-review` → 401; `POST /research/1/ai-pre-review` → 403; `POST /research/999999999/ai-pre-review` → 404 (รายการเต็มใน JSON); มี DB query evidence 1 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-047 | เว็บส่งงานแล้ว advisor ตรวจ | FR-032 | P | HTTP ที่บันทึก: `GET /research/pending` → 200; `GET /research/6` → 200; มี DB query evidence 8 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+| TC-048 | เว็บ admin จัดการหมวดหมู่/ผู้ใช้ | FR-032 | P | HTTP ที่บันทึก: `GET /users/9` → 200; `GET /categories/` → 200; `GET /users/` → 403; `POST /users/` → 403 (รายการเต็มใน JSON); มี DB query evidence 9 รายการ; Assertions ที่ execute ผ่าน; ดู event/DB evidence ใน JSON [C16 JSON](../../tests/selenium/artifacts/20261016-124752-257620/results.json) | — | Selenium runner; ผู้ควบคุมรอระบุ | 2026-10-16 |
+
+### 2.3.2 ประวัติ S08/U14/U16 — แยกจากรอบ C16
 
 ชื่อกรณีในตารางใช้ชื่อฉบับทบทวนเพื่อค้นหาด้วย TC ID; ผลย้อนหลังรับรองเฉพาะ assertions ของสคริปต์รอบเดิม ไม่รับรองข้อมูลเตรียมเพิ่มทุกข้อ
 
@@ -336,23 +540,32 @@ S08 = baseline 48 TC; U14 = session UI subset 18 TC; U16 = focused session ก�
 
 ผล/ขั้นตอน/ภาพราย TC เปิดจากรายงานและ JSON ของแต่ละรอบในข้อ 2.1 ตัวอย่าง TC-038 ของ U16 มี 17 UI steps และผล PASS ใช้เวลาราย TC 31.49 วินาที; เวลา UI steps/ราย TC ไม่ใช่ระยะเวลารวมเปิดบริการของ session สำหรับ TC-040/043 ผล N08 เป็น PASS ทั้งสองกรณีหลังแก้ notification แต่ไม่เปลี่ยน FAIL ของ S08 ที่บันทึกไว้
 
-### 2.3.1 ประวัติอื่นที่เกี่ยวข้อง
+### 2.3.3 ประวัติอื่นที่เกี่ยวข้อง
 
 - [รายงาน Selenium 8 ต.ค.](SELENIUM-TEST-REPORT-2026-10-08.md) มีรายละเอียด S08/N08/A08 และข้อบกพร่องเดิม
 - [Brave Docker 8 ต.ค.](BRAVE-TEST-REPORT-2026-10-08.md) ผ่าน 16 UI TC จากชุดที่เลือกในขณะนั้น; อีก 2 เคสถูกจัดเป็น API-only ตามสคริปต์รุ่นเก่า ปัจจุบัน TC-013/046 มี UI แล้ว จึงไม่ใช้เลข 16 เป็น scope ปัจจุบัน
 - [Category report 14 ต.ค.](NARONGSAK-SELENIUM-CATEGORY-REPORT-2026-10-14.md) เดิมรวมผลล่าสุดราย TC จากหลาย session; U14 ที่แยกในรายงานฉบับนี้เป็นหลักฐาน 18 PASS ใน session เดียวที่เกิดภายหลัง
 - ผล focused U16 เป็นผลเฉพาะ TC-038; ไม่ได้รัน TC-018/045 และไม่ได้ยืนยันว่าข้อผิดพลาดเดิมของสองกรณีนั้นหายแล้ว
 
-## 2.4 ข้อบกพร่อง การแก้ และประเด็นสังเกต
+## 2.4 บันทึกข้อบกพร่อง (Defect Log)
 
 รหัส AUD ด้านล่างเป็นรหัสติดตามภายในเอกสารฉบับนี้ ไม่ใช่ issue ID จากระบบภายนอก ระดับผลกระทบเป็นการประเมินเพื่อจัดลำดับ ไม่ใช่ severity ที่เจ้าของระบบลงนามแล้ว
 
-| รหัส | TC / สิ่งที่พบ | หลักฐาน/สาเหตุ | สถานะที่ยืนยันได้ | สิ่งที่ต้องทำก่อนปิด |
-|---|---|---|---|---|
-| AUD-01 | TC-018 recommendations 500 | S08; เข้าถึง relation ของ current work ที่ยังไม่โหลด ทำให้ MissingGreenlet | พบ FAIL ใน baseline; ยังไม่มี retest ผ่านในรอบที่อ้าง | แก้ eager loading แล้วรัน detail/recommendations ทั้ง API/UI และ PostgreSQL |
-| AUD-02 | TC-040/043 dropdown ไม่แสดง notification | S08 API/DB มีข้อมูล; browser client ใช้ URL ไม่ถูก | N08 ผ่าน 2/2 หลังแก้ same-origin proxy; U14 TC-043 ผ่าน | เก็บ fix commit/dirty diff และ regression notification ทั้งสอง TC ของ revision ที่รับรอง |
-| AUD-03 | TC-045 public chat fallback 500 | S08; category relationship ไม่โหลดก่อนสร้าง metadata | พบ FAIL; ไม่มีหลักฐาน retest ผ่านของ TC-045 ในรอบอ้าง | แก้ category loading และทดสอบ fallback/vector branch แยก |
-| AUD-04 | frontend lint ไม่ผ่าน | D04: 16 errors/8 warnings | เป็นผลเก่า; ยังไม่ทราบ gate ปัจจุบัน | รัน lint/typecheck/tests/build กับ commit ที่จะรับรอง |
+| รหัส | อ้างอิง TC | รายละเอียด/วิธีทำซ้ำ | ความรุนแรง | สถานะ | ผู้รับผิดชอบ | Commit/ผล Retest |
+|---|---|---|---|---|---|---|
+| AUD-01 | TC-018 | เปิด W1 แล้ว GET recommendations ได้ 500/MissingGreenlet | รอผู้รับผิดชอบประเมิน | พบ FAIL S08/C16; รอทวน revision ปัจจุบัน | Developer รอระบุ | ยังไม่มี retest ผ่านของกรณีนี้ใน U22 |
+| AUD-02 | TC-040/043 | API มี notification แต่ dropdown เดิมไม่แสดง | รอผู้รับผิดชอบประเมิน | มี focused retest ผ่าน; รอ regression revision ที่รับรอง | Developer/Tester รอระบุ | N08 2/2, U14 TC-043, U22 TC-043; ไม่ใช่ผล TC-040 ใน U22 |
+| AUD-03 | TC-045 | POST /ai/chat ข้อความ “การ” history ว่างใน text fallback ได้ 500/MissingGreenlet | รอผู้รับผิดชอบประเมิน | พบ FAIL S08/C16; รอ fix/retest | Developer รอระบุ | ไม่มี retest ใหม่ของ TC-045 ใน U22 |
+| TC-027 rollback | TC-027 | PUT ปกใหม่พร้อม PDF signature ผิด; DB path เดิมแต่ bytes ปกเดิมหาย | รอผู้รับผิดชอบประเมิน | พบ FAIL C16; รอ fix/retest | Developer รอระบุ | รอ fix revision และ hash/bytes ก่อน–หลัง |
+| AUD-04 | Quality gate; แยกจาก TC | ESLint D04 ไม่ผ่าน 16 errors/8 warnings | รอผู้รับผิดชอบประเมิน | ผลย้อนหลัง; gate ปัจจุบันยังไม่รัน | Developer รอระบุ | ต้องรัน lint/typecheck/tests/build ของ revision ที่รับรอง |
+
+TC-015/032 ใน C16 เป็นปัญหาสคริปต์/fixture และมี focused retest ตามรายงาน R16 จึงไม่รวมเป็น defect ผลิตภัณฑ์ใหม่ ผลรวม 5 FAIL ของ C16 ประกอบด้วย 3 กรณีระบบและ 2 กรณีสคริปต์ ไม่ใช่ defect ระบบ 5 รายการ
+
+ระดับความรุนแรงตามแนว PDF: Critical=ระบบหลักใช้ไม่ได้หรือข้อมูลรั่วอย่างมีนัยสำคัญ, High=workflow/สิทธิ์หลักผิด, Medium=ฟังก์ชันรองผิดมีทางเลี่ยง, Low=ข้อความ/การแสดงผลคลาดเคลื่อน ยังไม่กำหนดระดับของแต่ละ defect จนผู้รับผิดชอบประเมิน
+
+| สรุปข้อบกพร่องผลิตภัณฑ์ที่รอ retest จาก C16 | Critical | High | Medium | Low | ยังไม่จัดระดับ | รวม |
+|---|---|---|---|---|---:|---:|
+| TC-018/027/045 | รอประเมิน | รอประเมิน | รอประเมิน | รอประเมิน | 3 | 3 |
 
 ### 2.4.1 ข้อสังเกตจากโค้ด นโยบาย และการยืนยันเพิ่มเติม
 
@@ -366,7 +579,7 @@ S08 = baseline 48 TC; U14 = session UI subset 18 TC; U16 = focused session ก�
 
 ปัญหา locator, intermediate redirect และการเปรียบเทียบ comma spacing ใน category report เป็นการแก้ชุดทดสอบตามหลักฐานเดิม ต้องแยกจาก defect ระบบ การรัน BLOCKED เพราะ sandbox เปิด port ไม่ได้เป็น environment limitation ไม่ใช่ข้อบกพร่องแอป
 
-## 2.5 Coverage และข้อจำกัดของหลักฐาน
+## 2.5 การวิเคราะห์ผลและข้อสังเกต
 
 แผนมี TC เชื่อมครบ **32/32 FR**; S08 execute ครบ 48 TC และแตะทุก FR แต่ FR-011, FR-025, FR-028, FR-030 มี TC FAIL ใน baseline จึงไม่เรียกว่าทุก FR ผ่าน ผล N08 ยืนยันการแก้ notification เฉพาะ working tree นั้น ส่วน U14 ทดสอบ 18 TC ครอบคลุม **17 FR** โดย FR-024 มี TC-038 และ FR-032 มี TC-047/048; subset ไม่ครอบคลุม FR ทั้งหมด
 
@@ -374,7 +587,7 @@ SQLite functional evidence ไม่รับรอง PostgreSQL FK/transaction
 
 ฉบับทบทวนเพิ่ม boundary L−1, rejected/needs_revision outcomes, การอ่านทั้งหมดที่มีแจ้งเตือนของตนมากกว่าหนึ่งรายการ, file rollback และ checks อื่นใน TC เดิม จึงห้ามใช้ PASS เก่ารับรอง assertions ใหม่โดยไม่มี mapping และผลรันใหม่
 
-## 2.6 การประเมิน Exit Criteria
+## 2.6 การประเมินตามเกณฑ์สิ้นสุดการทดสอบ
 
 | เกณฑ์ฉบับทบทวน | ผลประเมิน | เหตุผล |
 |---|---|---|
@@ -385,9 +598,11 @@ SQLite functional evidence ไม่รับรอง PostgreSQL FK/transaction
 | PostgreSQL/pgvector integration | ยังไม่ครบ | มีเพียง smoke D04; Selenium เป็น SQLite |
 | ผู้ทบทวน/ผู้อนุมัติรับรอง | ยังไม่ดำเนินการ | ไม่มีการลงนามในหลักฐาน |
 
-## 2.7 ข้อสรุปและงานติดตาม
+## 2.7 ข้อสรุปและคำแนะนำ (Conclusion & Recommendation)
 
-**ผลตัดสิน: ยังไม่รับรองระบบครบ 48 TC ตามเกณฑ์ฉบับปรับปรุง** มีผลรันข้อมูล CSV/migration ใหม่และแก้สคริปต์ที่ไม่ตรง UI แล้ว แต่ยังมีข้อผิดพลาดระบบ TC-018/027/045 และต้องทวนเงื่อนไขที่ไม่ได้ assert รวมถึง integration ตามแผน
+**ผลการตัดสิน:** ☐ ยอมรับระบบ ☐ ยอมรับแบบมีเงื่อนไข ☐ ไม่ยอมรับ ☑ ยังไม่ตัดสินรับรองครบระบบ
+
+**ยังไม่รับรองระบบครบ 48 TC ตามเกณฑ์ฉบับปรับปรุง** มีผลรันข้อมูล CSV/migration ใหม่และแก้สคริปต์ที่ไม่ตรง UI แล้ว แต่ยังมีข้อผิดพลาดระบบ TC-018/027/045 และต้องทวนเงื่อนไขที่ไม่ได้ assert รวมถึง integration ตามแผน
 
 1. จัด run manifest และกำหนดผู้ทบทวน/ผู้อนุมัติ scope/นโยบาย pending URL, static files และ queue
 2. รันทดสอบ TC-018/045 เพื่อยืนยันสถานะปัจจุบัน พร้อมแก้และ retest เมื่อยังผิด
@@ -395,12 +610,62 @@ SQLite functional evidence ไม่รับรอง PostgreSQL FK/transaction
 4. รันครบ 48 unique TC, PostgreSQL/pgvector integration และ backend/frontend gates บน revision เดียวกัน
 5. แนบ defect disposition/หลักฐาน retest แล้วประเมิน exit criteria และลงนาม
 
-## 2.8 การทบทวนและลงนาม
+## 2.8 การลงนามรับรองผลการทดสอบ
 
-| บทบาท | ชื่อ/สถานะ | วิธีรับรอง/วันที่ |
+| บทบาท | ชื่อ–นามสกุล | ลายเซ็น/วิธีรับรอง | วันที่ |
+|---|---|---|---|
+| ผู้จัดทำฉบับปรับปรุง | Codex | ทบทวน PDF และหลักฐานเดิม; ไม่ได้ execute ใหม่ | 22 ตุลาคม 2026 |
+| ผู้ทดสอบ (Tester) | รอระบุ | แนบ run ID/commit/ผลจริงแล้วลงนาม | รอบันทึก |
+| หัวหน้าทีมทดสอบ (Test Manager) | รอระบุ | รอทบทวนผลและ exit criteria | รอบันทึก |
+| ผู้พัฒนา (Developer) | รอระบุ | รอ fix/retest disposition | รอบันทึก |
+| ผู้อนุมัติ (Approver) | รอระบุ | ยังไม่รับรองครบระบบ | รอบันทึก |
+
+ตารางลงนามของ PDF ไม่ใช่การลงนามของรอบ C16/U22 หรือของเอกสารฉบับปรับปรุงนี้
+
+## 2.9 หลักฐานรอบวันที่ 22 ตุลาคม 2026
+
+### 2.9.1 สภาพแวดล้อมและการตีความ
+
+แหล่งหลักคือ `ui-results.json` ของแต่ละ session ซึ่งมี metadata, steps, actual_result และ screenshot paths ประกอบรายงาน Markdown เวลาในตารางเป็นเวลา generated_at UTC (+7 ชั่วโมงเมื่ออ่านเป็นเวลาไทย) ชื่อ directory เป็น run ID ไม่ใช้แทนเวลาเสร็จสิ้นที่ JSON ระบุ
+
+ทั้งสี่ sessions ระบุ commit `d5be60d7f87da841f7e03c37746c278287474a46` รวม working tree, macOS 27.0.1 arm64, Chrome headed, disposable SQLite, deterministic AI mock/text retrieval fallback รอบล่าสุดบันทึก browser ของ TC-038 เป็น Chrome 155.0.8059.82 ฐานโค้ดที่ทบทวนเอกสารครั้งนี้คือ `1c03db6ab4a6c44d7144e5a90e4a901709eefafa` จึงไม่ย้ายผลเก่าไปอ้างเป็นผลของ revision ปัจจุบัน
+
+### 2.9.2 ผลแยกแต่ละ session
+
+ขอบเขตรายงานแต่ละรอบเท่ากับ 18 TC มี BLOCKED=0 และ SKIPPED=0 ตามสถานะใน JSON อีก 30 TC อยู่นอก subset จึงไม่ใช้เป็น denominator ของ UI coverage นี้
+
+| Run ID / JSON | Generated at UTC | TC ที่ execute | PASS | FAIL | NOT RUN | Executed/18 | Pass rate |
+|---|---|---|---:|---:|---:|---:|---:|
+| [20261022-064141-954577](../../tests/selenium/reports/20261022-064141-954577/ui-results.json) | 2026-10-22T06:42:15.199799+00:00 | TC-038 | 1 | 0 | 17 | 1/18 (5.56%) | 100.00% |
+| [20261022-064234-203272](../../tests/selenium/reports/20261022-064234-203272/ui-results.json) | 2026-10-22T06:42:48.463757+00:00 | TC-043 | 1 | 0 | 17 | 1/18 (5.56%) | 100.00% |
+| [20261022-072725-036023](../../tests/selenium/reports/20261022-072725-036023/ui-results.json) | 2026-10-22T07:28:46.184447+00:00 | ไม่มี | 0 | 0 | 18 | 0/18 (0.00%) | N/A |
+| [20261022-072848-245348](../../tests/selenium/reports/20261022-072848-245348/ui-results.json) | 2026-10-22T07:29:18.830938+00:00 | TC-038 | 1 | 0 | 17 | 1/18 (5.56%) | 100.00% |
+
+รอบ 072725 มี exit_code=0 แต่ไม่มี browser execution, 18 NOT RUN และ coverage=0% หลักฐานนี้ไม่รองรับข้อสรุป “ทดสอบผ่าน” และยังไม่ทราบสาเหตุการไม่ execute จากสรุปเพียงอย่างเดียว รอบ 064141 กับ 072848 ทวน TC-038 ซ้ำ ไม่เพิ่มจำนวน unique TC; ผล TC-043 ในรอบ 064234 เป็นอีก session จึงไม่รวมเป็นชุด 2 PASS ของรอบล่าสุด
+
+### 2.9.3 สิ่งที่หลักฐานยืนยันและยังไม่ยืนยัน
+
+| กรณี | ผลที่ยืนยันได้ | ขอบเขตจำกัด |
 |---|---|---|
-| ผู้จัดทำฉบับทบทวน | Codex | ตรวจเอกสารและหลักฐานที่มี 16 ต.ค. 2026; ไม่ได้ execute ใหม่ |
-| ผู้รันระบบจริงของรอบที่จะรับรอง | รอระบุ | ต้องแนบ run ID/commit/วันเวลา |
-| Test Manager / ผู้ทบทวน | รอระบุ | ยังไม่มีการรับรอง |
-| Developer | รอระบุ | รอ fix/retest disposition |
-| Approver | รอระบุ | ยังไม่มีการรับรอง/รับความเสี่ยง |
+| TC-038 รอบล่าสุด | 17 UI steps ผ่าน: login D1, เปิดงาน W2, เลือก approved, ใส่คะแนน/ความเห็น, ยืนยัน dialog, เปิดรายละเอียดแล้วเห็นอนุมัติ; `assert_review` ตรวจ reviewer=5/score=80/comment ตรง | ไม่ใช่ผลครบทุก status/role; ไม่รับรอง TC-039/040/047 หรือ PostgreSQL |
+| TC-043 รอบ 064234 | สถานะ passed และมี browser execution ตาม JSON; ดู [รายงานขั้นตอน](../../tests/selenium/reports/20261022-064234-203272/UI-TEST-EXECUTION.md) | ไม่ใช่ regression ของ TC-040 และไม่ใช่ PASS ในรอบ 072848 |
+| อีก 17 TC ในรอบล่าสุด | NOT RUN ตาม JSON | ผลเก่ายังเป็นประวัติ; ไม่เติมเป็น PASS ของรอบล่าสุด |
+| TC-018/027/045 | ไม่มี execution ใหม่ของทั้งสามในสี่ sessions ที่ตรวจ | ยังคงผล FAIL ของ C16 และรอทวน revision ปัจจุบัน |
+| Manual/quality gates/live services | ไม่มีผลใหม่จากงานแก้เอกสารนี้ | ไม่อ้างว่าผ่านการรับรองหรือมีผู้ลงนามแล้ว |
+
+รายงาน UI ล่าสุด: [20261022-072848-245348](../../tests/selenium/reports/20261022-072848-245348/UI-TEST-EXECUTION.md) รูปและผล JSON เป็นหลักฐานของ assertions ที่รันจริง การประเมิน Exit Criteria ในข้อ 2.6 จึงยังคง “ไม่รับรองครบระบบ”
+
+## 2.10 แผนติดตามข้อผิดพลาดและเกณฑ์ปิดงาน
+
+| รายการ / ลำดับ | ทำซ้ำและหลักฐานที่ต้องเพิ่ม | เกณฑ์ปิด | ผู้รับผิดชอบ / สถานะ |
+|---|---|---|---|
+| TC-027 / เร่งด่วน: ไฟล์เดิมสูญหาย | สร้างงานมีปก/PDF ถูกต้อง; เก็บ path/hash; PUT ปกใหม่พร้อม PDF signature ผิด; เทียบ DB และ bytes | ตอบปฏิเสธตาม contract โดยไฟล์เก่าคงอยู่ครบ ไม่มี orphan; รันทวน TC-026/029/031 ประกอบ | Developer รอระบุ; พบ FAIL C16 รอ fix/retest |
+| AUD-01 / TC-018 | เปิด W1 แล้ว GET recommendations; เก็บ traceback MissingGreenlet และ IDs ที่คืน | 200, เฉพาะ approved, ไม่รวมงานปัจจุบัน; ยอดดู/log ถูกต้อง; ทวน detail/search | Developer รอระบุ; ไม่ปิดด้วยผล TC-038 |
+| AUD-03 / TC-045 | POST /ai/chat ด้วยข้อความ “การ” history ว่างและ text fallback; เก็บ request/response/log | 200 และโครงสร้างคำตอบ/อ้างอิงตรง contract; ทวน dashboard RBAC และ vector branch แยก | Developer รอระบุ; ไม่มี retest ใหม่ใน U22 |
+| AUD-02 / Notification | เก็บ fix revision แล้วรัน TC-040/043 ใน revision ที่จะรับรอง | recipient/read flags ถูกต้องทั้งผู้ส่ง/co-author และไม่แก้แจ้งเตือนผู้อื่น | มี TC-043 ผ่าน 22 ต.ค.; ยังต้องทวน TC-040 |
+| AUD-04 / Quality gates | รัน lint/typecheck/unit/build ตาม configuration ของ revision ปัจจุบัน | ทุก gate ที่ใช้รับรองมี command/exit/log; หากยกเว้นต้องมีผู้รับผิดชอบและเหตุผล | ยังไม่มีผลใหม่ในงานนี้ |
+| Integration และ policy | ทวน PostgreSQL/FK/transaction/pgvector, pending/static visibility, advisor queue และ admin guard | มี expected policy ที่ผู้รับผิดชอบยืนยันและหลักฐาน environment ที่ตรง | รอระบุ owner และรอบทดสอบ |
+
+เกณฑ์ retest ต้องตรงจุดที่เคยล้มเหลว หากปรับสคริปต์เพราะ expectation ผิดให้บันทึกเหตุผลและเก็บผลเดิมไว้ ห้ามลด assertion เพื่อปิด defect การปิดแต่ละรายการต้องแนบ fix revision, run ID, expected/actual และผู้ทบทวน โดยไม่รวมผลคนละ session เป็น full regression หนึ่งรอบ
+
+เมื่อ focused retest ผ่าน ให้รัน full 48 TC ของ revision เดียวกันตามข้อ 1.11 แล้วประเมินเกณฑ์เดิมในข้อ 1.4/2.6 ใหม่ ปัจจุบันยังไม่มีหลักฐานเพียงพอรับรองครบทุก subcase หรืออนุมัติใช้งานจากการปรับเอกสารนี้
