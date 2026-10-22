@@ -1,3 +1,4 @@
+import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
 from .base_page import BasePage
@@ -16,7 +17,7 @@ class SubmissionPage(BasePage):
     def load(self):
         self.go_to("/student/research/new")
 
-    def fill_step0(self, title_th="งานวิจัยทดสอบ", title_en="Test Research"):
+    def fill_step0(self, title_th="การพัฒนาระบบคลังผลงานวิจัยอัจฉริยะด้วยการค้นหาเชิงความหมาย", title_en="Development of an Intelligent Research Repository System Using Semantic Search"):
         self.wait_for_form_ready()
         self.set_react_input(self.TITLE_TH, title_th)
         self.set_react_input(self.TITLE_EN, title_en)
@@ -28,14 +29,30 @@ class SubmissionPage(BasePage):
                 self.set_react_select(self.CATEGORY_SELECT, val)
                 break
 
+    def navigate_to_files_step(self, title_th="การพัฒนาระบบคลังผลงานวิจัยอัจฉริยะด้วยการค้นหาเชิงความหมาย", title_en="Development of an Intelligent Research Repository System Using Semantic Search"):
+        self.fill_step0(title_th, title_en)
+        self.advance_step("ผู้จัดทำและอาจารย์")
+        self.advance_step("บทคัดย่อ")
+        self.set_react_input(
+            self.ABSTRACT_INPUT,
+            "บทคัดย่องานวิจัยสำหรับการทดสอบระบบคลังผลงานวิจัยอัจฉริยะ มหาวิทยาลัยราชภัฏนครปฐม"
+        )
+        self.advance_step("ไฟล์")
+
     def upload_document(self, file_path):
         doc_input = self.driver.find_element(*self.DOCUMENT_INPUT)
         doc_input.send_keys(file_path)
+        time.sleep(0.5)
 
     def upload_cover(self, file_path):
         cover_input = self.driver.find_element(*self.COVER_INPUT)
         cover_input.send_keys(file_path)
+        time.sleep(0.5)
 
     def get_error_message(self, text_fragment):
         locator = (By.XPATH, f"//*[contains(@class, 'field-error') and contains(text(), '{text_fragment}')]")
         return self.wait_for_element_text(locator)
+
+    def is_file_accepted(self, filename_fragment):
+        locator = (By.XPATH, f"//*[contains(@class, 'file-drop') or contains(@class, 'field')]//*[contains(text(), '{filename_fragment}')]")
+        return self.is_visible(locator, timeout=5)

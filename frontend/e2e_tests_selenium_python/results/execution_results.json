@@ -1,0 +1,158 @@
+{
+  "tests/test_01_authentication_and_profile.py::test_tc_001_student_valid_login": {
+    "name": "test_tc_001_student_valid_login",
+    "status": "PASS",
+    "duration": 1.91,
+    "timestamp": "2026-10-22 20:20:23"
+  },
+  "tests/test_01_authentication_and_profile.py::test_tc_002_session_verification_and_persistence": {
+    "name": "test_tc_002_session_verification_and_persistence",
+    "status": "PASS",
+    "duration": 2.27,
+    "timestamp": "2026-10-22 20:20:29"
+  },
+  "tests/test_01_authentication_and_profile.py::test_tc_003_view_student_profile": {
+    "name": "test_tc_003_view_student_profile",
+    "status": "PASS",
+    "duration": 2.57,
+    "timestamp": "2026-10-22 20:20:34"
+  },
+  "tests/test_01_authentication_and_profile.py::test_tc_004_edit_name_and_department": {
+    "name": "test_tc_004_edit_name_and_department",
+    "status": "PASS",
+    "duration": 5.69,
+    "timestamp": "2026-10-22 20:20:43"
+  },
+  "tests/test_01_authentication_and_profile.py::test_tc_005_change_password_and_relogin": {
+    "name": "test_tc_005_change_password_and_relogin",
+    "status": "PASS",
+    "duration": 4.58,
+    "timestamp": "2026-10-22 20:20:51"
+  },
+  "tests/test_02_home_and_stats.py::test_tc_006_discovery_stats_grid": {
+    "name": "test_tc_006_discovery_stats_grid",
+    "status": "PASS",
+    "duration": 1.13,
+    "timestamp": "2026-10-22 20:20:55"
+  },
+  "tests/test_02_home_and_stats.py::test_tc_007_latest_research_display": {
+    "name": "test_tc_007_latest_research_display",
+    "status": "PASS",
+    "duration": 1.14,
+    "timestamp": "2026-10-22 20:20:59"
+  },
+  "tests/test_02_home_and_stats.py::test_tc_008_featured_popular_research": {
+    "name": "test_tc_008_featured_popular_research",
+    "status": "PASS",
+    "duration": 0.97,
+    "timestamp": "2026-10-22 20:21:03"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_009_unauthenticated_visitor_blocked_submission": {
+    "name": "test_tc_009_unauthenticated_visitor_blocked_submission",
+    "status": "PASS",
+    "duration": 1.4,
+    "timestamp": "2026-10-22 20:21:07"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_010_unauthenticated_api_submission_rejected": {
+    "name": "test_tc_010_unauthenticated_api_submission_rejected",
+    "status": "PASS",
+    "duration": 0.07,
+    "timestamp": "2026-10-22 20:21:11"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_011_guest_role_submission_forbidden": {
+    "name": "test_tc_011_guest_role_submission_forbidden",
+    "status": "PASS",
+    "duration": 4.28,
+    "timestamp": "2026-10-22 20:21:18"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_012_upload_normal_document_pdf": {
+    "name": "test_tc_012_upload_normal_document_pdf",
+    "status": "PASS",
+    "duration": 5.08,
+    "timestamp": "2026-10-22 20:21:27"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_013_upload_boundary_max_25mb_document": {
+    "name": "test_tc_013_upload_boundary_max_25mb_document",
+    "status": "PASS",
+    "duration": 5.11,
+    "timestamp": "2026-10-22 20:21:35"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_014_reject_boundary_over_26mb_document": {
+    "name": "test_tc_014_reject_boundary_over_26mb_document",
+    "status": "PASS",
+    "duration": 4.69,
+    "timestamp": "2026-10-22 20:21:42"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_015_upload_normal_cover_image": {
+    "name": "test_tc_015_upload_normal_cover_image",
+    "status": "PASS",
+    "duration": 4.51,
+    "timestamp": "2026-10-22 20:21:50"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_016_upload_boundary_max_5mb_cover_image": {
+    "name": "test_tc_016_upload_boundary_max_5mb_cover_image",
+    "status": "PASS",
+    "duration": 4.93,
+    "timestamp": "2026-10-22 20:21:58"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_017_reject_boundary_over_6mb_cover_image": {
+    "name": "test_tc_017_reject_boundary_over_6mb_cover_image",
+    "status": "PASS",
+    "duration": 4.57,
+    "timestamp": "2026-10-22 20:22:06"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_018_reject_invalid_document_extension": {
+    "name": "test_tc_018_reject_invalid_document_extension",
+    "status": "PASS",
+    "duration": 4.65,
+    "timestamp": "2026-10-22 20:22:13"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_019_reject_invalid_cover_extension": {
+    "name": "test_tc_019_reject_invalid_cover_extension",
+    "status": "PASS",
+    "duration": 4.93,
+    "timestamp": "2026-10-22 20:22:21"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_020_reject_fake_pdf_invalid_signature": {
+    "name": "test_tc_020_reject_fake_pdf_invalid_signature",
+    "status": "PASS",
+    "duration": 0.26,
+    "timestamp": "2026-10-22 20:22:25"
+  },
+  "tests/test_03_submission_and_upload.py::test_tc_021_verify_no_orphaned_cover_when_doc_invalid": {
+    "name": "test_tc_021_verify_no_orphaned_cover_when_doc_invalid",
+    "status": "PASS",
+    "duration": 0.27,
+    "timestamp": "2026-10-22 20:22:28"
+  },
+  "tests/test_04_research_interactions.py::test_tc_022_unauthenticated_download_button_hidden_and_prompt_shown": {
+    "name": "test_tc_022_unauthenticated_download_button_hidden_and_prompt_shown",
+    "status": "PASS",
+    "duration": 6.4,
+    "timestamp": "2026-10-22 20:22:37"
+  },
+  "tests/test_04_research_interactions.py::test_tc_023_unauthenticated_download_api_rejected_and_counter_unchanged": {
+    "name": "test_tc_023_unauthenticated_download_api_rejected_and_counter_unchanged",
+    "status": "PASS",
+    "duration": 0.3,
+    "timestamp": "2026-10-22 20:22:41"
+  },
+  "tests/test_04_research_interactions.py::test_tc_024_authenticated_download_nonexistent_file_returns_404": {
+    "name": "test_tc_024_authenticated_download_nonexistent_file_returns_404",
+    "status": "PASS",
+    "duration": 0.62,
+    "timestamp": "2026-10-22 20:22:44"
+  },
+  "tests/test_04_research_interactions.py::test_tc_025_add_favorite_toast_and_verify_saved_page": {
+    "name": "test_tc_025_add_favorite_toast_and_verify_saved_page",
+    "status": "PASS",
+    "duration": 5.76,
+    "timestamp": "2026-10-22 20:22:53"
+  },
+  "tests/test_04_research_interactions.py::test_tc_026_remove_favorite_toast_and_verify_removed_saved_page": {
+    "name": "test_tc_026_remove_favorite_toast_and_verify_removed_saved_page",
+    "status": "PASS",
+    "duration": 10.69,
+    "timestamp": "2026-10-22 20:23:07"
+  }
+}
